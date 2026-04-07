@@ -98,8 +98,8 @@ tailwind.config = {
     <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
       <div class="max-w-3xl">
         <p class="text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400">WHOIS Domain Lookup</p>
-        <h1 class="mt-3 text-4xl font-black tracking-tight lg:text-6xl">Lookup domain ownership without leaving the page</h1>
-        <p class="mt-4 max-w-2xl text-base leading-7 text-on-surface-variant lg:text-lg">Enter a domain and the registry result, nameservers, and alternative extensions will refresh in place.</p>
+        <h1 class="mt-3 text-4xl font-black tracking-tight lg:text-6xl">WHOIS lookup</h1>
+        <p class="mt-4 max-w-2xl text-base leading-7 text-on-surface-variant lg:text-lg">Search a domain and the result updates inline.</p>
       </div>
       <div class="grid grid-cols-2 gap-3 text-sm lg:min-w-[18rem]">
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
@@ -124,9 +124,9 @@ tailwind.config = {
     </form>
 
     <div class="mt-4 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Same-page results</span>
-      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Global RDAP lookup</span>
-      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">WHOIS nav active</span>
+      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Live</span>
+      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">RDAP</span>
+      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Inline</span>
     </div>
   </section>
 
@@ -134,7 +134,7 @@ tailwind.config = {
     <article class="rounded-[2rem] border border-outline-variant/30 bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.04)] lg:p-8">
       <div class="flex items-start justify-between gap-4">
         <div>
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Current result</p>
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Result</p>
           <h2 id="whois-domain-heading" class="mt-3 break-all text-3xl font-black tracking-tight lg:text-4xl"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : 'No domain searched yet'; ?></h2>
           <p id="whois-summary" class="mt-3 max-w-3xl text-base leading-7 text-on-surface-variant"><?php echo htmlspecialchars($initialSummary, ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
@@ -143,7 +143,7 @@ tailwind.config = {
 
       <div class="mt-8 grid gap-4 sm:grid-cols-2">
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">WHOIS Information</p>
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Details</p>
           <div class="mt-4 grid gap-4 text-sm">
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Domain Name</span><span id="whois-domain-name" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(strtoupper($initialDomain), ENT_QUOTES, 'UTF-8') : '---'; ?></span></div>
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registrar</span><span id="whois-registrar" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Unavailable'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
@@ -154,7 +154,7 @@ tailwind.config = {
         </div>
 
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status</p>
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registry</p>
           <div class="mt-4 space-y-4 text-sm">
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registry State</span><span id="whois-status-text" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Lookup Source</span><span class="font-bold text-primary">Global RDAP</span></div>
@@ -167,7 +167,7 @@ tailwind.config = {
         <div class="flex items-center justify-between gap-4">
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Nameservers</p>
-            <p class="mt-2 text-sm text-on-surface-variant">Pulled from the registry response when available.</p>
+            <p class="mt-2 text-sm text-on-surface-variant">From the registry response.</p>
           </div>
         </div>
         <div id="whois-nameservers" class="mt-4 flex flex-wrap gap-2">
@@ -183,7 +183,7 @@ tailwind.config = {
 
       <div class="mt-8 grid gap-4 md:grid-cols-2">
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registry Metadata</p>
+            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Metadata</p>
           <div class="mt-4 space-y-3 text-sm">
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Handle</span><span id="whois-handle" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['handle'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Object Class</span><span id="whois-object-class" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['objectClassName'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
@@ -192,7 +192,7 @@ tailwind.config = {
           </div>
         </div>
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status Flags</p>
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status</p>
           <div id="whois-status-list" class="mt-4 flex flex-wrap gap-2">
             <?php if ($hasInitialLookup && !empty($initialLookup['statuses']) && is_array($initialLookup['statuses'])): ?>
               <?php foreach ($initialLookup['statuses'] as $status): ?>
@@ -207,16 +207,16 @@ tailwind.config = {
       </div>
 
       <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contact Entities</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contacts</p>
         <div id="whois-contact-entities" class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registrant, administrative, and technical entities.</div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load contacts.</div>
         </div>
       </div>
 
       <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
         <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Events</p>
         <div id="whois-events" class="mt-4 space-y-3">
-          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registry events.</div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load events.</div>
         </div>
       </div>
 
@@ -225,38 +225,38 @@ tailwind.config = {
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Notices</p>
             <div id="whois-notices" class="mt-4 space-y-3">
-              <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registry notices.</div>
+              <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load notices.</div>
             </div>
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</p>
             <div id="whois-remarks" class="mt-4 space-y-3">
-              <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registry remarks.</div>
+              <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load remarks.</div>
             </div>
           </div>
         </div>
       </div>
 
       <details class="mt-8 rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-        <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Raw RDAP Record</summary>
-        <pre id="whois-raw-rdap" class="mt-4 max-h-[28rem] overflow-auto rounded-2xl bg-neutral-950 p-5 text-xs leading-6 text-neutral-100">Search a domain to view the raw RDAP payload.</pre>
+        <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Raw RDAP</summary>
+        <pre id="whois-raw-rdap" class="mt-4 max-h-[28rem] overflow-auto rounded-2xl bg-neutral-950 p-5 text-xs leading-6 text-neutral-100">Search to load raw data.</pre>
       </details>
     </article>
 
     <aside class="space-y-6">
       <div class="rounded-[2rem] border border-outline-variant/30 bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Alternative Extensions</p>
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Alternatives</p>
         <div id="whois-alternatives" class="mt-5 space-y-4">
-          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">Search a domain to generate live alternative extensions.</div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">Search to load alternatives.</div>
         </div>
       </div>
 
       <div class="rounded-[2rem] border border-outline-variant/30 bg-black p-6 text-white shadow-[0_18px_50px_rgba(0,0,0,0.08)]">
         <div class="flex items-center gap-2">
-          <h3 class="text-lg font-bold">Brand Fit Check</h3>
+          <h3 class="text-lg font-bold">Fit Check</h3>
           <span class="material-symbols-outlined text-sm opacity-60">info</span>
         </div>
-        <p class="mt-3 text-sm text-white/70">See how this domain resonates with your business goals.</p>
+        <p class="mt-3 text-sm text-white/70">Compare it against your brand name.</p>
         <div class="mt-5 space-y-3">
           <input id="brand-fit-input" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:ring-0" type="text" placeholder="Your business name"/>
           <button id="brand-fit-button" class="w-full rounded-xl bg-white px-4 py-3 text-sm font-bold text-black transition-colors hover:bg-neutral-200" type="button">Check Fit</button>
@@ -565,13 +565,7 @@ tailwind.config = {
       renderAlternatives(data.alternatives || []);
 
       if (brandFitResult) {
-        const supportedTlds = data.metrics && typeof data.metrics.supportedTlds === 'number' ? data.metrics.supportedTlds : 0;
-        const availableAlternatives = data.metrics && typeof data.metrics.availableAlternatives === 'number' ? data.metrics.availableAlternatives : 0;
-        const contactCount = data.metrics && typeof data.metrics.contactCount === 'number' ? data.metrics.contactCount : 0;
-        const eventCount = data.metrics && typeof data.metrics.eventCount === 'number' ? data.metrics.eventCount : 0;
-        brandFitResult.textContent = supportedTlds > 0
-          ? 'Checked against ' + supportedTlds + ' delegated TLDs, ' + contactCount + ' contact entities, ' + eventCount + ' events, and ' + availableAlternatives + ' open alternatives.'
-          : 'No delegated TLD data available right now.';
+        brandFitResult.textContent = 'Live result loaded.';
       }
 
       if (window.history && window.history.replaceState) {
