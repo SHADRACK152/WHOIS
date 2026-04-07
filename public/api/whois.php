@@ -73,6 +73,19 @@ $secureDns = is_array($lookup['secureDns'] ?? null) ? $lookup['secureDns'] : nul
 $statuses = is_array($lookup['statuses'] ?? null) ? $lookup['statuses'] : [];
 $rawRdap = $lookup['rawRdap'] ?? null;
 $updatedRelative = whois_rdap_relative_time_label($lookup['updated'] ?? null);
+$eventRows = [];
+
+foreach ($events as $event) {
+    if (!is_array($event)) {
+        continue;
+    }
+
+    $eventRows[] = [
+        'action' => is_string($event['eventAction'] ?? null) ? trim((string) $event['eventAction']) : (is_string($event['action'] ?? null) ? trim((string) $event['action']) : ''),
+        'date' => is_string($event['eventDate'] ?? null) ? trim((string) $event['eventDate']) : (is_string($event['date'] ?? null) ? trim((string) $event['date']) : ''),
+        'actor' => is_string($event['eventActor'] ?? null) ? trim((string) $event['eventActor']) : (is_string($event['actor'] ?? null) ? trim((string) $event['actor']) : ''),
+    ];
+}
 
 $registrarEntity = whois_rdap_find_entity_by_role($entities, 'registrar');
 $abuseEntity = whois_rdap_find_entity_by_role($entities, 'abuse');
@@ -171,6 +184,7 @@ whois_json([
         'rdapSource' => $lookup['rdapSource'] ?? null,
         'whoisSource' => $lookup['whoisSource'] ?? null,
         'lookupSourceLabel' => $lookup['lookupSourceLabel'] ?? null,
+        'eventRows' => $eventRows,
         'rawRdap' => $rawRdap,
         'rawWhois' => $lookup['rawWhois'] ?? null,
     ],

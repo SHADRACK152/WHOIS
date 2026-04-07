@@ -160,6 +160,7 @@ tailwind.config = {
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrar Information</p>
           <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 lg:col-span-3"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Registrar</span><span id="whois-registrar-name" class="mt-2 block break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
             <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">IANA ID</span><span id="whois-registrar-iana" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrarIanaId'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
             <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">URL</span><span id="whois-registrar-url" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
             <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Email</span><span id="whois-registrar-email" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
@@ -449,9 +450,9 @@ tailwind.config = {
     }
 
     events.innerHTML = list.map((event) => {
-      const title = event.action || 'event';
-      const date = event.date || 'Not listed';
-      const actor = event.actor || '';
+      const title = event.action || event.eventAction || 'event';
+      const date = event.date || event.eventDate || 'Not listed';
+      const actor = event.actor || event.eventActor || '';
 
       return [
         '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4">',
@@ -568,6 +569,7 @@ tailwind.config = {
       const domainInfo = profile.domainInformation || {};
       const registrarInfo = profile.registrarInformation || {};
       const contacts = profile.contacts || {};
+      const eventRows = Array.isArray(data.eventRows) && data.eventRows.length > 0 ? data.eventRows : (Array.isArray(lookup.eventRows) ? lookup.eventRows : lookup.events || []);
 
       if (domainHeading) domainHeading.textContent = data.domain || query;
       if (registrySource) registrySource.textContent = lookup.lookupSourceLabel || data.lookup?.lookupSourceLabel || 'Registry';
@@ -592,7 +594,7 @@ tailwind.config = {
       renderContactCard(registrantContact, contacts.registrant || null);
       renderContactCard(administrativeContact, contacts.administrative || null);
       renderContactCard(technicalContact, contacts.technical || null);
-      renderEvents(lookup.events || []);
+      renderEvents(eventRows);
       renderTextBlocks(notices, lookup.notices || [], 'No notices returned.');
       renderTextBlocks(remarks, lookup.remarks || [], 'No remarks returned.');
       renderRawRdap(lookup.rawWhois || lookup.rawRdap || data.rawWhois || data.rawRdap || null);
