@@ -32,3 +32,10 @@ This folder is the PHP-only backend scaffold for the WHOIS pages suite.
 
 - Double-click `backend/start.bat`, or run it from a Windows terminal.
 - It starts the PHP built-in server at `http://localhost:8000` and opens the browser automatically.
+
+## Vercel Deployment
+
+- Deploy from the `backend/` directory so Vercel picks up `vercel.json`.
+- The deployment uses `backend/api/index.php` as the front controller with the `vercel-php@0.9.0` runtime.
+- The function bundle includes `app/**` and `public/**` so the existing PHP pages and assets resolve correctly.
+- Set `GROQ_API_KEY` for the AI workflows and add the Truehost variables if you want live pricing and availability.
