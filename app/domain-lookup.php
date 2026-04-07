@@ -292,6 +292,7 @@ function whois_domain_lookup(string $input): array
 
     $created = null;
     $updated = null;
+    $expiration = null;
 
     foreach ($events as $event) {
         if (!is_array($event)) {
@@ -304,6 +305,12 @@ function whois_domain_lookup(string $input): array
 
         if (($event['eventAction'] ?? '') === 'last changed' && is_string($event['eventDate'] ?? null)) {
             $updated = $event['eventDate'];
+        }
+
+        $action = strtolower(trim((string) ($event['eventAction'] ?? '')));
+
+        if (in_array($action, ['expiration', 'registry expiry', 'expiry'], true) && is_string($event['eventDate'] ?? null)) {
+            $expiration = $event['eventDate'];
         }
     }
 
@@ -329,6 +336,7 @@ function whois_domain_lookup(string $input): array
         'statusLabel' => 'Registered',
         'registrar' => is_string($registrar) ? $registrar : null,
         'created' => $created,
+        'expiration' => $expiration,
         'updated' => $updated,
         'nameservers' => $nameservers,
         'availabilityNote' => 'RDAP reports an active registration record for this domain.',

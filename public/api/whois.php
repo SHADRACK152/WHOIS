@@ -1,0 +1,99 @@
+<?php
+declare(strict_types=1);
+
+require __DIR__ . '/../../app/bootstrap.php';
+require __DIR__ . '/../../app/domain-lookup.php';
+
+$input = trim((string) ($_GET['domain'] ?? $_GET['query'] ?? $_GET['q'] ?? ''));
+
+if ($input === '') {
+    whois_json([
+        'ok' => false,
+        'error' => 'Domain name is required.',
+    ], 400);
+}
+
+$lookup = whois_domain_lookup_cached($input);
+$domain = (string) ($lookup['domain'] ?? whois_domain_normalize($input));
+$root = $domain !== '' ? (preg_replace('/\.[^.]+$/', '', $domain) ?? $domain) : '';
+$stem = preg_replace('/[^a-z0-9]/', '', strtolower($root)) ?? '';
+
+if ($stem === '') {
+    $stem = 'brand';
+}
+
+$preferredTlds = ['com', 'net', 'io', 'ai', 'app', 'dev', 'co', 'xyz', 'site', 'online', 'music', 'shop', 'grey'];
+$supportedTlds = array_flip(whois_rdap_supported_tlds());
+$candidateTlds = [];
+
+foreach ($preferredTlds as $tld) {
+    if (isset($supportedTlds[$tld])) {
+        $candidateTlds[] = $tld;
+    }
+}
+
+if ($candidateTlds === []) {
+    $candidateTlds = array_slice(whois_rdap_supported_tlds(), 0, 8);
+}
+
+$alternatives = [];
+
+foreach (whois_domain_candidate_domains($stem, $candidateTlds) as $candidateDomain) {
+    $candidateLookup = whois_domain_lookup_cached($candidateDomain);
+    $candidateStatus = (string) ($candidateLookup['status'] ?? 'unknown');
+
+    $alternatives[] = [
+        'domain' => $candidateDomain,
+        'status' => $candidateStatus,
+        'statusLabel' => whois_domain_lookup_badge($candidateLookup),
+        'summary' => whois_domain_lookup_summary($candidateLookup),
+        'available' => $candidateStatus === 'available',
+    ];
+}
+
+$nameservers = [];
+
+foreach (array_slice(is_array($lookup['nameservers'] ?? null) ? $lookup['nameservers'] : [], 0, 6) as $nameserver) {
+    if (is_string($nameserver) && trim($nameserver) !== '') {
+        $nameservers[] = $nameserver;
+    }
+}
+
+$lookupStatus = (string) ($lookup['status'] ?? 'unknown');
+$availabilityHeadline = $lookupStatus === 'available'
+    ? 'Available'
+    : ($lookupStatus === 'registered' || $lookupStatus === 'unavailable' ? 'Taken' : 'Unknown');
+
+$contactState = $lookupStatus === 'registered'
+    ? 'REDACTED FOR PRIVACY'
+    : 'Not available';
+
+whois_json([
+    'ok' => true,
+    'domain' => $domain,
+    'summary' => whois_domain_lookup_summary($lookup),
+    'availabilityHeadline' => $availabilityHeadline,
+    'lookup' => [
+        'domain' => $domain,
+        'status' => $lookupStatus,
+        'statusLabel' => whois_domain_lookup_badge($lookup),
+        'registrar' => $lookup['registrar'] ?? null,
+        'created' => $lookup['created'] ?? null,
+        'expiration' => $lookup['expiration'] ?? null,
+        'updated' => $lookup['updated'] ?? null,
+        'nameservers' => $nameservers,
+        'availabilityNote' => $lookup['availabilityNote'] ?? null,
+        'rdapSource' => $lookup['rdapSource'] ?? null,
+    ],
+    'contacts' => [
+        'registrant' => $contactState,
+        'administrative' => $contactState,
+        'technical' => $contactState,
+    ],
+    'metrics' => [
+        'supportedTlds' => count(whois_rdap_supported_tlds()),
+        'checkedExtensions' => count($candidateTlds),
+        'availableAlternatives' => count(array_filter($alternatives, static fn (array $candidate): bool => $candidate['available'] === true)),
+    ],
+    'alternatives' => $alternatives,
+]);
