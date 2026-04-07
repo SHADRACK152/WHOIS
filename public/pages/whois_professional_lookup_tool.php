@@ -120,7 +120,7 @@ tailwind.config = {
 
   <section class="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.95fr)]">
     <article class="space-y-7">
-      <section>
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Domain Information</h3>
         <dl class="mt-3 divide-y divide-outline-variant/35 border-y border-outline-variant/35 text-sm">
           <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Domain</dt><dd id="whois-domain-name" class="break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : '---'; ?></dd></div>
@@ -141,7 +141,7 @@ tailwind.config = {
         </div>
       </section>
 
-      <section>
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrar Information</h3>
         <dl class="mt-3 divide-y divide-outline-variant/35 border-y border-outline-variant/35 text-sm">
           <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Registrar</dt><dd id="whois-registrar-name" class="break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
@@ -153,42 +153,42 @@ tailwind.config = {
         </dl>
       </section>
 
-      <section>
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contacts</h3>
         <div class="mt-3 grid gap-4 md:grid-cols-3">
-          <div>
+          <div class="rounded-xl border border-outline-variant/25 bg-surface-container-lowest p-3">
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Registrant</p>
             <div id="whois-registrant-contact" class="mt-2 text-sm text-on-surface-variant">Search required</div>
           </div>
-          <div>
+          <div class="rounded-xl border border-outline-variant/25 bg-surface-container-lowest p-3">
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Administrative</p>
             <div id="whois-administrative-contact" class="mt-2 text-sm text-on-surface-variant">Search required</div>
           </div>
-          <div>
+          <div class="rounded-xl border border-outline-variant/25 bg-surface-container-lowest p-3">
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Technical</p>
             <div id="whois-technical-contact" class="mt-2 text-sm text-on-surface-variant">Search required</div>
           </div>
         </div>
       </section>
 
-      <section>
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Timeline</h3>
         <div id="whois-events" class="mt-3 space-y-2 text-sm text-on-surface-variant">Search to load events.</div>
       </section>
 
-      <section>
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</h3>
         <div id="whois-remarks" class="mt-3 space-y-3 text-sm text-on-surface-variant">Search to load remarks.</div>
       </section>
 
-      <details class="border-t border-outline-variant/35 pt-4">
+      <details class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <summary class="cursor-pointer text-xs font-bold uppercase tracking-[0.22em] text-neutral-500">Raw Registry Data</summary>
         <pre id="whois-raw-rdap" class="mt-3 max-h-[16rem] overflow-auto rounded-2xl bg-neutral-950 p-4 text-xs leading-6 text-neutral-100">Search to load raw registry data.</pre>
       </details>
     </article>
 
     <aside class="space-y-6 xl:sticky xl:top-24 self-start">
-      <section>
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-sm">
         <div class="flex items-center justify-between gap-3">
           <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Alternatives</h3>
           <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant"><span id="whois-alternative-count">-</span> options</p>
