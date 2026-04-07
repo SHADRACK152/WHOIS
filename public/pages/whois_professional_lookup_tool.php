@@ -96,162 +96,152 @@ tailwind.config = {
   </div>
 </nav>
 
-<main class="mx-auto max-w-7xl px-6 py-10 lg:px-8 lg:py-14">
-  <section class="rounded-[2rem] border border-outline-variant/30 bg-white px-6 py-8 shadow-[0_24px_70px_rgba(0,0,0,0.05)] lg:px-10 lg:py-10">
-    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-      <div class="max-w-3xl">
+<main class="mx-auto max-w-7xl px-6 py-8 lg:px-8 lg:py-10">
+  <section class="border-b border-outline-variant/40 pb-6">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div>
         <p class="text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400">WHOIS Domain Lookup</p>
-        <h1 class="mt-3 text-4xl font-black tracking-tight lg:text-6xl">WHOIS lookup</h1>
+        <h1 class="mt-2 text-3xl font-black tracking-tight lg:text-5xl">WHOIS lookup</h1>
       </div>
-      <div class="grid grid-cols-2 gap-3 text-sm lg:min-w-[18rem]">
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status</p>
-          <p id="whois-status-label" class="mt-2 text-lg font-black text-primary"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></p>
-        </div>
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registry</p>
-          <p id="whois-registry-source" class="mt-2 text-lg font-black text-primary">Registry</p>
-        </div>
+      <div class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">
+        <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-1.5">Live</span>
+        <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-1.5">Registry</span>
+        <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-1.5">Inline</span>
       </div>
     </div>
 
-    <form id="whois-lookup-form" class="mt-8">
-      <div class="flex flex-col gap-3 rounded-full border border-outline-variant/30 bg-surface-container-lowest p-2 shadow-sm lg:flex-row lg:items-center">
-        <div class="flex flex-1 items-center min-w-0">
-          <span class="material-symbols-outlined ml-4 text-neutral-400">search</span>
-          <input id="whois-lookup-input" name="domain" class="w-full border-0 bg-transparent px-4 py-3 text-lg font-medium text-primary placeholder:text-neutral-400 focus:ring-0" type="text" value="<?php echo htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Search domain ownership"/>
-        </div>
-        <button class="rounded-full bg-primary px-8 py-3 font-bold text-white transition-colors hover:bg-neutral-800" type="submit">Search</button>
+    <form id="whois-lookup-form" class="mt-6">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <label class="flex min-w-0 flex-1 items-center gap-3 border-b-2 border-outline-variant/60 bg-white px-2 py-2 focus-within:border-primary">
+          <span class="material-symbols-outlined text-neutral-400">search</span>
+          <input id="whois-lookup-input" name="domain" class="w-full border-0 bg-transparent px-0 py-2 text-lg font-semibold text-primary placeholder:text-neutral-400 focus:ring-0" type="text" value="<?php echo htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Search domain ownership"/>
+        </label>
+        <button class="rounded-full bg-primary px-7 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-neutral-800" type="submit">Search</button>
       </div>
     </form>
-
-    <div class="mt-4 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Live</span>
-      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Registry</span>
-      <span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Inline</span>
-    </div>
   </section>
 
-  <section class="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
-    <article class="space-y-6 rounded-[2rem] border border-outline-variant/30 bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.04)] lg:p-8">
-      <header class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
-        <div class="space-y-3">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Result</p>
-          <h2 id="whois-domain-heading" class="break-all text-3xl font-black tracking-tight lg:text-4xl"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : 'No domain searched yet'; ?></h2>
-          <p id="whois-summary" class="max-w-3xl text-base leading-7 text-on-surface-variant"><?php echo htmlspecialchars($initialSummary, ENT_QUOTES, 'UTF-8'); ?></p>
-          <p id="whois-updated-relative" class="text-sm font-semibold text-on-surface-variant"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_relative_time_label((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : ''; ?></p>
-        </div>
-        <span id="whois-domain-badge" class="justify-self-start rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] <?php echo !$hasInitialLookup ? 'bg-neutral-200 text-neutral-700' : ($initialStatus === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-900 text-white'); ?>"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></span>
-      </header>
+  <section class="mt-6 border-b border-outline-variant/40 pb-6">
+    <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Result</p>
+    <div class="mt-2 flex flex-wrap items-center gap-3">
+      <h2 id="whois-domain-heading" class="break-all text-3xl font-black tracking-tight lg:text-4xl"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : 'No domain searched yet'; ?></h2>
+      <span id="whois-domain-badge" class="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] <?php echo !$hasInitialLookup ? 'bg-neutral-200 text-neutral-700' : ($initialStatus === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-900 text-white'); ?>"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></span>
+      <span class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Source: <span id="whois-registry-source" class="text-primary">Registry</span></span>
+      <span class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Status: <span id="whois-status-label" class="text-primary"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></span></span>
+    </div>
+    <p id="whois-summary" class="mt-3 max-w-4xl text-base leading-7 text-on-surface-variant"><?php echo htmlspecialchars($initialSummary, ENT_QUOTES, 'UTF-8'); ?></p>
+    <p id="whois-updated-relative" class="mt-2 text-sm font-semibold text-on-surface-variant"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_relative_time_label((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : ''; ?></p>
+  </section>
 
-      <section class="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Domain Information</p>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2 text-sm lg:grid-cols-2">
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Domain</span><span id="whois-domain-name" class="mt-2 block break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : '---'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Status</span><span id="whois-status-text" class="mt-2 block break-words font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Registered On</span><span id="whois-domain-registered-on" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['created'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Expires On</span><span id="whois-expiration" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['expiration'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Updated On</span><span id="whois-updated" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Name Servers</span><span class="mt-2 block font-bold text-primary">Live</span></div>
+  <section class="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.95fr)]">
+    <article class="space-y-7">
+      <section>
+        <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Domain Information</h3>
+        <dl class="mt-3 divide-y divide-outline-variant/35 border-y border-outline-variant/35 text-sm">
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Domain</dt><dd id="whois-domain-name" class="break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : '---'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Status</dt><dd id="whois-status-text" class="break-words font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Registered On</dt><dd id="whois-domain-registered-on" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['created'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Created</dt><dd id="whois-created" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['created'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Expires On</dt><dd id="whois-expiration" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['expiration'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Updated On</dt><dd id="whois-updated" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+        </dl>
+        <div id="whois-nameservers" class="mt-4 flex flex-wrap gap-2">
+          <?php if ($hasInitialLookup && $initialNameservers !== []): ?>
+            <?php foreach ($initialNameservers as $nameServer): ?>
+              <span class="rounded-full border border-outline-variant/40 bg-white px-3 py-1.5 text-xs font-semibold text-primary"><?php echo htmlspecialchars((string) $nameServer, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <span class="text-sm text-on-surface-variant">No nameservers returned by the registry.</span>
+          <?php endif; ?>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrar Information</h3>
+        <dl class="mt-3 divide-y divide-outline-variant/35 border-y border-outline-variant/35 text-sm">
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Registrar</dt><dd id="whois-registrar-name" class="break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">IANA ID</dt><dd id="whois-registrar-iana" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrarIanaId'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">URL</dt><dd id="whois-registrar-url" class="break-all font-bold text-primary">Search required</dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Email</dt><dd id="whois-registrar-email" class="break-all font-bold text-primary">Search required</dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Abuse Email</dt><dd id="whois-registrar-abuse-email" class="break-all font-bold text-primary">Search required</dd></div>
+          <div class="grid grid-cols-[150px_1fr] gap-4 py-3"><dt class="font-semibold text-on-surface-variant">Abuse Phone</dt><dd id="whois-registrar-abuse-phone" class="break-all font-bold text-primary">Search required</dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contacts</h3>
+        <div class="mt-3 grid gap-4 md:grid-cols-3">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Registrant</p>
+            <div id="whois-registrant-contact" class="mt-2 text-sm text-on-surface-variant">Search required</div>
           </div>
-        </div>
-
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrar Information</p>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 lg:col-span-3"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Registrar</span><span id="whois-registrar-name" class="mt-2 block break-all font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">IANA ID</span><span id="whois-registrar-iana" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrarIanaId'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">URL</span><span id="whois-registrar-url" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Email</span><span id="whois-registrar-email" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Abuse Email</span><span id="whois-registrar-abuse-email" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 lg:col-span-2"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Abuse Phone</span><span id="whois-registrar-abuse-phone" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Administrative</p>
+            <div id="whois-administrative-contact" class="mt-2 text-sm text-on-surface-variant">Search required</div>
+          </div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">Technical</p>
+            <div id="whois-technical-contact" class="mt-2 text-sm text-on-surface-variant">Search required</div>
           </div>
         </div>
       </section>
 
-      <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contacts</p>
-        <div class="mt-4 grid gap-4 xl:grid-cols-3">
-          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Registrant</p>
-            <div id="whois-registrant-contact" class="mt-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">Search required</div></div>
-          </div>
-          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Administrative</p>
-            <div id="whois-administrative-contact" class="mt-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">Search required</div></div>
-          </div>
-          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Technical</p>
-            <div id="whois-technical-contact" class="mt-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">Search required</div></div>
-          </div>
+      <section>
+        <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Timeline</h3>
+        <div id="whois-events" class="mt-3 space-y-2 text-sm text-on-surface-variant">Search to load events.</div>
+      </section>
+
+      <section class="grid gap-6 md:grid-cols-2">
+        <div>
+          <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Notices</h3>
+          <div id="whois-notices" class="mt-3 space-y-3 text-sm text-on-surface-variant">Search to load notices.</div>
+        </div>
+        <div>
+          <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</h3>
+          <div id="whois-remarks" class="mt-3 space-y-3 text-sm text-on-surface-variant">Search to load remarks.</div>
         </div>
       </section>
 
-      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-        <div class="flex items-center justify-between gap-4">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">More Record Data</p>
-          <details class="rounded-full border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
-            <summary class="cursor-pointer list-none">Raw Registry Data</summary>
-            <pre id="whois-raw-rdap" class="mt-3 max-h-[12rem] overflow-auto rounded-2xl bg-neutral-950 p-4 text-xs leading-6 text-neutral-100">Search to load raw registry data.</pre>
-          </details>
-        </div>
-        <div class="mt-4 grid gap-4 xl:grid-cols-3">
-          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Events</p>
-            <div id="whois-events" class="mt-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search to load events.</div></div>
-          </div>
-          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Notices</p>
-            <div id="whois-notices" class="mt-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search to load notices.</div></div>
-          </div>
-          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Remarks</p>
-            <div id="whois-remarks" class="mt-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search to load remarks.</div></div>
-          </div>
-        </div>
-      </section>
+      <details class="border-t border-outline-variant/35 pt-4">
+        <summary class="cursor-pointer text-xs font-bold uppercase tracking-[0.22em] text-neutral-500">Raw Registry Data</summary>
+        <pre id="whois-raw-rdap" class="mt-3 max-h-[16rem] overflow-auto rounded-2xl bg-neutral-950 p-4 text-xs leading-6 text-neutral-100">Search to load raw registry data.</pre>
+      </details>
     </article>
 
-    <aside class="space-y-6 lg:sticky lg:top-24 self-start">
-      <div class="rounded-[2rem] border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Alternatives</p>
-        <div id="whois-alternatives" class="mt-4 space-y-3 max-h-[28rem] overflow-auto pr-1">
-          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">Search to load alternatives.</div>
+    <aside class="space-y-6 xl:sticky xl:top-24 self-start">
+      <section>
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Alternatives</h3>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant"><span id="whois-alternative-count">-</span> options</p>
         </div>
-      </div>
+        <div id="whois-alternatives" class="mt-3 divide-y divide-outline-variant/30 border-y border-outline-variant/30">
+          <div class="py-3 text-sm text-on-surface-variant">Search to load alternatives.</div>
+        </div>
+      </section>
 
-      <div class="rounded-[2rem] border border-outline-variant/30 bg-black p-5 text-white shadow-[0_18px_50px_rgba(0,0,0,0.08)]">
+      <section class="rounded-2xl bg-black p-5 text-white">
         <div class="flex items-center gap-2">
           <h3 class="text-lg font-bold">Fit Check</h3>
           <span class="material-symbols-outlined text-sm opacity-60">info</span>
         </div>
-        <p class="mt-3 text-sm text-white/70">Compare it against your brand name.</p>
+        <p class="mt-2 text-sm text-white/70">Compare it against your brand name.</p>
         <div class="mt-4 space-y-3">
           <input id="brand-fit-input" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:ring-0" type="text" placeholder="Your business name"/>
           <button id="brand-fit-button" class="w-full rounded-xl bg-white px-4 py-3 text-sm font-bold text-black transition-colors hover:bg-neutral-200" type="button">Check Fit</button>
           <p id="brand-fit-result" class="text-sm text-white/70">Enter a business name to compare it with the current domain.</p>
         </div>
-      </div>
+      </section>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
-          <div class="flex items-center justify-between">
-            <span class="material-symbols-outlined text-neutral-400 text-lg">public</span>
-            <span class="material-symbols-outlined text-neutral-400 text-sm">info</span>
-          </div>
-          <p id="whois-supported-tlds" class="mt-4 text-2xl font-black text-primary">-</p>
+      <section class="grid grid-cols-2 gap-4 border-t border-outline-variant/35 pt-4">
+        <div>
+          <p id="whois-supported-tlds" class="text-2xl font-black text-primary">-</p>
           <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Extensions Reg.</p>
         </div>
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
-          <div class="flex items-center justify-between">
-            <span class="material-symbols-outlined text-neutral-400 text-lg">history</span>
-            <span class="material-symbols-outlined text-neutral-400 text-sm">info</span>
-          </div>
-          <p id="whois-alternative-count" class="mt-4 text-2xl font-black text-primary">-</p>
+        <div>
+          <p class="text-2xl font-black text-primary" id="whois-alternative-count-clone">-</p>
           <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Alternatives</p>
         </div>
-      </div>
+      </section>
     </aside>
   </section>
 </main>
@@ -288,6 +278,7 @@ tailwind.config = {
   const rawRdap = document.getElementById('whois-raw-rdap');
   const alternatives = document.getElementById('whois-alternatives');
   const alternativeCount = document.getElementById('whois-alternative-count');
+  const alternativeCountClone = document.getElementById('whois-alternative-count-clone');
   const brandFitInput = document.getElementById('brand-fit-input');
   const brandFitButton = document.getElementById('brand-fit-button');
   const brandFitResult = document.getElementById('brand-fit-result');
@@ -338,17 +329,17 @@ tailwind.config = {
     if (!container) return;
 
     if (!contact || typeof contact !== 'object') {
-      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search required</div>';
+      container.innerHTML = '<p class="text-sm text-on-surface-variant">Search required</p>';
       return;
     }
 
     if (contact.redacted) {
-      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Redacted for privacy</div>';
+      container.innerHTML = '<p class="text-sm font-semibold text-on-surface-variant">Redacted for privacy</p>';
       return;
     }
 
     if (contact.hasData === false) {
-      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Not available for this domain status.</div>';
+      container.innerHTML = '<p class="text-sm text-on-surface-variant">Not available for this domain status.</p>';
       return;
     }
 
@@ -363,9 +354,9 @@ tailwind.config = {
       ['Email', contact.email],
     ];
 
-    container.innerHTML = '<div class="grid gap-3 sm:grid-cols-2">' + fields.map(([label, value]) => {
-      return '<div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">' + escapeHtml(label) + '</span><span class="mt-2 block break-all font-bold text-primary">' + escapeHtml(value || 'Not listed') + '</span></div>';
-    }).join('') + '</div>';
+    container.innerHTML = '<dl class="divide-y divide-outline-variant/25 border-y border-outline-variant/25">' + fields.map(([label, value]) => {
+      return '<div class="grid grid-cols-[110px_1fr] gap-2 py-2"><dt class="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">' + escapeHtml(label) + '</dt><dd class="break-all font-semibold text-primary">' + escapeHtml(value || 'Not listed') + '</dd></div>';
+    }).join('') + '</dl>';
   }
 
   function renderChipList(container, items, emptyMessage) {
@@ -450,7 +441,7 @@ tailwind.config = {
     if (!events) return;
 
     if (!Array.isArray(list) || list.length === 0) {
-      events.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">No registry events were returned.</div>';
+      events.innerHTML = '<p class="text-sm text-on-surface-variant">No registry events were returned.</p>';
       return;
     }
 
@@ -460,14 +451,10 @@ tailwind.config = {
       const actor = event.actor || event.eventActor || '';
 
       return [
-        '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4">',
-        '<div class="flex items-start justify-between gap-4">',
-        '<div>',
-        '<p class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">' + escapeHtml(title) + '</p>',
-        '<p class="mt-2 text-sm font-semibold text-primary">' + escapeHtml(date) + '</p>',
-        '</div>',
-        '<span class="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">' + escapeHtml(actor || 'registry') + '</span>',
-        '</div>',
+        '<div class="grid grid-cols-[120px_1fr_auto] items-start gap-3 border-b border-outline-variant/30 py-2 last:border-b-0">',
+        '<p class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500">' + escapeHtml(title) + '</p>',
+        '<p class="text-sm font-semibold text-primary">' + escapeHtml(date) + '</p>',
+        '<p class="text-xs font-bold uppercase tracking-[0.16em] text-on-surface-variant">' + escapeHtml(actor || 'registry') + '</p>',
         '</div>'
       ].join('');
     }).join('');
@@ -477,7 +464,7 @@ tailwind.config = {
     if (!container) return;
 
     if (!Array.isArray(list) || list.length === 0) {
-      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">' + escapeHtml(emptyMessage) + '</div>';
+      container.innerHTML = '<p class="text-sm text-on-surface-variant">' + escapeHtml(emptyMessage) + '</p>';
       return;
     }
 
@@ -486,10 +473,10 @@ tailwind.config = {
       const links = Array.isArray(item.links) ? item.links : [];
 
       return [
-        '<article class="rounded-2xl border border-outline-variant/20 bg-white p-4">',
-        item.title ? '<p class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">' + escapeHtml(item.title) + '</p>' : '',
-        descriptions.length > 0 ? '<div class="mt-2 space-y-1 text-sm text-on-surface-variant">' + descriptions.map((line) => '<p>' + escapeHtml(line) + '</p>').join('') + '</div>' : '<p class="mt-2 text-sm text-on-surface-variant">No description returned.</p>',
-        links.length > 0 ? '<div class="mt-3 flex flex-wrap gap-2">' + links.map((link) => '<span class="rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">' + escapeHtml((link.rel || 'link') + (link.title ? ' · ' + link.title : '')) + '</span>').join('') + '</div>' : '',
+        '<article class="border-b border-outline-variant/30 pb-3 last:border-b-0">',
+        item.title ? '<p class="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">' + escapeHtml(item.title) + '</p>' : '',
+        descriptions.length > 0 ? '<div class="mt-1 space-y-1 text-sm text-on-surface-variant">' + descriptions.map((line) => '<p>' + escapeHtml(line) + '</p>').join('') + '</div>' : '<p class="mt-1 text-sm text-on-surface-variant">No description returned.</p>',
+        links.length > 0 ? '<div class="mt-2 flex flex-wrap gap-2">' + links.map((link) => '<span class="rounded-full border border-outline-variant/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">' + escapeHtml((link.rel || 'link') + (link.title ? ' · ' + link.title : '')) + '</span>').join('') + '</div>' : '',
         '</article>'
       ].join('');
     }).join('');
@@ -520,12 +507,14 @@ tailwind.config = {
     if (!alternatives) return;
 
     if (!Array.isArray(list) || list.length === 0) {
-      alternatives.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">No alternative extensions were returned.</div>';
+      alternatives.innerHTML = '<div class="py-3 text-sm text-on-surface-variant">No alternative extensions were returned.</div>';
       if (alternativeCount) alternativeCount.textContent = '0';
+      if (alternativeCountClone) alternativeCountClone.textContent = '0';
       return;
     }
 
     if (alternativeCount) alternativeCount.textContent = String(list.length);
+    if (alternativeCountClone) alternativeCountClone.textContent = String(list.length);
 
     alternatives.innerHTML = list.map((item) => {
       const isAvailable = item.available === true;
@@ -533,15 +522,13 @@ tailwind.config = {
       const summaryText = item.summary || '';
 
       return [
-        '<article class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">',
-        '<div class="flex items-start justify-between gap-4">',
+        '<article class="grid grid-cols-[1fr_auto] items-start gap-4 py-3">',
         '<div>',
-        '<h4 class="text-lg font-bold text-primary break-all">' + escapeHtml(item.domain || '') + '</h4>',
-        '<p class="mt-1 text-xs font-bold uppercase tracking-[0.2em] ' + (isAvailable ? 'text-emerald-700' : 'text-neutral-500') + '">' + escapeHtml(label) + '</p>',
+        '<h4 class="text-base font-black text-primary break-all">' + escapeHtml(item.domain || '') + '</h4>',
+        '<p class="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] ' + (isAvailable ? 'text-emerald-700' : 'text-neutral-500') + '">' + escapeHtml(label) + '</p>',
+        '<p class="mt-1 text-sm leading-relaxed text-on-surface-variant">' + escapeHtml(summaryText) + '</p>',
         '</div>',
-        '<span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ' + (isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-200 text-neutral-700') + '">' + (isAvailable ? 'Open' : 'Taken') + '</span>',
-        '</div>',
-        '<p class="mt-3 text-sm leading-relaxed text-on-surface-variant">' + escapeHtml(summaryText) + '</p>',
+        '<span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ' + (isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-200 text-neutral-700') + '">' + (isAvailable ? 'Open' : 'Taken') + '</span>',
         '</article>'
       ].join('');
     }).join('');
