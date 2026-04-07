@@ -22,16 +22,6 @@ function whois_truehost_config(): array
     $endpoint = whois_truehost_env('TRUEHOST_ENDPOINT') ?? 'https://truehost.co.ke/cloud/includes/api.php';
     $endpoint = trim($endpoint);
 
-    if ($endpoint !== '' && !str_ends_with($endpoint, '.php')) {
-        $trimmedEndpoint = rtrim($endpoint, '/');
-
-        if (str_ends_with(strtolower($trimmedEndpoint), '/api')) {
-            $endpoint = $trimmedEndpoint . '.php';
-        } else {
-            $endpoint = $trimmedEndpoint . '.php';
-        }
-    }
-
     $insecureSsl = in_array(
         strtolower(whois_truehost_env('TRUEHOST_INSECURE_SSL') ?? whois_truehost_env('WHOIS_INSECURE_SSL') ?? ''),
         ['1', 'true', 'yes', 'on'],
@@ -49,11 +39,44 @@ function whois_truehost_config(): array
     ];
 }
 
+function whois_truehost_api_url(string $endpoint): string
+{
+    $endpoint = trim($endpoint);
+
+    if ($endpoint === '') {
+        return '';
+    }
+
+    if (str_ends_with(strtolower($endpoint), '.php')) {
+        return $endpoint;
+    }
+
+    return rtrim($endpoint, '/') . '.php';
+}
+
+function whois_truehost_pricing_page_url(string $endpoint): string
+{
+    $endpoint = trim($endpoint);
+
+    if ($endpoint === '') {
+        return '';
+    }
+
+    if (str_ends_with(strtolower($endpoint), '.php')) {
+        $derived = preg_replace('#/api(?:\.php)?$#i', '/includes/api/', $endpoint) ?? $endpoint;
+
+        return rtrim($derived, '/') . '/';
+    }
+
+    return rtrim($endpoint, '/') . '/';
+}
+
 function whois_truehost_request(string $action, array $fields = []): array
 {
     $config = whois_truehost_config();
+    $endpoint = whois_truehost_api_url($config['endpoint']);
 
-    if ($config['endpoint'] === '') {
+    if ($endpoint === '') {
         throw new RuntimeException('TRUEHOST_ENDPOINT is not configured.');
     }
 
@@ -72,7 +95,7 @@ function whois_truehost_request(string $action, array $fields = []): array
     $body = http_build_query($payload);
 
     if (function_exists('curl_init')) {
-        $handle = curl_init($config['endpoint']);
+        $handle = curl_init($endpoint);
 
         if ($handle === false) {
             throw new RuntimeException('Unable to initialize Truehost request.');
@@ -82,6 +105,7 @@ function whois_truehost_request(string $action, array $fields = []): array
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $body,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36',
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/x-www-form-urlencoded',
                 'Accept: application/json',
@@ -101,10 +125,18 @@ function whois_truehost_request(string $action, array $fields = []): array
 
         $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
     } else {
+        $responseBody = false;
+        $statusCode = 0;
+    }
+
+    $decoded = json_decode($responseBody, true);
+
+    if (!is_array($decoded) || trim((string) $responseBody) === '') {
         $context = stream_context_create([
             'http' => [
                 'method' => 'POST',
                 'header' => implode("\r\n", [
+                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36',
                     'Content-Type: application/x-www-form-urlencoded',
                     'Accept: application/json',
                 ]),
@@ -120,23 +152,21 @@ function whois_truehost_request(string $action, array $fields = []): array
                 : [],
         ]);
 
-        $responseBody = file_get_contents($config['endpoint'], false, $context);
+        $responseBody = file_get_contents($endpoint, false, $context);
 
-        if ($responseBody === false) {
-            throw new RuntimeException('Truehost request failed.');
-        }
+        if ($responseBody !== false) {
+            $statusCode = 0;
 
-        $statusCode = 0;
-
-        foreach ($http_response_header ?? [] as $headerLine) {
-            if (preg_match('/^HTTP\/\d(?:\.\d)?\s+(\d{3})\b/', $headerLine, $matches) === 1) {
-                $statusCode = (int) $matches[1];
-                break;
+            foreach ($http_response_header ?? [] as $headerLine) {
+                if (preg_match('/^HTTP\/\d(?:\.\d)?\s+(\d{3})\b/', $headerLine, $matches) === 1) {
+                    $statusCode = (int) $matches[1];
+                    break;
+                }
             }
+
+            $decoded = json_decode($responseBody, true);
         }
     }
-
-    $decoded = json_decode($responseBody, true);
 
     if (!is_array($decoded)) {
         throw new RuntimeException('Truehost returned an invalid response.');
@@ -155,12 +185,6 @@ function whois_truehost_tld_pricing(): array
     static $cache = null;
 
     if (is_array($cache)) {
-        return $cache;
-    }
-
-    $cache = whois_truehost_tld_pricing_from_page();
-
-    if (is_array($cache) && ($cache['pricing'] ?? []) !== []) {
         return $cache;
     }
 
@@ -186,7 +210,7 @@ function whois_truehost_tld_pricing(): array
         }
     }
 
-    $cache = is_array($cache) ? $cache : whois_truehost_tld_pricing_from_page();
+    $cache = whois_truehost_tld_pricing_from_page();
 
     return $cache;
 }
@@ -200,13 +224,7 @@ function whois_truehost_tld_pricing_from_page(): array
     }
 
     $config = whois_truehost_config();
-    $pageUrl = $config['endpoint'];
-
-    if (str_ends_with(strtolower($pageUrl), '.php')) {
-        $pageUrl = preg_replace('#/api\.php$#i', '/includes/api/', $pageUrl) ?? $pageUrl;
-    } else {
-        $pageUrl = rtrim(dirname($pageUrl), '/') . '/';
-    }
+    $pageUrl = whois_truehost_pricing_page_url($config['endpoint']);
 
     try {
         if (function_exists('curl_init')) {
@@ -219,6 +237,7 @@ function whois_truehost_tld_pricing_from_page(): array
             curl_setopt_array($handle, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPGET => true,
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36',
                 CURLOPT_TIMEOUT => $config['timeout'],
                 CURLOPT_CONNECTTIMEOUT => min(10, $config['timeout']),
                 CURLOPT_SSL_VERIFYPEER => !$config['insecureSsl'],
@@ -227,14 +246,22 @@ function whois_truehost_tld_pricing_from_page(): array
 
             $html = curl_exec($handle);
 
-            if ($html === false) {
+            if ($html === false || trim((string) $html) === '') {
                 $error = curl_error($handle);
-                throw new RuntimeException($error !== '' ? $error : 'Truehost pricing page request failed.');
+                $html = false;
             }
         } else {
+            $html = false;
+        }
+
+        if ($html === false) {
             $context = stream_context_create([
                 'http' => [
                     'method' => 'GET',
+                    'header' => implode("\r\n", [
+                        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36',
+                        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    ]),
                     'timeout' => $config['timeout'],
                     'ignore_errors' => true,
                 ],
@@ -270,7 +297,7 @@ function whois_truehost_tld_pricing_from_page(): array
     ];
     $pricing = [];
 
-    if (preg_match_all('/\.(co\.ke|com|xyz|org|ke|shop|top)\s+Ksh\s+([0-9][0-9.,]*)/i', $text, $matches, PREG_SET_ORDER) > 0) {
+    if (preg_match_all('/\.(co\.ke|com|ai|io|co|net|xyz|org|ke|shop|top)\s+Ksh\s+([0-9][0-9.,]*)/i', $text, $matches, PREG_SET_ORDER) > 0) {
         foreach ($matches as $match) {
             $tld = strtolower($match[1]);
 
@@ -305,20 +332,6 @@ function whois_truehost_tld_price(string $tld, string $mode = 'register'): ?arra
     $pricing = whois_truehost_tld_pricing();
     $currency = is_array($pricing['currency'] ?? null) ? $pricing['currency'] : [];
     $pricingEntry = $pricing['pricing'][$tld] ?? null;
-
-    if (!is_array($pricingEntry) || $pricingEntry === [] || (($pricing['source'] ?? '') !== 'page' && !isset($pricingEntry[$mode]))) {
-        $pagePricing = whois_truehost_tld_pricing_from_page();
-
-        if (is_array($pagePricing['pricing'] ?? null)) {
-            $fallbackEntry = $pagePricing['pricing'][$tld] ?? null;
-
-            if (is_array($fallbackEntry) && $fallbackEntry !== []) {
-                $pricing = $pagePricing;
-                $currency = is_array($pricing['currency'] ?? null) ? $pricing['currency'] : [];
-                $pricingEntry = $fallbackEntry;
-            }
-        }
-    }
 
     if (!is_array($pricingEntry)) {
         return null;
