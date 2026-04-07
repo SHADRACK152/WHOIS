@@ -383,10 +383,6 @@ header('Content-Type: text/html; charset=utf-8');
 <span class="material-symbols-outlined ml-4 text-outline">search</span>
 <input name="query" class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 text-lg font-medium text-primary placeholder:text-neutral-400" placeholder="Search domain or root name" type="text" value="<?php echo htmlspecialchars($searchInput, ENT_QUOTES, 'UTF-8'); ?>"/>
 </div>
-<div class="flex items-center gap-2 lg:w-72 shrink-0 rounded-full border border-outline-variant/20 bg-surface-container-low px-3 py-2">
-<span class="material-symbols-outlined text-outline text-base">public</span>
-<input name="tld" class="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold text-primary placeholder:text-neutral-400" placeholder="Any TLD, e.g. music" type="text" value="<?php echo htmlspecialchars($searchTld, ENT_QUOTES, 'UTF-8'); ?>"/>
-</div>
 <button type="submit" class="bg-black text-white px-8 py-3 rounded-full font-bold transition-transform active:scale-95">Search</button>
 </div>
 </div>
