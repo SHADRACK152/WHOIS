@@ -77,6 +77,44 @@ function whois_premium_market_format_money(float $amount, string $currency): str
     return whois_currency_format_amount($amount, $currency);
 }
 
+function whois_premium_market_status_details(string $status, array $offers = []): array
+{
+    $status = strtolower(trim($status));
+
+    if (str_contains($status, 'priced')) {
+        return [
+            'state' => 'priced',
+            'label' => 'Priced',
+        ];
+    }
+
+    if (str_contains($status, 'marketed')) {
+        return [
+            'state' => 'marketed',
+            'label' => 'Marketed',
+        ];
+    }
+
+    if (str_contains($status, 'premium')) {
+        return [
+            'state' => 'premium',
+            'label' => 'Verified premium',
+        ];
+    }
+
+    if ($offers !== []) {
+        return [
+            'state' => 'offer',
+            'label' => 'Offer available',
+        ];
+    }
+
+    return [
+        'state' => 'verified',
+        'label' => 'Verified premium',
+    ];
+}
+
 function whois_premium_market_normalize_domain(string $value, string $fallbackDomain): string
 {
     $domain = strtolower(trim($value));
@@ -106,9 +144,12 @@ function whois_premium_market_normalize_listing(array $listing, string $fallback
     $category = trim((string) ($listing['category'] ?? 'Premium'));
     $reason = trim((string) ($listing['reason'] ?? ''));
     $status = trim((string) ($listing['status'] ?? 'Verified premium'));
+    $statusLabel = trim((string) ($listing['statusLabel'] ?? ''));
+    $state = trim((string) ($listing['state'] ?? ''));
     $offerAmount = whois_premium_market_amount($listing['offerPrice'] ?? ($listing['askPrice'] ?? ($listing['ask'] ?? null)));
     $appraisalAmount = whois_premium_market_amount($listing['appraisal'] ?? $offerAmount);
     $askAmount = whois_premium_market_amount($listing['askPrice'] ?? $offerAmount);
+    $statusDetails = whois_premium_market_status_details($status);
 
     if ($domain === '' || $reason === '' || $appraisalAmount === null || $askAmount === null) {
         return null;
@@ -123,7 +164,9 @@ function whois_premium_market_normalize_listing(array $listing, string $fallback
         'domain' => $domain,
         'category' => $category !== '' ? $category : 'Premium',
         'reason' => $reason,
-        'status' => $status !== '' ? $status : 'Available now',
+        'status' => $status !== '' ? $status : 'Verified premium',
+        'statusLabel' => $statusLabel !== '' ? $statusLabel : $statusDetails['label'],
+        'state' => $state !== '' ? $state : $statusDetails['state'],
         'currency' => $displayCurrency,
         'sourceCurrency' => $sourceCurrency,
         'appraisalAmount' => $displayAppraisalAmount,
@@ -160,6 +203,8 @@ function whois_premium_market_listings(string $searchDomain, array $context = []
             'category' => strtoupper(trim((string) ($research['status'] ?? 'Verified Premium'))),
             'reason' => trim((string) (is_array($research['record'] ?? null) ? ($research['record']['summary'] ?? '') : '')),
             'status' => strtoupper(trim((string) ($research['status'] ?? 'premium'))),
+            'statusLabel' => whois_premium_market_status_details((string) ($research['status'] ?? ''), $research['offers'] ?? [])['label'],
+            'state' => whois_premium_market_status_details((string) ($research['status'] ?? ''), $research['offers'] ?? [])['state'],
             'appraisal' => $offerPrice,
             'askPrice' => $offerPrice,
         ];
@@ -176,6 +221,8 @@ function whois_premium_market_listings(string $searchDomain, array $context = []
 
         if ($normalized !== null) {
             $normalized['status'] = strtoupper(trim((string) ($research['status'] ?? $normalized['status'])));
+            $normalized['statusLabel'] = whois_premium_market_status_details((string) ($research['status'] ?? ''), $research['offers'] ?? [])['label'];
+            $normalized['state'] = whois_premium_market_status_details((string) ($research['status'] ?? ''), $research['offers'] ?? [])['state'];
             $listings[] = $normalized;
         }
     }

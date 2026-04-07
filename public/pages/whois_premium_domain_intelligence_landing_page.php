@@ -642,6 +642,7 @@ WHOIS Intelligence Suite
 <a class="hover:text-black dark:hover:text-white transition-all" href="#">Terms of Service</a>
 <a class="hover:text-black dark:hover:text-white transition-all" href="#">Cookie Policy</a>
 <a class="hover:text-black dark:hover:text-white transition-all" href="#">API Documentation</a>
+<a class="hover:text-black dark:hover:text-white transition-all" href="../admin/login.php">Admin Login</a>
 </div>
 <div class="flex gap-6">
 <a class="text-neutral-500 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>

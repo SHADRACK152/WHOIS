@@ -29,6 +29,12 @@ This folder is the PHP-only backend scaffold for the WHOIS pages suite.
 - Optional Truehost overrides: `TRUEHOST_CURRENCYID`, `TRUEHOST_TIMEOUT`, and `TRUEHOST_INSECURE_SSL`.
 - Set `DOMAINR_RAPIDAPI_KEY` and optionally `DOMAINR_RAPIDAPI_HOST=domainr.p.rapidapi.com` to verify premium or priced domains through Domainr's RapidAPI tier.
 - Optional Domainr override: `DOMAINR_TIMEOUT`.
+- Set `DATABASE_URL` or `NEON_DATABASE_URL` to connect the Neon PostgreSQL database used for auction submissions and marketplace listings.
+- This backend uses a pure PHP PostgreSQL client, so it does not require the local `pdo_pgsql` extension.
+- The database connection is opened and initialized as soon as the Neon helper loads, so tables and seed data are ready during app startup.
+- The database schema is initialized automatically on first use, and seeded marketplace items are inserted when the listings table is empty.
+- New submissions are saved as `new`, admin approval promotes them to `approved` and publishes them into `marketplace_items`, and only live marketplace items are shown publicly.
+- Admin access is available at `backend/public/admin/login.php`; credentials come from `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `.env`.
 
 ## Start The App
 

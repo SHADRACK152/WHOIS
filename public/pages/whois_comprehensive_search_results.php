@@ -39,6 +39,65 @@ $brokerageFeeLabel = whois_currency_format_amount(
   $selectedCurrency
 );
 
+function whois_search_status_details(string $status): array
+{
+  $status = strtolower(trim($status));
+
+  if ($status === 'available') {
+    return [
+      'label' => 'Available now',
+      'class' => 'bg-green-100 text-green-700',
+    ];
+  }
+
+  if ($status === 'registered' || $status === 'unavailable') {
+    return [
+      'label' => 'Registered',
+      'class' => 'bg-rose-100 text-rose-700',
+    ];
+  }
+
+  if (str_contains($status, 'premium') || str_contains($status, 'priced') || str_contains($status, 'marketed')) {
+    return [
+      'label' => 'Verified premium',
+      'class' => 'bg-amber-100 text-amber-800',
+    ];
+  }
+
+  return [
+    'label' => $status !== '' ? ucfirst($status) : 'Unknown',
+    'class' => 'bg-surface-container text-secondary',
+  ];
+}
+
+function whois_search_premium_status_details(array $listing): array
+{
+  $state = strtolower(trim((string) ($listing['state'] ?? 'verified')));
+  $label = trim((string) ($listing['statusLabel'] ?? ''));
+
+  if ($label === '') {
+    $label = match ($state) {
+      'priced' => 'Priced',
+      'marketed' => 'Marketed',
+      'offer' => 'Offer available',
+      default => 'Verified premium',
+    };
+  }
+
+  $class = match ($state) {
+    'priced' => 'bg-amber-100 text-amber-800',
+    'marketed' => 'bg-blue-100 text-blue-700',
+    'offer' => 'bg-emerald-100 text-emerald-700',
+    default => 'bg-amber-100 text-amber-800',
+  };
+
+  return [
+    'label' => $label,
+    'class' => $class,
+    'state' => $state,
+  ];
+}
+
 function whois_ai_idea_card_image(string $seed, string $label, array $theme = []): string
 {
   $themeLabel = (string) ($theme['label'] ?? 'Brand');
@@ -280,6 +339,20 @@ $premiumMarket = whois_premium_market_listings($searchDomain, [
 ], $selectedCurrency);
 
 $premiumCollection = is_array($premiumMarket['listings'] ?? null) ? $premiumMarket['listings'] : [];
+$exactAvailableCount = 0;
+$exactRegisteredCount = 0;
+
+foreach ($exactMatches as $exactMatchCountEntry) {
+  $exactStatus = strtolower((string) ($exactMatchCountEntry['status'] ?? ''));
+
+  if ($exactStatus === 'available') {
+    $exactAvailableCount++;
+  } elseif ($exactStatus === 'registered' || $exactStatus === 'unavailable') {
+    $exactRegisteredCount++;
+  }
+}
+
+$verifiedPremiumCount = count($premiumCollection);
 
 header('Content-Type: text/html; charset=utf-8');
 ?>
@@ -475,6 +548,23 @@ header('Content-Type: text/html; charset=utf-8');
 <span class="px-4 py-2 rounded-full bg-surface-container-low text-sm font-semibold text-primary">.<?php echo htmlspecialchars($heroTld, ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($heroPrice['formatted'] ?? 'Price unavailable', ENT_QUOTES, 'UTF-8'); ?></span>
 <?php endforeach; ?>
 </div>
+<div class="mt-8 grid gap-3 sm:grid-cols-3 max-w-5xl mx-auto text-left">
+<div class="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
+<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-secondary">Available</p>
+<p class="mt-2 text-2xl font-black text-green-700"><?php echo (string) $exactAvailableCount; ?></p>
+<p class="text-xs text-on-surface-variant mt-1">Exact matches marked open for registration.</p>
+</div>
+<div class="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
+<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-secondary">Registered</p>
+<p class="mt-2 text-2xl font-black text-rose-700"><?php echo (string) $exactRegisteredCount; ?></p>
+<p class="text-xs text-on-surface-variant mt-1">Exact matches already taken in registry lookup.</p>
+</div>
+<div class="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
+<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-secondary">Verified premium / priced</p>
+<p class="mt-2 text-2xl font-black text-amber-700"><?php echo (string) $verifiedPremiumCount; ?></p>
+<p class="text-xs text-on-surface-variant mt-1">Offers confirmed by Domainr before display.</p>
+</div>
+</div>
 </div>
 </div>
 </header>
@@ -522,11 +612,12 @@ header('Content-Type: text/html; charset=utf-8');
 <!-- CENTER COLUMN: Exact Matches -->
 <section class="lg:col-span-5">
 <div class="mb-6 flex items-center justify-between">
-<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Exact Matches</h3>
+<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Exact Matches by State</h3>
 <span class="text-xs text-neutral-400"><?php echo count($exactMatches); ?> Results found</span>
 </div>
 <div class="bg-surface-container-lowest rounded-xl divide-y divide-outline-variant/20 overflow-hidden border border-outline-variant/30">
 <?php foreach ($exactMatches as $exactMatch): ?>
+<?php $exactStatusDetails = whois_search_status_details((string) ($exactMatch['status'] ?? '')); ?>
 <div class="p-5 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
 <div>
 <p class="text-lg font-bold tracking-tight"><?php echo htmlspecialchars($exactMatch['domain'], ENT_QUOTES, 'UTF-8'); ?></p>
@@ -534,7 +625,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <div class="flex items-center gap-6">
 <span class="font-bold text-primary"><?php echo htmlspecialchars($exactMatch['price'], ENT_QUOTES, 'UTF-8'); ?></span>
-<span class="text-[10px] font-bold uppercase tracking-widest <?php echo $exactMatch['status'] === 'Available' ? 'text-green-700' : 'text-secondary'; ?>"><?php echo htmlspecialchars($exactMatch['status'], ENT_QUOTES, 'UTF-8'); ?></span>
+<span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full <?php echo htmlspecialchars($exactStatusDetails['class'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($exactStatusDetails['label'], ENT_QUOTES, 'UTF-8'); ?></span>
 </div>
 </div>
 <?php endforeach; ?>
@@ -543,7 +634,7 @@ header('Content-Type: text/html; charset=utf-8');
 <!-- RIGHT COLUMN: Premium Domains -->
 <section class="lg:col-span-4">
 <div class="mb-6">
-<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Brandable Domains</h3>
+<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Brandable Alternatives</h3>
 </div>
 <div class="grid grid-cols-1 gap-4">
 <?php foreach ($premiumDomains as $premiumDomain): ?>
@@ -551,10 +642,12 @@ header('Content-Type: text/html; charset=utf-8');
 <div>
 <h4 class="text-lg font-extrabold tracking-tight"><?php echo htmlspecialchars($premiumDomain['domain'], ENT_QUOTES, 'UTF-8'); ?></h4>
 <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1"><?php echo htmlspecialchars($premiumDomain['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+<p class="text-[11px] text-on-surface-variant mt-2"><?php echo htmlspecialchars($premiumDomain['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
 </div>
 <div class="text-right">
-<p class="text-sm font-bold <?php echo ($premiumDomain['status'] === 'Available') ? 'text-green-700' : 'text-secondary'; ?>"><?php echo htmlspecialchars($premiumDomain['price'], ENT_QUOTES, 'UTF-8'); ?></p>
-<span class="text-[10px] text-secondary">Registration price</span>
+<span class="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest <?php echo ($premiumDomain['status'] === 'Available') ? 'bg-green-100 text-green-700' : 'bg-surface-container text-secondary'; ?>"><?php echo htmlspecialchars($premiumDomain['status'], ENT_QUOTES, 'UTF-8'); ?></span>
+<p class="text-sm font-bold mt-3 <?php echo ($premiumDomain['status'] === 'Available') ? 'text-green-700' : 'text-secondary'; ?>"><?php echo htmlspecialchars($premiumDomain['price'], ENT_QUOTES, 'UTF-8'); ?></p>
+<span class="text-[10px] text-secondary">Live registration price</span>
 </div>
 </div>
 <?php endforeach; ?>
@@ -577,6 +670,7 @@ header('Content-Type: text/html; charset=utf-8');
 <?php if ($premiumCollection !== []): ?>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <?php foreach ($premiumCollection as $collectionItem): ?>
+<?php $collectionStatusDetails = whois_search_premium_status_details((array) $collectionItem); ?>
 <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/30 flex items-center justify-between gap-4 hover:border-primary transition-all">
 <div>
 <h4 class="text-lg font-extrabold tracking-tight"><?php echo htmlspecialchars((string) $collectionItem['domain'], ENT_QUOTES, 'UTF-8'); ?></h4>
@@ -586,7 +680,7 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="text-right shrink-0">
 <p class="text-lg font-black mb-1"><?php echo htmlspecialchars((string) $collectionItem['ask'], ENT_QUOTES, 'UTF-8'); ?></p>
 <p class="text-[10px] text-secondary mb-3">Offer: <?php echo htmlspecialchars((string) $collectionItem['appraisal'], ENT_QUOTES, 'UTF-8'); ?></p>
-<button class="px-4 py-1.5 bg-primary text-on-primary rounded-lg text-[11px] font-bold"><?php echo htmlspecialchars((string) $collectionItem['status'], ENT_QUOTES, 'UTF-8'); ?></button>
+<button class="px-4 py-1.5 rounded-lg text-[11px] font-bold <?php echo htmlspecialchars($collectionStatusDetails['class'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($collectionStatusDetails['label'], ENT_QUOTES, 'UTF-8'); ?></button>
 </div>
 </div>
 <?php endforeach; ?>

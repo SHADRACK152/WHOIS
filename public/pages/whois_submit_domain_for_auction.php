@@ -182,7 +182,9 @@ header('Content-Type: text/html; charset=utf-8');
 </header>
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
 <!-- Form Section -->
-<div class="lg:col-span-8 space-y-16">
+<form class="lg:col-span-8 space-y-16" id="auction-submission-form">
+<input name="auction_type" type="hidden" value="standard" id="auction-type-input"/>
+<input name="duration_days" type="hidden" value="7" id="auction-duration-input"/>
 <!-- Step 1: Domain Details -->
 <section class="relative">
 <div class="flex items-center gap-4 mb-8">
@@ -194,12 +196,12 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="bg-surface-container-lowest editorial-shadow rounded-xl p-8 border border-outline-variant/30 space-y-6">
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Domain Name</label>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all font-medium placeholder:text-neutral-400" placeholder="e.g., example.com" type="text"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all font-medium placeholder:text-neutral-400" id="auction-domain-name" name="domain_name" placeholder="e.g., example.com" type="text"/>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Category</label>
-<select class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all appearance-none cursor-pointer">
+<select class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all appearance-none cursor-pointer" id="auction-category" name="category">
 <option>Technology</option>
 <option>Finance</option>
 <option>Real Estate</option>
@@ -208,7 +210,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Keywords</label>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all" placeholder="Short description..." type="text"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all" id="auction-keywords" name="keywords" placeholder="Short description..." type="text"/>
 </div>
 </div>
 </div>
@@ -236,21 +238,21 @@ header('Content-Type: text/html; charset=utf-8');
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Reserve Price</label>
 <div class="relative">
 <span class="absolute left-4 top-3 text-neutral-400">$</span>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg pl-8 pr-4 py-3 focus:ring-0 focus:border-black" placeholder="Optional" type="number"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg pl-8 pr-4 py-3 focus:ring-0 focus:border-black" id="auction-reserve-price" name="reserve_price" placeholder="Optional" type="number"/>
 </div>
 </div>
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Buy It Now (BIN)</label>
 <div class="relative">
 <span class="absolute left-4 top-3 text-neutral-400">$</span>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg pl-8 pr-4 py-3 focus:ring-0 focus:border-black" placeholder="Optional" type="number"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg pl-8 pr-4 py-3 focus:ring-0 focus:border-black" id="auction-bin-price" name="bin_price" placeholder="Optional" type="number"/>
 </div>
 </div>
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Starting Bid</label>
 <div class="relative">
 <span class="absolute left-4 top-3 text-neutral-400">$</span>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg pl-8 pr-4 py-3 focus:ring-0 focus:border-black" placeholder="100" type="number"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg pl-8 pr-4 py-3 focus:ring-0 focus:border-black" id="auction-starting-bid" name="starting_bid" placeholder="100" type="number"/>
 </div>
 </div>
 </div>
@@ -270,14 +272,14 @@ header('Content-Type: text/html; charset=utf-8');
 <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Auction Type</p>
 <div class="grid grid-cols-1 gap-3">
 <label class="flex items-center gap-3 p-4 rounded-lg border border-black bg-surface-container-low cursor-pointer">
-<input checked="" class="text-black focus:ring-0" name="auction_type" type="radio"/>
+<input checked="" class="text-black focus:ring-0" name="auction_type_option" type="radio" value="standard"/>
 <div>
 <p class="font-semibold text-sm">Standard Listing</p>
 <p class="text-xs text-on-surface-variant">2.5% Success Fee</p>
 </div>
 </label>
 <label class="flex items-center gap-3 p-4 rounded-lg border border-outline-variant/40 hover:border-black transition-all cursor-pointer">
-<input class="text-black focus:ring-0" name="auction_type" type="radio"/>
+<input class="text-black focus:ring-0" name="auction_type_option" type="radio" value="premium_feature"/>
 <div>
 <p class="font-semibold text-sm">Premium Feature</p>
 <p class="text-xs text-on-surface-variant">Home page placement + Newsletter inclusion</p>
@@ -288,13 +290,13 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="space-y-4">
 <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Duration &amp; Scheduling</p>
 <div class="grid grid-cols-3 gap-2 mb-4">
-<button class="py-3 text-xs font-bold border border-outline-variant/40 rounded-lg hover:border-black transition-all">3 DAYS</button>
-<button class="py-3 text-xs font-bold border border-black bg-black text-white rounded-lg">7 DAYS</button>
-<button class="py-3 text-xs font-bold border border-outline-variant/40 rounded-lg hover:border-black transition-all">14 DAYS</button>
+<button class="py-3 text-xs font-bold border border-outline-variant/40 rounded-lg hover:border-black transition-all" data-auction-duration="3" type="button">3 DAYS</button>
+<button class="py-3 text-xs font-bold border border-black bg-black text-white rounded-lg" data-auction-duration="7" type="button">7 DAYS</button>
+<button class="py-3 text-xs font-bold border border-outline-variant/40 rounded-lg hover:border-black transition-all" data-auction-duration="14" type="button">14 DAYS</button>
 </div>
 <div class="space-y-2">
 <label class="block text-[10px] font-bold text-neutral-400 uppercase">Start Date</label>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-2 text-sm focus:ring-0 focus:border-black" type="date"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-2 text-sm focus:ring-0 focus:border-black" id="auction-start-date" name="start_date" type="date"/>
 </div>
 </div>
 </div>
@@ -305,10 +307,11 @@ header('Content-Type: text/html; charset=utf-8');
 <h3 class="text-xl font-bold mb-1">Ready to launch?</h3>
 <p class="text-neutral-400 text-sm">Your auction will be visible to 100k+ global buyers.</p>
 </div>
-<button class="w-full md:w-auto bg-white text-black px-10 py-4 rounded-full font-bold text-sm tracking-tight hover:bg-neutral-200 transition-colors">
+<button class="w-full md:w-auto bg-white text-black px-10 py-4 rounded-full font-bold text-sm tracking-tight hover:bg-neutral-200 transition-colors" type="submit">
                                     Submit to Auction
                                 </button>
 </div>
+<p class="mt-4 text-sm text-center md:text-left text-neutral-500" id="auction-submit-feedback" aria-live="polite"></p>
 </div>
 </div>
 </section>
@@ -346,6 +349,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 </div>
+</form>
 </main>
 <!-- Footer -->
 <footer class="w-full border-t border-neutral-200 bg-neutral-50 py-12 px-8 font-manrope text-sm">
@@ -362,6 +366,101 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </footer>
 <script src="../assets/js/nav-state.js"></script>
+<script>
+(function () {
+  const form = document.getElementById('auction-submission-form');
+  const feedback = document.getElementById('auction-submit-feedback');
+  const auctionTypeInput = document.getElementById('auction-type-input');
+  const durationInput = document.getElementById('auction-duration-input');
+  const durationButtons = Array.from(document.querySelectorAll('[data-auction-duration]'));
+  const typeInputs = Array.from(document.querySelectorAll('input[name="auction_type_option"]'));
+
+  function setFeedback(message, isError) {
+    if (!feedback) {
+      return;
+    }
+
+    feedback.textContent = message;
+    feedback.className = 'mt-4 text-sm text-center md:text-left ' + (isError ? 'text-red-400' : 'text-emerald-300');
+  }
+
+  function syncDuration(activeValue) {
+    if (durationInput) {
+      durationInput.value = String(activeValue);
+    }
+
+    durationButtons.forEach((button) => {
+      const isActive = button.dataset.auctionDuration === String(activeValue);
+      button.classList.toggle('border-black', isActive);
+      button.classList.toggle('bg-black', isActive);
+      button.classList.toggle('text-white', isActive);
+      button.classList.toggle('border-outline-variant/40', !isActive);
+    });
+  }
+
+  function syncAuctionType() {
+    const active = typeInputs.find((input) => input.checked);
+
+    if (auctionTypeInput) {
+      auctionTypeInput.value = active?.value || 'standard';
+    }
+  }
+
+  durationButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      syncDuration(button.dataset.auctionDuration || '7');
+    });
+  });
+
+  typeInputs.forEach((input) => {
+    input.addEventListener('change', syncAuctionType);
+  });
+
+  syncDuration(durationInput?.value || '7');
+  syncAuctionType();
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const payload = {
+      domain_name: document.getElementById('auction-domain-name')?.value || '',
+      category: document.getElementById('auction-category')?.value || '',
+      keywords: document.getElementById('auction-keywords')?.value || '',
+      reserve_price: document.getElementById('auction-reserve-price')?.value || '',
+      bin_price: document.getElementById('auction-bin-price')?.value || '',
+      starting_bid: document.getElementById('auction-starting-bid')?.value || '',
+      auction_type: auctionTypeInput?.value || 'standard',
+      duration_days: durationInput?.value || '7',
+      start_date: document.getElementById('auction-start-date')?.value || '',
+    };
+
+    try {
+      setFeedback('Submitting...', false);
+
+      const response = await fetch('../api/submissions.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || 'Unable to submit domain.');
+      }
+
+      setFeedback('Submission saved. It is now queued in the Neon database.', false);
+      form.reset();
+      syncDuration('7');
+      syncAuctionType();
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Unable to submit domain.', true);
+    }
+  });
+})();
+</script>
 </body></html>
 
 

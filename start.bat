@@ -14,6 +14,6 @@ if errorlevel 1 (
 echo Starting WHOIS PHP Backend on http://localhost:8000 ...
 start "WHOIS PHP Server" php -S localhost:8000 -t public
 timeout /t 2 /nobreak >nul
-start "" http://localhost:8000
+start "" http://localhost:8000/
 
 endlocal

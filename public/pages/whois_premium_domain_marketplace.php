@@ -1,6 +1,112 @@
 <?php
 declare(strict_types=1);
 header('Content-Type: text/html; charset=utf-8');
+require_once __DIR__ . '/../../app/db-client.php';
+
+$marketplaceItems = whois_db_list_marketplace_items(['status' => 'live']);
+$imageMap = [
+  'neural.ai' => [
+    'src' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCWRevZjxASkDW6dMTXUcg9ns0piYMgEvre9vRz09eqeijUPKFNHad0Yw_OXGv4_Wovu6G1XM5bgyd6CCgHyXf2DvolzF7u_ORG3GVWCK6SSD8d_Mm1kpQVGxMOmdT1OVKQxdYRO6M0PBZuu_cslEtWxCSZWedayiCl47n-kpun7bDRI3pQ-9BmOpVNMGSGhqEBlhDnsbIZ7H-LibUvtbaGDSASqgGwJGGAAp1mTR61MBTcvnR6Y1Vb6DlBuC9w-gqQoKoBTECyHAZ_',
+    'alt' => 'minimalist aesthetic computer monitor on desk top view black and white',
+  ],
+  'flow.io' => [
+    'src' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDyPk8PcZdTLMqnUKY39MOrHKtQ3g_XyA2-Gn8VkbvlkN7xOPAaoTmype7gCwq62KvJg4-XPQynpjAcpHeXbSijAyTVenFZv9EIKyrxVSyFF_EmVI6bDRh5Y-FQdH-rvHrcYgKwQAfhmPzlsVbL0dqqgmiYl6up1FYCbfgXvP2aL1VbpWhq3xROsnWGoOOt93aXS9PPtP1fBA_GZCPq8E_bdKp88uTuY8_hWiwI7WWTlbvsj9AEduou77uHQtVbfBLvrNDKVbnNiZVU',
+    'alt' => 'abstract geometric white shapes shadow play architectural detail',
+  ],
+];
+
+if ($marketplaceItems === []) {
+  $pdo = whois_db_pdo();
+
+  if ($pdo instanceof PDO) {
+    whois_db_seed_marketplace_items($pdo);
+    $marketplaceItems = whois_db_list_marketplace_items(['status' => 'live']);
+  }
+}
+
+$featuredItems = array_values(array_filter($marketplaceItems, static function (array $item): bool {
+  return (string) ($item['listing_type'] ?? 'row') === 'featured';
+}));
+
+$rowItems = array_values(array_filter($marketplaceItems, static function (array $item): bool {
+  return (string) ($item['listing_type'] ?? 'row') !== 'featured';
+}));
+
+if (!function_exists('whois_render_marketplace_featured_card')) {
+  function whois_render_marketplace_featured_card(array $item, array $imageMap): void
+  {
+    $domainName = (string) ($item['domain_name'] ?? '');
+    $image = $imageMap[$domainName] ?? [
+      'src' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCWRevZjxASkDW6dMTXUcg9ns0piYMgEvre9vRz09eqeijUPKFNHad0Yw_OXGv4_Wovu6G1XM5bgyd6CCgHyXf2DvolzF7u_ORG3GVWCK6SSD8d_Mm1kpQVGxMOmdT1OVKQxdYRO6M0PBZuu_cslEtWxCSZWedayiCl47n-kpun7bDRI3pQ-9BmOpVNMGSGhqEBlhDnsbIZ7H-LibUvtbaGDSASqgGwJGGAAp1mTR61MBTcvnR6Y1Vb6DlBuC9w-gqQoKoBTECyHAZ_',
+      'alt' => 'premium marketplace visual',
+    ];
+    $displayName = strtoupper($domainName);
+    $badgeText = (string) ($item['badge_text'] ?? 'Available');
+    $categories = (string) ($item['categories'] ?? 'Premium');
+    $appraisalPrice = '$' . number_format((float) ($item['appraisal_price'] ?? 0));
+    $price = '$' . number_format((float) ($item['price'] ?? 0));
+    $extension = '.' . strtoupper((string) ($item['extension'] ?? ''));
+    ?>
+    <div class="group bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 hover:border-primary/20 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col md:flex-row gap-8" data-marketplace-item="true" data-domain="<?php echo htmlspecialchars($domainName, ENT_QUOTES, 'UTF-8'); ?>" data-extension="<?php echo htmlspecialchars((string) ($item['extension'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-price="<?php echo htmlspecialchars((string) ($item['price'] ?? 0), ENT_QUOTES, 'UTF-8'); ?>" data-search-text="<?php echo htmlspecialchars((string) ($item['search_text'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+    <div class="w-32 h-32 bg-surface-container-low rounded-lg flex items-center justify-center shrink-0">
+    <img class="w-20 h-20 object-contain grayscale opacity-60" data-alt="<?php echo htmlspecialchars($image['alt'], ENT_QUOTES, 'UTF-8'); ?>" src="<?php echo htmlspecialchars($image['src'], ENT_QUOTES, 'UTF-8'); ?>"/>
+    </div>
+    <div class="flex flex-col justify-between flex-1">
+    <div>
+    <div class="flex justify-between items-start">
+    <span class="text-sm font-bold text-primary font-headline tracking-tighter uppercase mb-2 block"><?php echo htmlspecialchars($badgeText, ENT_QUOTES, 'UTF-8'); ?></span>
+    <span class="material-symbols-outlined text-neutral-300 hover:text-primary cursor-pointer" data-icon="star">star</span>
+    </div>
+    <h3 class="text-2xl font-bold tracking-tight mb-2"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></h3>
+    <div class="flex gap-4 items-center">
+    <span class="px-2 py-0.5 bg-surface-container-high rounded text-[10px] font-bold uppercase tracking-widest text-neutral-500"><?php echo htmlspecialchars($extension, ENT_QUOTES, 'UTF-8'); ?></span>
+    <span class="text-xs text-neutral-400">Appraisal: <?php echo htmlspecialchars($appraisalPrice, ENT_QUOTES, 'UTF-8'); ?></span>
+    </div>
+    </div>
+    <div class="flex items-center justify-between mt-6">
+    <span class="text-2xl font-bold font-headline"><?php echo htmlspecialchars($price, ENT_QUOTES, 'UTF-8'); ?></span>
+    <button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:scale-95 transition-all">Buy Now</button>
+    </div>
+    </div>
+    </div>
+    <?php
+  }
+}
+
+if (!function_exists('whois_render_marketplace_row_card')) {
+  function whois_render_marketplace_row_card(array $item): void
+  {
+    $domainName = (string) ($item['domain_name'] ?? '');
+    $categories = (string) ($item['categories'] ?? '');
+    $appraisalPrice = '$' . number_format((float) ($item['appraisal_price'] ?? 0));
+    $price = '$' . number_format((float) ($item['price'] ?? 0));
+    $iconName = (string) ($item['icon_name'] ?? 'circle');
+    ?>
+    <div class="flex items-center justify-between p-6 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-xl border border-outline-variant/10" data-marketplace-item="true" data-domain="<?php echo htmlspecialchars($domainName, ENT_QUOTES, 'UTF-8'); ?>" data-extension="<?php echo htmlspecialchars((string) ($item['extension'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-price="<?php echo htmlspecialchars((string) ($item['price'] ?? 0), ENT_QUOTES, 'UTF-8'); ?>" data-search-text="<?php echo htmlspecialchars((string) ($item['search_text'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+    <div class="flex items-center gap-8">
+    <div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-neutral-400 shrink-0">
+    <span class="material-symbols-outlined" data-icon="<?php echo htmlspecialchars($iconName, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($iconName, ENT_QUOTES, 'UTF-8'); ?></span>
+    </div>
+    <div>
+    <h4 class="text-lg font-bold"><?php echo htmlspecialchars($domainName, ENT_QUOTES, 'UTF-8'); ?></h4>
+    <p class="text-xs text-neutral-400"><?php echo htmlspecialchars($categories, ENT_QUOTES, 'UTF-8'); ?></p>
+    </div>
+    </div>
+    <div class="hidden md:flex gap-12 items-center">
+    <div class="text-right">
+    <p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Appraisal</p>
+    <p class="text-sm font-semibold"><?php echo htmlspecialchars($appraisalPrice, ENT_QUOTES, 'UTF-8'); ?></p>
+    </div>
+    <div class="text-right">
+    <p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Price</p>
+    <p class="text-sm font-bold"><?php echo htmlspecialchars($price, ENT_QUOTES, 'UTF-8'); ?></p>
+    </div>
+    <button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Buy Now</button>
+    </div>
+    </div>
+    <?php
+  }
+}
 ?>
 <!DOCTYPE html>
 
@@ -161,6 +267,7 @@ header('Content-Type: text/html; charset=utf-8');
                 <a class="block text-neutral-500 hover:text-black transition-colors" href="whois_industry_insights_blog.php">Industry Insights</a>
                 <a class="block text-neutral-500 hover:text-black transition-colors" href="whois_partner_with_us.php">Partner With Us</a>
                 <a class="block text-neutral-500 hover:text-black transition-colors" href="whois_professional_lookup_tool.php">Professional Lookup</a>
+                <a class="block text-neutral-500 hover:text-black transition-colors" href="../admin/index.php">Admin Console</a>
               </div>
             </div>
           </div>
@@ -180,27 +287,27 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="pt-4 space-y-6">
 <div>
 <span class="block text-[10px] font-bold uppercase tracking-widest mb-4">Price Range</span>
-<div class="h-1 bg-surface-container-high rounded-full relative">
-<div class="absolute h-full w-2/3 bg-primary rounded-full left-0"></div>
-<div class="absolute h-4 w-4 bg-white border-2 border-primary rounded-full -top-1.5 left-0"></div>
-<div class="absolute h-4 w-4 bg-white border-2 border-primary rounded-full -top-1.5 left-2/3"></div>
+<div class="relative h-6">
+<div class="absolute left-0 right-0 top-2 h-1 bg-surface-container-high rounded-full"></div>
+<div class="absolute left-0 top-2 h-1 bg-primary rounded-full" id="marketplace-price-fill" style="width: 100%;"></div>
+<input aria-label="Maximum price" class="absolute inset-0 w-full cursor-pointer opacity-0" id="marketplace-price-range" max="50000" min="0" step="500" type="range" value="50000"/>
 </div>
 <div class="flex justify-between mt-3 text-[10px] font-medium">
 <span>$0</span>
-<span>$50k+</span>
+<span id="marketplace-price-value">$50k+</span>
 </div>
 </div>
 <div>
 <span class="block text-[10px] font-bold uppercase tracking-widest mb-2">Extension</span>
 <div class="grid grid-cols-2 gap-2">
-<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors">.com</button>
-<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors">.ai</button>
-<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors">.io</button>
-<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors">.net</button>
+<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors" data-marketplace-extension-button="true" data-extension-value="com" type="button">.com</button>
+<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors" data-marketplace-extension-button="true" data-extension-value="ai" type="button">.ai</button>
+<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors" data-marketplace-extension-button="true" data-extension-value="io" type="button">.io</button>
+<button class="text-[10px] border border-outline-variant/30 py-1 rounded hover:bg-surface-container transition-colors" data-marketplace-extension-button="true" data-extension-value="net" type="button">.net</button>
 </div>
 </div>
 </div>
-<button class="w-full py-3 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-all">Apply Filters</button>
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-all" id="marketplace-apply-filters" type="button">Apply Filters</button>
 <div class="mt-auto pt-8 border-t border-neutral-100 dark:border-neutral-900 space-y-4">
 <a class="flex items-center gap-3 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors" href="#">
 <span class="material-symbols-outlined text-lg" data-icon="help_outline">help_outline</span>
@@ -223,8 +330,8 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="absolute -inset-1 bg-gradient-to-r from-neutral-200 to-neutral-300 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
 <div class="relative flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-full p-2 shadow-sm transition-all duration-300 focus-within:ring-2 focus-within:ring-primary focus-within:shadow-xl">
 <span class="material-symbols-outlined ml-6 text-neutral-400" data-icon="search">search</span>
-<input class="flex-1 bg-transparent border-none focus:ring-0 px-4 py-4 text-lg font-medium placeholder:text-neutral-300" placeholder="Search the perfect domain name..." type="text"/>
-<button class="bg-primary text-on-primary px-10 py-4 rounded-full font-bold text-sm tracking-tight hover:scale-[0.98] transition-transform">Find My Domain</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 px-4 py-4 text-lg font-medium placeholder:text-neutral-300" id="marketplace-search-input" placeholder="Search the perfect domain name..." type="text"/>
+<button class="bg-primary text-on-primary px-10 py-4 rounded-full font-bold text-sm tracking-tight hover:scale-[0.98] transition-transform" id="marketplace-search-button" type="button">Find My Domain</button>
 </div>
 </div>
 </section>
@@ -233,158 +340,43 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="flex justify-between items-end mb-10">
 <div>
 <h2 class="text-3xl font-bold font-headline tracking-tight">Trending Domains</h2>
-<p class="text-neutral-400 text-sm">Most sought-after premium assets this week.</p>
+<p class="text-neutral-400 text-sm"><span id="marketplace-visible-count"><?php echo count($marketplaceItems); ?></span> premium assets shown this week.</p>
 </div>
 <a class="text-sm font-bold border-b border-primary pb-1" href="#">View All Trending</a>
 </div>
+<div class="mb-8 rounded-3xl border border-outline-variant/20 bg-gradient-to-r from-neutral-950 to-neutral-800 p-8 md:p-10 text-white overflow-hidden relative">
+<div class="absolute inset-y-0 right-0 w-64 bg-white/5 blur-3xl"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+<div class="max-w-2xl">
+<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-white/60 mb-3">Have a domain to sell?</p>
+<h3 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Submit it for auction through the marketplace.</h3>
+<p class="text-white/70 leading-relaxed">Turn your domain into a listing, set your floor, and reach buyers who are already browsing premium inventory.</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-3 shrink-0">
+<a class="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-black hover:bg-neutral-200 transition-colors" href="whois_submit_domain_for_auction.php">Submit Domain</a>
+<a class="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-colors" href="whois_submit_domain_for_auction.php">Auction Flow</a>
+</div>
+</div>
+</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<!-- Featured Card 1 -->
-<div class="group bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 hover:border-primary/20 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col md:flex-row gap-8">
-<div class="w-32 h-32 bg-surface-container-low rounded-lg flex items-center justify-center shrink-0">
-<img class="w-20 h-20 object-contain grayscale opacity-60" data-alt="minimalist aesthetic computer monitor on desk top view black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWRevZjxASkDW6dMTXUcg9ns0piYMgEvre9vRz09eqeijUPKFNHad0Yw_OXGv4_Wovu6G1XM5bgyd6CCgHyXf2DvolzF7u_ORG3GVWCK6SSD8d_Mm1kpQVGxMOmdT1OVKQxdYRO6M0PBZuu_cslEtWxCSZWedayiCl47n-kpun7bDRI3pQ-9BmOpVNMGSGhqEBlhDnsbIZ7H-LibUvtbaGDSASqgGwJGGAAp1mTR61MBTcvnR6Y1Vb6DlBuC9w-gqQoKoBTECyHAZ_"/>
-</div>
-<div class="flex flex-col justify-between flex-1">
-<div>
-<div class="flex justify-between items-start">
-<span class="text-sm font-bold text-primary font-headline tracking-tighter uppercase mb-2 block">Available Now</span>
-<span class="material-symbols-outlined text-neutral-300 hover:text-primary cursor-pointer" data-icon="star">star</span>
-</div>
-<h3 class="text-2xl font-bold tracking-tight mb-2">NEURAL.AI</h3>
-<div class="flex gap-4 items-center">
-<span class="px-2 py-0.5 bg-surface-container-high rounded text-[10px] font-bold uppercase tracking-widest text-neutral-500">Premium</span>
-<span class="text-xs text-neutral-400">Appraisal: $24,500</span>
-</div>
-</div>
-<div class="flex items-center justify-between mt-6">
-<span class="text-2xl font-bold font-headline">$18,900</span>
-<button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:scale-95 transition-all">Buy Now</button>
-</div>
-</div>
-</div>
-<!-- Featured Card 2 -->
-<div class="group bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 hover:border-primary/20 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col md:flex-row gap-8">
-<div class="w-32 h-32 bg-surface-container-low rounded-lg flex items-center justify-center shrink-0">
-<img class="w-20 h-20 object-contain grayscale opacity-60" data-alt="abstract geometric white shapes shadow play architectural detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyPk8PcZdTLMqnUKY39MOrHKtQ3g_XyA2-Gn8VkbvlkN7xOPAaoTmype7gCwq62KvJg4-XPQynpjAcpHeXbSijAyTVenFZv9EIKyrxVSyFF_EmVI6bDRh5Y-FQdH-rvHrcYgKwQAfhmPzlsVbL0dqqgmiYl6up1FYCbfgXvP2aL1VbpWhq3xROsnWGoOOt93aXS9PPtP1fBA_GZCPq8E_bdKp88uTuY8_hWiwI7WWTlbvsj9AEduou77uHQtVbfBLvrNDKVbnNiZVU"/>
-</div>
-<div class="flex flex-col justify-between flex-1">
-<div>
-<div class="flex justify-between items-start">
-<span class="text-sm font-bold text-primary font-headline tracking-tighter uppercase mb-2 block">New Arrival</span>
-<span class="material-symbols-outlined text-neutral-300 hover:text-primary cursor-pointer" data-icon="star">star</span>
-</div>
-<h3 class="text-2xl font-bold tracking-tight mb-2">FLOW.IO</h3>
-<div class="flex gap-4 items-center">
-<span class="px-2 py-0.5 bg-surface-container-high rounded text-[10px] font-bold uppercase tracking-widest text-neutral-500">L-L-L</span>
-<span class="text-xs text-neutral-400">Appraisal: $12,000</span>
-</div>
-</div>
-<div class="flex items-center justify-between mt-6">
-<span class="text-2xl font-bold font-headline">$9,500</span>
-<button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:scale-95 transition-all">Buy Now</button>
-</div>
-</div>
-</div>
+<?php foreach ($featuredItems as $marketplaceItem): ?>
+  <?php whois_render_marketplace_featured_card($marketplaceItem, $imageMap); ?>
+<?php endforeach; ?>
 </div>
 </section>
 <!-- Main Listing Grid -->
 <section class="max-w-7xl mx-auto mb-20">
 <h2 class="text-xl font-bold font-headline tracking-tight mb-8">Recently Indexed</h2>
 <div class="space-y-4">
-<!-- Domain Item -->
-<div class="flex items-center justify-between p-6 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-xl border border-outline-variant/10">
-<div class="flex items-center gap-8">
-<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-neutral-400 shrink-0">
-<span class="material-symbols-outlined" data-icon="globe">globe</span>
+<?php foreach ($rowItems as $marketplaceItem): ?>
+  <?php whois_render_marketplace_row_card($marketplaceItem); ?>
+<?php endforeach; ?>
 </div>
-<div>
-<h4 class="text-lg font-bold">cryptopulse.com</h4>
-<p class="text-xs text-neutral-400">Fintech, Blockchain, Analysis</p>
-</div>
-</div>
-<div class="hidden md:flex gap-12 items-center">
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Appraisal</p>
-<p class="text-sm font-semibold">$8,400</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Price</p>
-<p class="text-sm font-bold">$6,500</p>
-</div>
-<button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Buy Now</button>
-</div>
-</div>
-<!-- Domain Item 2 -->
-<div class="flex items-center justify-between p-6 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-xl border border-outline-variant/10">
-<div class="flex items-center gap-8">
-<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-neutral-400 shrink-0">
-<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
-</div>
-<div>
-<h4 class="text-lg font-bold">zenith.ai</h4>
-<p class="text-xs text-neutral-400">Intelligence, SaaS, Enterprise</p>
-</div>
-</div>
-<div class="hidden md:flex gap-12 items-center">
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Appraisal</p>
-<p class="text-sm font-semibold">$32,000</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Price</p>
-<p class="text-sm font-bold">$28,000</p>
-</div>
-<button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Buy Now</button>
-</div>
-</div>
-<!-- Domain Item 3 -->
-<div class="flex items-center justify-between p-6 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-xl border border-outline-variant/10">
-<div class="flex items-center gap-8">
-<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-neutral-400 shrink-0">
-<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
-</div>
-<div>
-<h4 class="text-lg font-bold">shoply.net</h4>
-<p class="text-xs text-neutral-400">Retail, Marketplace, Logistics</p>
-</div>
-</div>
-<div class="hidden md:flex gap-12 items-center">
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Appraisal</p>
-<p class="text-sm font-semibold">$4,500</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Price</p>
-<p class="text-sm font-bold">$3,200</p>
-</div>
-<button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Buy Now</button>
-</div>
-</div>
-<!-- Domain Item 4 -->
-<div class="flex items-center justify-between p-6 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-xl border border-outline-variant/10">
-<div class="flex items-center gap-8">
-<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-neutral-400 shrink-0">
-<span class="material-symbols-outlined" data-icon="cloud">cloud</span>
-</div>
-<div>
-<h4 class="text-lg font-bold">nexus.sh</h4>
-<p class="text-xs text-neutral-400">Developer Tools, Infrastructure</p>
-</div>
-</div>
-<div class="hidden md:flex gap-12 items-center">
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Appraisal</p>
-<p class="text-sm font-semibold">$1,200</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Price</p>
-<p class="text-sm font-bold">$999</p>
-</div>
-<button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Buy Now</button>
-</div>
-</div>
+<div class="hidden rounded-xl border border-dashed border-outline-variant/40 bg-surface-container-lowest p-6 text-center text-sm text-secondary" id="marketplace-empty-state">
+No listings match the current filters. Try a different extension or raise the price ceiling.
 </div>
 <div class="mt-12 text-center">
-<button class="px-8 py-3 bg-surface-container-highest text-primary font-bold rounded-lg text-sm transition-all hover:bg-surface-container">Load More Listings</button>
+<button class="px-8 py-3 bg-surface-container-highest text-primary font-bold rounded-lg text-sm transition-all hover:bg-surface-container" type="button">Load More Listings</button>
 </div>
 </section>
 <!-- Bottom CTA -->
@@ -451,6 +443,101 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 </footer>
+<script>
+(function () {
+  const searchInput = document.getElementById('marketplace-search-input');
+  const searchButton = document.getElementById('marketplace-search-button');
+  const priceRange = document.getElementById('marketplace-price-range');
+  const priceFill = document.getElementById('marketplace-price-fill');
+  const priceValue = document.getElementById('marketplace-price-value');
+  const applyButton = document.getElementById('marketplace-apply-filters');
+  const emptyState = document.getElementById('marketplace-empty-state');
+  const visibleCount = document.getElementById('marketplace-visible-count');
+  const extensionButtons = Array.from(document.querySelectorAll('[data-marketplace-extension-button="true"]'));
+  const items = Array.from(document.querySelectorAll('[data-marketplace-item="true"]'));
+
+  let selectedExtension = 'all';
+
+  function formatPriceLabel(value) {
+    const numericValue = Number(value);
+
+    if (!Number.isFinite(numericValue) || numericValue >= 50000) {
+      return '$50k+';
+    }
+
+    return '$' + numericValue.toLocaleString('en-US');
+  }
+
+  function updateExtensionButtons() {
+    extensionButtons.forEach((button) => {
+      const isActive = button.dataset.extensionValue === selectedExtension;
+
+      button.classList.toggle('bg-primary', isActive);
+      button.classList.toggle('text-on-primary', isActive);
+      button.classList.toggle('border-primary', isActive);
+      button.classList.toggle('bg-surface-container-lowest', !isActive);
+      button.classList.toggle('text-primary', !isActive);
+    });
+  }
+
+  function applyFilters() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const maxPrice = Number(priceRange?.value || 50000);
+    let visibleItems = 0;
+
+    if (priceValue) {
+      priceValue.textContent = formatPriceLabel(maxPrice);
+    }
+
+    if (priceFill) {
+      const width = Math.max(0, Math.min(100, (maxPrice / 50000) * 100));
+      priceFill.style.width = width + '%';
+    }
+
+    items.forEach((item) => {
+      const domain = (item.dataset.domain || '').toLowerCase();
+      const extension = (item.dataset.extension || '').toLowerCase();
+      const price = Number(item.dataset.price || '0');
+      const searchText = (item.dataset.searchText || '').toLowerCase();
+      const matchesQuery = query === '' || domain.includes(query) || searchText.includes(query);
+      const matchesExtension = selectedExtension === 'all' || extension === selectedExtension;
+      const matchesPrice = price <= maxPrice;
+      const isVisible = matchesQuery && matchesExtension && matchesPrice;
+
+      item.classList.toggle('hidden', !isVisible);
+
+      if (isVisible) {
+        visibleItems += 1;
+      }
+    });
+
+    if (visibleCount) {
+      visibleCount.textContent = String(visibleItems);
+    }
+
+    if (emptyState) {
+      emptyState.classList.toggle('hidden', visibleItems > 0);
+    }
+  }
+
+  extensionButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextExtension = button.dataset.extensionValue || 'all';
+      selectedExtension = selectedExtension === nextExtension ? 'all' : nextExtension;
+      updateExtensionButtons();
+      applyFilters();
+    });
+  });
+
+  searchInput?.addEventListener('input', applyFilters);
+  searchButton?.addEventListener('click', applyFilters);
+  priceRange?.addEventListener('input', applyFilters);
+  applyButton?.addEventListener('click', applyFilters);
+
+  updateExtensionButtons();
+  applyFilters();
+})();
+</script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 
