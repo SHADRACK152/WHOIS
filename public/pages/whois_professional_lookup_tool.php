@@ -76,12 +76,12 @@ tailwind.config = {
     </a>
     <div class="hidden xl:flex items-center gap-6 text-sm font-semibold tracking-tight">
       <a class="text-neutral-500 hover:text-black transition-colors" href="whois_premium_domain_intelligence_landing_page.php">Home</a>
-      <a class="text-black transition-colors" href="whois_professional_lookup_tool.php">WHOIS</a>
+      <a class="text-black transition-colors" href="whois_professional_lookup_tool.php">WHOIS Search</a>
       <a class="text-neutral-500 hover:text-black transition-colors" href="whois_ai_domain_search.php">Search</a>
       <a class="text-neutral-500 hover:text-black transition-colors" href="whois_premium_domain_marketplace.php">Marketplace</a>
       <a class="text-neutral-500 hover:text-black transition-colors" href="whois_domain_tools_overview.php">Tools</a>
     </div>
-    <a class="rounded-full bg-primary px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-on-primary hover:bg-neutral-800 transition-colors" href="whois_professional_lookup_tool.php">WHOIS</a>
+    <a class="rounded-full bg-primary px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-on-primary hover:bg-neutral-800 transition-colors" href="whois_professional_lookup_tool.php">WHOIS Search</a>
   </div>
 </nav>
 
