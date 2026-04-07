@@ -50,11 +50,72 @@ function whois_ai_search_price_label(?array $pricing, string $currency): string
   );
 }
 
+function whois_ai_search_resolve_domain(string $query, string $tld = ''): string
+{
+  $query = trim(strtolower($query));
+  $query = preg_replace('#^https?://#', '', $query) ?? $query;
+  $query = preg_replace('#/.*$#', '', $query) ?? $query;
+  $query = preg_replace('/\s+/', '', $query) ?? $query;
+
+  if ($query === '') {
+    return '';
+  }
+
+  if (str_contains($query, '.')) {
+    return $query;
+  }
+
+  $normalizedTld = strtolower(trim($tld));
+  $normalizedTld = preg_replace('/[^a-z0-9.-]/', '', $normalizedTld) ?? $normalizedTld;
+  $normalizedTld = ltrim($normalizedTld, '.');
+
+  if ($normalizedTld === '') {
+    return $query;
+  }
+
+  return $query . '.' . $normalizedTld;
+}
+
+function whois_ai_search_supported_global_tlds(): array
+{
+  static $cache = null;
+
+  if (is_array($cache)) {
+    return $cache;
+  }
+
+  $preferredTlds = [
+    'music', 'grey', 'shop', 'dev', 'app', 'xyz', 'online', 'site', 'store', 'cloud',
+    'tech', 'design', 'bio', 'health', 'art', 'news', 'blog', 'digital', 'media', 'studio',
+    'agency', 'network', 'world', 'global', 'group', 'solutions', 'systems', 'expert', 'software', 'tools',
+  ];
+
+  $supported = array_flip(whois_rdap_supported_tlds());
+  $tlds = [];
+
+  foreach ($preferredTlds as $tld) {
+    if (isset($supported[$tld])) {
+      $tlds[] = $tld;
+    }
+  }
+
+  if ($tlds === []) {
+    $tlds = array_slice(whois_rdap_supported_tlds(), 0, 24);
+  }
+
+  $cache = $tlds;
+
+  return $cache;
+}
+
 $searchInput = trim((string) ($_GET['query'] ?? ''));
-$selectedCurrency = whois_currency_normalize_code((string) ($_GET['currency'] ?? 'KES'), 'KES');
-$searchDomain = whois_domain_normalize($searchInput);
-$hasSearch = $searchDomain !== '';
-$searchRoot = $hasSearch ? (preg_replace('/\.[^.]+$/', '', $searchDomain) ?? $searchDomain) : '';
+$searchTld = trim((string) ($_GET['tld'] ?? ''));
+$selectedCurrency = whois_currency_normalize_code((string) ($_GET['currency'] ?? 'USD'), 'USD');
+$searchDomain = whois_ai_search_resolve_domain($searchInput, $searchTld);
+$hasSearch = $searchDomain !== '' && str_contains($searchDomain, '.');
+$searchRoot = $searchDomain !== ''
+  ? (preg_replace('/\.[^.]+$/', '', $searchDomain) ?? $searchDomain)
+  : '';
 $searchStem = preg_replace('/[^a-z0-9]/', '', strtolower($searchRoot)) ?? '';
 
 if ($searchStem === '') {
@@ -94,38 +155,34 @@ if ($lookupStatus === 'unknown') {
 $lookupMeta = whois_ai_search_status_meta($lookupStatus);
 $lookupSummary = $hasSearch
   ? whois_domain_lookup_summary($rdapLookup)
-  : 'Type a domain to check live registration status, registrar data, and alternatives.';
+  : 'Enter any root plus any delegated TLD, or type a full domain such as trovalabs.music.';
 
 if ($hasSearch && $lookupStatus === 'unknown' && is_string($lookup['availabilityNote'] ?? null)) {
   $lookupSummary = (string) $lookup['availabilityNote'];
 }
 
-$heroTlds = ['com', 'ai', 'io'];
-$heroPrices = [];
-
-foreach ($heroTlds as $heroTld) {
-  $heroPrices[$heroTld] = whois_ai_search_price_label(whois_truehost_tld_price($heroTld), $selectedCurrency);
-}
-
+$globalTlds = whois_ai_search_supported_global_tlds();
+$supportedTldCount = count(whois_rdap_supported_tlds());
 $searchSuggestions = [];
 
 if ($hasSearch) {
   $searchSuggestions = array_values(array_unique([
     $searchDomain,
-    $searchStem . '.com',
-    $searchStem . '.ai',
-    $searchStem . '.io',
-    $searchStem . 'labs.com',
-    $searchStem . 'studio.co',
+    $searchStem . '.music',
+    $searchStem . '.grey',
+    $searchStem . '.shop',
+    $searchStem . '.dev',
+    $searchStem . '.app',
+    $searchStem . '.xyz',
   ]));
 } else {
-  $searchSuggestions = ['brand.com', 'brand.ai', 'brand.io', 'yourbrand.com', 'mybrand.co', 'yourbrand.app'];
+  $searchSuggestions = ['trovalabs.music', 'trovalabs.grey', 'brand.shop', 'studio.dev', 'mosaic.app', 'northstar.xyz'];
 }
 
 $alternativeCards = [];
 
 if ($hasSearch) {
-  foreach (whois_domain_candidate_domains($searchStem, ['com', 'ai', 'io', 'co', 'net']) as $candidateDomain) {
+  foreach (whois_domain_candidate_domains($searchStem, $globalTlds) as $candidateDomain) {
     $candidateLookup = whois_domain_lookup_cached($candidateDomain);
     $candidateMeta = whois_ai_search_status_meta((string) ($candidateLookup['status'] ?? 'unknown'));
     $candidateTld = substr($candidateDomain, (int) strrpos($candidateDomain, '.') + 1);
@@ -334,12 +391,20 @@ header('Content-Type: text/html; charset=utf-8');
 <p class="text-on-surface-variant text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium">
             Find live registration status, registrar data, and verified premium alternatives in one search.
         </p>
-<form action="whois_ai_domain_search.php" method="get" class="relative max-w-3xl mx-auto mb-6">
+<form action="whois_ai_domain_search.php" method="get" class="relative max-w-4xl mx-auto mb-6">
 <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selectedCurrency, ENT_QUOTES, 'UTF-8'); ?>"/>
-<div class="bg-surface-container-lowest border border-outline-variant p-2 rounded-full flex items-center shadow-sm focus-within:ring-1 focus-within:ring-black transition-all duration-300">
+<div class="bg-surface-container-lowest border border-outline-variant p-2 rounded-full shadow-sm focus-within:ring-1 focus-within:ring-black transition-all duration-300">
+<div class="flex flex-col gap-2 lg:flex-row lg:items-center">
+<div class="flex items-center flex-1 min-w-0">
 <span class="material-symbols-outlined ml-4 text-outline">search</span>
-<input name="query" class="w-full bg-transparent border-none focus:ring-0 px-4 text-lg font-medium text-primary placeholder:text-neutral-400" placeholder="Search domain name (e.g. yourbrand.com)" type="text" value="<?php echo htmlspecialchars($searchInput, ENT_QUOTES, 'UTF-8'); ?>"/>
+<input name="query" class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 text-lg font-medium text-primary placeholder:text-neutral-400" placeholder="Search domain or root name" type="text" value="<?php echo htmlspecialchars($searchInput, ENT_QUOTES, 'UTF-8'); ?>"/>
+</div>
+<div class="flex items-center gap-2 lg:w-72 shrink-0 rounded-full border border-outline-variant/20 bg-surface-container-low px-3 py-2">
+<span class="material-symbols-outlined text-outline text-base">public</span>
+<input name="tld" class="w-full bg-transparent border-none focus:ring-0 text-sm font-semibold text-primary placeholder:text-neutral-400" placeholder="Any TLD, e.g. music" type="text" value="<?php echo htmlspecialchars($searchTld, ENT_QUOTES, 'UTF-8'); ?>"/>
+</div>
 <button type="submit" class="bg-black text-white px-8 py-3 rounded-full font-bold transition-transform active:scale-95">Search</button>
+</div>
 </div>
 </form>
 <div class="flex flex-wrap justify-center gap-3 mb-6 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
@@ -347,12 +412,14 @@ header('Content-Type: text/html; charset=utf-8');
 <a class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2 hover:border-black hover:text-black transition-colors" href="whois_ai_domain_search.php?query=<?php echo rawurlencode($searchSuggestion); ?>&amp;currency=<?php echo rawurlencode($selectedCurrency); ?>"><?php echo htmlspecialchars($searchSuggestion, ENT_QUOTES, 'UTF-8'); ?></a>
 <?php endforeach; ?>
 </div>
-<div class="flex flex-wrap justify-center gap-3 text-sm font-medium text-neutral-500">
-<span>.com - <span class="text-primary"><?php echo htmlspecialchars($heroPrices['com'], ENT_QUOTES, 'UTF-8'); ?></span></span>
-<span class="w-1.5 h-1.5 bg-outline-variant rounded-full mt-2"></span>
-<span>.ai - <span class="text-primary"><?php echo htmlspecialchars($heroPrices['ai'], ENT_QUOTES, 'UTF-8'); ?></span></span>
-<span class="w-1.5 h-1.5 bg-outline-variant rounded-full mt-2"></span>
-<span>.io - <span class="text-primary"><?php echo htmlspecialchars($heroPrices['io'], ENT_QUOTES, 'UTF-8'); ?></span></span>
+<div class="flex flex-wrap items-center justify-center gap-3 text-sm font-medium text-neutral-500">
+<span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Free RDAP supports <?php echo (int) $supportedTldCount; ?> delegated TLDs</span>
+<span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Try .music, .grey, .shop, .dev, .app, .xyz</span>
+</div>
+<div class="mt-4 flex flex-wrap justify-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+<?php foreach (array_slice($globalTlds, 0, 10) as $globalTld): ?>
+<a class="rounded-full border border-outline-variant/30 bg-white px-3 py-2 hover:border-black hover:text-black transition-colors" href="whois_ai_domain_search.php?query=<?php echo rawurlencode($searchStem !== '' ? $searchStem . '.' . $globalTld : 'trovalabs.' . $globalTld); ?>&amp;currency=<?php echo rawurlencode($selectedCurrency); ?>"><?php echo htmlspecialchars('.' . $globalTld, ENT_QUOTES, 'UTF-8'); ?></a>
+<?php endforeach; ?>
 </div>
 </div>
 </section>
@@ -419,10 +486,16 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 <div class="rounded-[2rem] border border-outline-variant/20 bg-surface-container-low p-6">
-<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Currency</p>
-<div class="mt-4 flex overflow-hidden rounded-full border border-outline-variant/30 bg-white">
-<a class="flex-1 px-4 py-3 text-center text-sm font-bold <?php echo $selectedCurrency === 'KES' ? 'bg-black text-white' : 'text-primary'; ?>" href="?query=<?php echo rawurlencode($searchDomain); ?>&amp;currency=KES">KES</a>
-<a class="flex-1 border-l border-outline-variant/30 px-4 py-3 text-center text-sm font-bold <?php echo $selectedCurrency === 'USD' ? 'bg-black text-white' : 'text-primary'; ?>" href="?query=<?php echo rawurlencode($searchDomain); ?>&amp;currency=USD">USD</a>
+<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Display</p>
+<div class="mt-4 space-y-3 text-sm">
+<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3">
+<span class="text-on-surface-variant">Registry source</span>
+<span class="font-bold text-primary">Global RDAP</span>
+</div>
+<div class="flex items-center justify-between gap-4">
+<span class="text-on-surface-variant">Currency</span>
+<span class="font-bold text-primary">USD</span>
+</div>
 </div>
 </div>
 </aside>

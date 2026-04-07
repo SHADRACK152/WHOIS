@@ -155,6 +155,48 @@ function whois_rdap_base_for_tld(string $tld): ?string
     return null;
 }
 
+function whois_rdap_supported_tlds(): array
+{
+    static $cache = null;
+
+    if (is_array($cache)) {
+        return $cache;
+    }
+
+    $tlds = [];
+
+    foreach (whois_rdap_bootstrap_services() as $service) {
+        if (!is_array($service) || count($service) < 2) {
+            continue;
+        }
+
+        $serviceTlds = $service[0] ?? [];
+
+        if (!is_array($serviceTlds)) {
+            continue;
+        }
+
+        foreach ($serviceTlds as $tld) {
+            if (!is_string($tld)) {
+                continue;
+            }
+
+            $normalized = strtolower(trim($tld));
+
+            if ($normalized === '') {
+                continue;
+            }
+
+            $tlds[$normalized] = true;
+        }
+    }
+
+    $cache = array_keys($tlds);
+    sort($cache, SORT_STRING);
+
+    return $cache;
+}
+
 function whois_domain_lookup(string $input): array
 {
     $domain = whois_domain_normalize($input);

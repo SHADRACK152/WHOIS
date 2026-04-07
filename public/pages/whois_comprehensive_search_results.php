@@ -9,7 +9,7 @@ require __DIR__ . '/../../app/grok-client.php';
 require __DIR__ . '/../../app/premium-market.php';
 
 $searchInput = trim((string) ($_GET['query'] ?? 'trovalabs.com'));
-$selectedCurrency = whois_currency_normalize_code((string) ($_GET['currency'] ?? 'KES'), 'KES');
+$selectedCurrency = whois_currency_normalize_code((string) ($_GET['currency'] ?? 'USD'), 'USD');
 $searchDomain = whois_domain_normalize($searchInput);
 
 if ($searchDomain === '') {
@@ -538,12 +538,9 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 <div class="flex flex-wrap justify-center gap-3 items-center">
-<span class="px-4 py-2 rounded-full bg-surface-container-low text-sm font-semibold text-primary">Live retail pricing</span>
+<span class="px-4 py-2 rounded-full bg-surface-container-low text-sm font-semibold text-primary">Global registry availability</span>
 <span class="px-4 py-2 rounded-full bg-surface-container-low text-sm font-semibold text-primary"><?php echo htmlspecialchars($lookupStatusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-<div class="inline-flex items-center rounded-full border border-outline-variant/40 overflow-hidden bg-surface-container-lowest shadow-sm">
-<a class="px-4 py-2 text-sm font-semibold <?php echo $selectedCurrency === 'KES' ? 'bg-primary text-on-primary' : 'text-primary'; ?>" href="?query=<?php echo urlencode($searchDomain); ?>&currency=KES">KES</a>
-<a class="px-4 py-2 text-sm font-semibold border-l border-outline-variant/40 <?php echo $selectedCurrency === 'USD' ? 'bg-primary text-on-primary' : 'text-primary'; ?>" href="?query=<?php echo urlencode($searchDomain); ?>&currency=USD">USD</a>
-</div>
+<span class="px-4 py-2 rounded-full bg-surface-container-low text-sm font-semibold text-primary">USD only</span>
 <?php foreach ($heroPrices as $heroTld => $heroPrice): ?>
 <span class="px-4 py-2 rounded-full bg-surface-container-low text-sm font-semibold text-primary">.<?php echo htmlspecialchars($heroTld, ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($heroPrice['formatted'] ?? 'Price unavailable', ENT_QUOTES, 'UTF-8'); ?></span>
 <?php endforeach; ?>
@@ -579,8 +576,8 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <p class="text-sm text-on-surface-variant mb-6 leading-relaxed"><?php echo htmlspecialchars($lookupNote, ENT_QUOTES, 'UTF-8'); ?></p>
 <div class="space-y-2 text-[11px] uppercase tracking-[0.18em] text-secondary">
-<div>Source: <span class="text-on-surface-variant normal-case tracking-normal">Live registry pricing</span></div>
-<div>Currency: <span class="text-on-surface-variant normal-case tracking-normal"><?php echo htmlspecialchars($selectedCurrency, ENT_QUOTES, 'UTF-8'); ?></span></div>
+<div>Source: <span class="text-on-surface-variant normal-case tracking-normal">Global registry lookup</span></div>
+<div>Currency: <span class="text-on-surface-variant normal-case tracking-normal">USD</span></div>
 </div>
 <div class="h-1 bg-surface-variant w-full overflow-hidden rounded-full">
 <div class="bg-primary h-full w-full opacity-10"></div>
@@ -588,8 +585,8 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <div class="bg-primary text-on-primary p-6 rounded-xl">
 <?php if ($lookupStatus === 'available'): ?>
-<h3 class="text-lg font-bold mb-2 font-['Manrope']">Live Price Feed</h3>
-<p class="text-sm text-on-primary/70 mb-6 font-['Inter'] leading-relaxed">Live registration prices and availability are pulled from the configured pricing source.</p>
+<h3 class="text-lg font-bold mb-2 font-['Manrope']">Global availability feed</h3>
+<p class="text-sm text-on-primary/70 mb-6 font-['Inter'] leading-relaxed">Live registration status is pulled from the global registry lookup and shown in USD only.</p>
 <div class="space-y-3 text-sm">
 <?php foreach ($heroPrices as $heroTld => $heroPrice): ?>
 <div class="flex items-center justify-between gap-4">
