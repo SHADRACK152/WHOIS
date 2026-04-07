@@ -186,16 +186,27 @@ function whois_whois_query_server(string $server, string $query, int $timeout = 
         $port = (int) $matches[2];
     }
 
-    $stream = stream_socket_client(
-        'tcp://' . $host . ':' . $port,
-        $errno,
-        $errstr,
-        $timeout,
-        STREAM_CLIENT_CONNECT
-    );
+    $lastWarning = '';
+    set_error_handler(static function (int $severity, string $message) use (&$lastWarning): bool {
+        $lastWarning = trim($message);
+        return true;
+    });
+
+    try {
+        $stream = stream_socket_client(
+            'tcp://' . $host . ':' . $port,
+            $errno,
+            $errstr,
+            $timeout,
+            STREAM_CLIENT_CONNECT
+        );
+    } finally {
+        restore_error_handler();
+    }
 
     if (!is_resource($stream)) {
-        throw new RuntimeException('Unable to connect to WHOIS server ' . $host . '.' . ($errstr !== '' ? ' ' . $errstr : ''));
+        $reason = trim($errstr !== '' ? $errstr : $lastWarning);
+        throw new RuntimeException('Unable to connect to WHOIS server ' . $host . '.' . ($reason !== '' ? ' ' . $reason : ''));
     }
 
     stream_set_timeout($stream, $timeout);
@@ -1446,7 +1457,7 @@ function whois_domain_lookup(string $input): array
 
         $roles = $entity['roles'] ?? [];
         if (is_array($roles) && in_array('registrar', $roles, true)) {
-            $registrar = $entity['vcardArray'][1][3][3] ?? null;
+            $registrar = whois_rdap_vcard_field($entity, 'fn');
             if (!is_string($registrar)) {
                 $registrar = $entity['handle'] ?? null;
             }

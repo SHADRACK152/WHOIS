@@ -347,6 +347,11 @@ tailwind.config = {
       return;
     }
 
+    if (contact.hasData === false) {
+      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Not available for this domain status.</div>';
+      return;
+    }
+
     const fields = [
       ['Name', contact.name],
       ['Street', contact.street],

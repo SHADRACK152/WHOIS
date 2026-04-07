@@ -93,12 +93,15 @@ $registrantEntity = whois_rdap_find_entity_by_role($entities, 'registrant');
 $administrativeEntity = whois_rdap_find_entity_by_role($entities, 'administrative');
 $technicalEntity = whois_rdap_find_entity_by_role($entities, 'technical');
 
-$buildContactCard = static function (?array $entity, string $label): array {
+$buildContactCard = static function (?array $entity, string $label) use ($lookupStatus): array {
     if (!is_array($entity) || $entity === []) {
+        $isRedacted = $lookupStatus === 'registered';
+
         return [
             'label' => $label,
-            'redacted' => true,
-            'name' => 'Redacted for privacy',
+            'redacted' => $isRedacted,
+            'hasData' => false,
+            'name' => $isRedacted ? 'Redacted for privacy' : 'Not available',
             'street' => '',
             'city' => '',
             'state' => '',
@@ -112,6 +115,7 @@ $buildContactCard = static function (?array $entity, string $label): array {
     return [
         'label' => $label,
         'redacted' => false,
+        'hasData' => true,
         'name' => (($entity['name'] ?? '') !== '') ? (string) $entity['name'] : 'Not listed',
         'street' => $entity['street'] ?? '',
         'city' => $entity['city'] ?? '',
@@ -128,7 +132,11 @@ $administrativeCard = $buildContactCard($administrativeEntity, 'Administrative C
 $technicalCard = $buildContactCard($technicalEntity, 'Technical Contact');
 
 $contactStateForCard = static function (array $card, string $fallback): string {
-    return $card['redacted'] ? $fallback : 'Available';
+    if (($card['hasData'] ?? false) === true) {
+        return 'Available';
+    }
+
+    return $fallback;
 };
 
 $registrarInformation = [

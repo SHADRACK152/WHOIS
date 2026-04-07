@@ -124,7 +124,7 @@ function whois_public_rdap_lookup_domain(string $domain): array
 
         $roles = $entity['roles'] ?? [];
         if (is_array($roles) && in_array('registrar', $roles, true)) {
-            $registrar = $entity['vcardArray'][1][3][3] ?? null;
+            $registrar = whois_rdap_vcard_field($entity, 'fn');
             if (!is_string($registrar)) {
                 $registrar = $entity['handle'] ?? null;
             }
