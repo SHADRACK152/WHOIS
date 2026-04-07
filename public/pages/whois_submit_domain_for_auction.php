@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+
+$initialDomain = trim((string) ($_GET['domain'] ?? $_GET['query'] ?? ''));
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
@@ -196,7 +198,7 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="bg-surface-container-lowest editorial-shadow rounded-xl p-8 border border-outline-variant/30 space-y-6">
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500">Domain Name</label>
-<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all font-medium placeholder:text-neutral-400" id="auction-domain-name" name="domain_name" placeholder="e.g., example.com" type="text"/>
+<input class="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg px-4 py-3 focus:ring-0 focus:border-black transition-all font-medium placeholder:text-neutral-400" id="auction-domain-name" name="domain_name" placeholder="e.g., example.com" type="text" value="<?php echo htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8'); ?>"/>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
