@@ -79,22 +79,7 @@ tailwind.config = {
 </style>
 </head>
 <body class="bg-background text-on-surface">
-<nav class="sticky top-0 z-50 border-b border-outline-variant/40 bg-white/90 backdrop-blur-xl">
-  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 lg:px-8">
-    <a class="flex items-baseline gap-3 text-black" href="whois_premium_domain_intelligence_landing_page.php">
-      <span class="text-xl font-black tracking-tighter">WHOIS</span>
-      <span class="hidden sm:inline text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400">Intelligence Suite</span>
-    </a>
-    <div class="hidden xl:flex items-center gap-6 text-sm font-semibold tracking-tight">
-      <a class="text-neutral-500 hover:text-black transition-colors" href="whois_premium_domain_intelligence_landing_page.php">Home</a>
-      <a class="text-black transition-colors" href="whois_professional_lookup_tool.php">WHOIS Search</a>
-      <a class="text-neutral-500 hover:text-black transition-colors" href="whois_ai_domain_search.php">Search</a>
-      <a class="text-neutral-500 hover:text-black transition-colors" href="whois_premium_domain_marketplace.php">Marketplace</a>
-      <a class="text-neutral-500 hover:text-black transition-colors" href="whois_domain_tools_overview.php">Tools</a>
-    </div>
-    <a class="rounded-full bg-primary px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-on-primary hover:bg-neutral-800 transition-colors" href="whois_professional_lookup_tool.php">WHOIS Search</a>
-  </div>
-</nav>
+<?php require __DIR__ . '/_top_nav.php'; ?>
 
 <main class="mx-auto max-w-7xl px-6 py-8 lg:px-8 lg:py-10">
   <section class="border-b border-outline-variant/40 pb-6">
