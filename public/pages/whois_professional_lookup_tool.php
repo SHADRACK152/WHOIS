@@ -99,7 +99,6 @@ tailwind.config = {
       <div class="max-w-3xl">
         <p class="text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400">WHOIS Domain Lookup</p>
         <h1 class="mt-3 text-4xl font-black tracking-tight lg:text-6xl">WHOIS lookup</h1>
-        <p class="mt-4 max-w-2xl text-base leading-7 text-on-surface-variant lg:text-lg">Search a domain and the result updates inline.</p>
       </div>
       <div class="grid grid-cols-2 gap-3 text-sm lg:min-w-[18rem]">
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4">
