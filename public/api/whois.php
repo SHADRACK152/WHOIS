@@ -169,7 +169,10 @@ whois_json([
         'links' => $links,
         'availabilityNote' => $lookup['availabilityNote'] ?? null,
         'rdapSource' => $lookup['rdapSource'] ?? null,
+        'whoisSource' => $lookup['whoisSource'] ?? null,
+        'lookupSourceLabel' => $lookup['lookupSourceLabel'] ?? null,
         'rawRdap' => $rawRdap,
+        'rawWhois' => $lookup['rawWhois'] ?? null,
     ],
     'contacts' => [
         'registrant' => $contactState,
@@ -189,4 +192,5 @@ whois_json([
     ],
     'alternatives' => $alternatives,
     'rawRdap' => $rawRdap,
+    'rawWhois' => $lookup['rawWhois'] ?? null,
 ]);
