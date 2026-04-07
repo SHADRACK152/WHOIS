@@ -136,6 +136,7 @@ tailwind.config = {
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Result</p>
           <h2 id="whois-domain-heading" class="mt-3 break-all text-3xl font-black tracking-tight lg:text-4xl"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : 'No domain searched yet'; ?></h2>
           <p id="whois-summary" class="mt-3 max-w-3xl text-base leading-7 text-on-surface-variant"><?php echo htmlspecialchars($initialSummary, ENT_QUOTES, 'UTF-8'); ?></p>
+          <p id="whois-updated-relative" class="mt-2 text-sm font-semibold text-on-surface-variant"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_relative_time_label((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : ''; ?></p>
         </div>
         <span id="whois-domain-badge" class="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] <?php echo !$hasInitialLookup ? 'bg-neutral-200 text-neutral-700' : ($initialStatus === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-900 text-white'); ?>"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></span>
       </div>
@@ -154,66 +155,78 @@ tailwind.config = {
 
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registry</p>
-          <div class="mt-4 space-y-4 text-sm">
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registry State</span><span id="whois-status-text" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Lookup Source</span><span class="font-bold text-primary">Global RDAP</span></div>
-            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Result Mode</span><span class="font-bold text-primary">Live, no reload</span></div>
+          <div class="mt-8 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+              <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Domain Information</p>
+              <div class="mt-4 space-y-3 text-sm">
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Domain:</span><span id="whois-domain-name" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registered On:</span><span id="whois-created" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['created'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Expires On:</span><span id="whois-expiration" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['expiration'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Updated On:</span><span id="whois-updated" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Status:</span><span id="whois-status-text" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+              </div>
+            </section>
+            <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+              <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrar Information</p>
+              <div class="mt-4 space-y-3 text-sm">
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registrar:</span><span id="whois-registrar-name" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">IANA ID:</span><span id="whois-registrar-iana" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrarIanaId'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">URL:</span><span id="whois-registrar-url" class="font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Email:</span><span id="whois-registrar-email" class="font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Abuse Email:</span><span id="whois-registrar-abuse-email" class="font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+                <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Abuse Phone:</span><span id="whois-registrar-abuse-phone" class="font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+              </div>
+            </section>
           </div>
-        </div>
-      </div>
 
-      <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Nameservers</p>
-            <p class="mt-2 text-sm text-on-surface-variant">From the registry response.</p>
+          <div class="mt-8 grid gap-4 xl:grid-cols-3">
+            <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+              <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrant Contact</p>
+              <div id="whois-registrant-contact" class="mt-4 space-y-2 text-sm text-on-surface-variant">
+                <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search required</div>
+              </div>
+            </section>
+            <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+              <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Administrative Contact</p>
+              <div id="whois-administrative-contact" class="mt-4 space-y-2 text-sm text-on-surface-variant">
+                <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search required</div>
+              </div>
+            </section>
+            <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+              <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Technical Contact</p>
+              <div id="whois-technical-contact" class="mt-4 space-y-2 text-sm text-on-surface-variant">
+                <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search required</div>
+              </div>
+            </section>
           </div>
-        </div>
-        <div id="whois-nameservers" class="mt-4 flex flex-wrap gap-2">
-          <?php if ($initialNameservers !== []): ?>
-            <?php foreach ($initialNameservers as $nameserver): ?>
-              <span class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-sm font-semibold text-primary"><?php echo htmlspecialchars((string) $nameserver, ENT_QUOTES, 'UTF-8'); ?></span>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <span class="text-sm text-on-surface-variant">No results yet. Search a domain to load nameservers.</span>
-          <?php endif; ?>
-        </div>
-      </div>
 
-      <div class="mt-8 grid gap-4 md:grid-cols-2">
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Metadata</p>
-          <div class="mt-4 space-y-3 text-sm">
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Handle</span><span id="whois-handle" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['handle'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Object Class</span><span id="whois-object-class" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['objectClassName'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Port 43</span><span id="whois-port43" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['port43'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">RDAP Source</span><span id="whois-rdap-source" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['rdapSource'] ?? 'Unavailable'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-          </div>
-        </div>
-        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status</p>
-          <div id="whois-status-list" class="mt-4 flex flex-wrap gap-2">
-            <?php if ($hasInitialLookup && !empty($initialLookup['statuses']) && is_array($initialLookup['statuses'])): ?>
-              <?php foreach ($initialLookup['statuses'] as $status): ?>
-                <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo htmlspecialchars((string) $status, ENT_QUOTES, 'UTF-8'); ?></span>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <span class="text-sm text-on-surface-variant">Search required</span>
-            <?php endif; ?>
-          </div>
-          <div id="whois-secure-dns" class="mt-4 text-sm text-on-surface-variant"><?php echo $hasInitialLookup && is_array($initialLookup['secureDns'] ?? null) ? htmlspecialchars('DNSSEC details available', ENT_QUOTES, 'UTF-8') : 'Search required'; ?></div>
-        </div>
-      </div>
-
-      <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contacts</p>
-        <div id="whois-contact-entities" class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load contacts.</div>
-        </div>
-      </div>
-
-      <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Events</p>
+          <details class="mt-8 rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
+            <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">More Record Data</summary>
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Notices</p>
+                <div id="whois-notices" class="mt-4 space-y-3">
+                  <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load notices.</div>
+                </div>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</p>
+                <div id="whois-remarks" class="mt-4 space-y-3">
+                  <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load remarks.</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6">
+              <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Events</p>
+              <div id="whois-events" class="mt-4 space-y-3">
+                <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load events.</div>
+              </div>
+            </div>
+            <details class="mt-6 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+              <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Raw RDAP</summary>
+              <pre id="whois-raw-rdap" class="mt-4 max-h-[28rem] overflow-auto rounded-2xl bg-neutral-950 p-5 text-xs leading-6 text-neutral-100">Search to load raw data.</pre>
+            </details>
+          </details>
         <div id="whois-events" class="mt-4 space-y-3">
           <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search to load events.</div>
         </div>
@@ -293,20 +306,22 @@ tailwind.config = {
   const domainBadge = document.getElementById('whois-domain-badge');
   const statusLabel = document.getElementById('whois-status-label');
   const summary = document.getElementById('whois-summary');
+  const updatedRelative = document.getElementById('whois-updated-relative');
   const domainName = document.getElementById('whois-domain-name');
-  const registrar = document.getElementById('whois-registrar');
   const created = document.getElementById('whois-created');
   const expiration = document.getElementById('whois-expiration');
   const updated = document.getElementById('whois-updated');
   const statusText = document.getElementById('whois-status-text');
   const nameservers = document.getElementById('whois-nameservers');
-  const handle = document.getElementById('whois-handle');
-  const objectClass = document.getElementById('whois-object-class');
-  const port43 = document.getElementById('whois-port43');
-  const rdapSource = document.getElementById('whois-rdap-source');
-  const statusList = document.getElementById('whois-status-list');
-  const secureDns = document.getElementById('whois-secure-dns');
-  const contactEntities = document.getElementById('whois-contact-entities');
+  const registrarName = document.getElementById('whois-registrar-name');
+  const registrarIana = document.getElementById('whois-registrar-iana');
+  const registrarUrl = document.getElementById('whois-registrar-url');
+  const registrarEmail = document.getElementById('whois-registrar-email');
+  const registrarAbuseEmail = document.getElementById('whois-registrar-abuse-email');
+  const registrarAbusePhone = document.getElementById('whois-registrar-abuse-phone');
+  const registrantContact = document.getElementById('whois-registrant-contact');
+  const administrativeContact = document.getElementById('whois-administrative-contact');
+  const technicalContact = document.getElementById('whois-technical-contact');
   const events = document.getElementById('whois-events');
   const notices = document.getElementById('whois-notices');
   const remarks = document.getElementById('whois-remarks');
@@ -343,6 +358,49 @@ tailwind.config = {
     }
 
     nameservers.innerHTML = list.map((item) => '<span class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-sm font-semibold text-primary">' + escapeHtml(item) + '</span>').join('');
+  }
+
+  function renderDefinitionRows(container, rows, emptyMessage) {
+    if (!container) return;
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">' + escapeHtml(emptyMessage) + '</div>';
+      return;
+    }
+
+    container.innerHTML = rows.map((row) => {
+      const value = row.value ? escapeHtml(row.value) : 'Not listed';
+      return '<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3 last:border-b-0 last:pb-0"><span class="text-on-surface-variant">' + escapeHtml(row.label) + '</span><span class="font-bold text-primary break-all text-right">' + value + '</span></div>';
+    }).join('');
+  }
+
+  function renderContactCard(container, contact) {
+    if (!container) return;
+
+    if (!contact || typeof contact !== 'object') {
+      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search required</div>';
+      return;
+    }
+
+    if (contact.redacted) {
+      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Redacted for privacy</div>';
+      return;
+    }
+
+    const fields = [
+      ['Name', contact.name],
+      ['Street', contact.street],
+      ['City', contact.city],
+      ['State', contact.state],
+      ['Postal Code', contact.postalCode],
+      ['Country', contact.country],
+      ['Phone', contact.phone],
+      ['Email', contact.email],
+    ];
+
+    container.innerHTML = fields.map(([label, value]) => {
+      return '<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3 last:border-b-0 last:pb-0"><span class="text-on-surface-variant">' + escapeHtml(label) + ':</span><span class="font-bold text-primary break-all text-right">' + escapeHtml(value || 'Not listed') + '</span></div>';
+    }).join('');
   }
 
   function renderChipList(container, items, emptyMessage) {
@@ -537,26 +595,32 @@ tailwind.config = {
       }
 
       const lookup = data.lookup || {};
+      const profile = data.profile || {};
+      const domainInfo = profile.domainInformation || {};
+      const registrarInfo = profile.registrarInformation || {};
+      const contacts = profile.contacts || {};
 
       if (domainHeading) domainHeading.textContent = data.domain || query;
-      if (domainName) domainName.textContent = String(lookup.domain || data.domain || query).toUpperCase();
-      if (registrar) registrar.textContent = lookup.registrar || 'Unavailable';
-      if (created) created.textContent = lookup.created || 'Not listed';
-      if (expiration) expiration.textContent = lookup.expiration || 'Not listed';
-      if (updated) updated.textContent = lookup.updated || 'Not listed';
-      if (statusText) statusText.textContent = lookup.statusLabel || 'Unknown';
+      if (updatedRelative) updatedRelative.textContent = profile.updatedRelative || '';
+      if (domainName) domainName.textContent = String(domainInfo.domain || lookup.domain || data.domain || query).toLowerCase();
+      if (created) created.textContent = domainInfo.registeredOn || 'Not listed';
+      if (expiration) expiration.textContent = domainInfo.expiresOn || 'Not listed';
+      if (updated) updated.textContent = domainInfo.updatedOn || 'Not listed';
+      if (statusText) statusText.textContent = (Array.isArray(domainInfo.statuses) && domainInfo.statuses.length > 0 ? domainInfo.statuses.join(', ') : lookup.statusLabel) || 'Unknown';
       if (summary) summary.textContent = data.summary || 'Live registry data returned.';
       if (statusLabel) statusLabel.textContent = data.availabilityHeadline || 'Unknown';
-      if (handle) handle.textContent = lookup.handle || 'Not listed';
-      if (objectClass) objectClass.textContent = lookup.objectClassName || 'Not listed';
-      if (port43) port43.textContent = lookup.port43 || 'Not listed';
-      if (rdapSource) rdapSource.textContent = lookup.rdapSource || 'Unavailable';
+      if (registrarName) registrarName.textContent = registrarInfo.registrar || 'Not listed';
+      if (registrarIana) registrarIana.textContent = registrarInfo.ianaId || 'Not listed';
+      if (registrarUrl) registrarUrl.textContent = registrarInfo.url || 'Not listed';
+      if (registrarEmail) registrarEmail.textContent = registrarInfo.email || 'Not listed';
+      if (registrarAbuseEmail) registrarAbuseEmail.textContent = registrarInfo.abuseEmail || 'Not listed';
+      if (registrarAbusePhone) registrarAbusePhone.textContent = registrarInfo.abusePhone || 'Not listed';
 
       setBadge(lookup.status || 'unknown', data.availabilityHeadline || lookup.statusLabel || 'Unknown');
-      renderNameservers(lookup.nameservers || []);
-      renderChipList(statusList, lookup.statuses || [], 'No statuses returned.');
-      renderSecureDns(lookup.secureDns || null);
-      renderEntities(lookup.entities || []);
+      renderNameservers(domainInfo.nameServers || lookup.nameservers || []);
+      renderContactCard(registrantContact, contacts.registrant || null);
+      renderContactCard(administrativeContact, contacts.administrative || null);
+      renderContactCard(technicalContact, contacts.technical || null);
       renderEvents(lookup.events || []);
       renderTextBlocks(notices, lookup.notices || [], 'No notices returned.');
       renderTextBlocks(remarks, lookup.remarks || [], 'No remarks returned.');

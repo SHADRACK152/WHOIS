@@ -72,6 +72,52 @@ $links = is_array($lookup['links'] ?? null) ? $lookup['links'] : [];
 $secureDns = is_array($lookup['secureDns'] ?? null) ? $lookup['secureDns'] : null;
 $statuses = is_array($lookup['statuses'] ?? null) ? $lookup['statuses'] : [];
 $rawRdap = $lookup['rawRdap'] ?? null;
+$updatedRelative = whois_rdap_relative_time_label($lookup['updated'] ?? null);
+
+$registrarEntity = whois_rdap_find_entity_by_role($entities, 'registrar');
+$abuseEntity = whois_rdap_find_entity_by_role($entities, 'abuse');
+$registrantEntity = whois_rdap_find_entity_by_role($entities, 'registrant');
+$administrativeEntity = whois_rdap_find_entity_by_role($entities, 'administrative');
+$technicalEntity = whois_rdap_find_entity_by_role($entities, 'technical');
+
+$buildContactCard = static function (?array $entity, string $label): array {
+    if (!is_array($entity) || $entity === []) {
+        return [
+            'label' => $label,
+            'redacted' => true,
+            'name' => 'Redacted for privacy',
+            'street' => '',
+            'city' => '',
+            'state' => '',
+            'postalCode' => '',
+            'country' => '',
+            'phone' => '',
+            'email' => '',
+        ];
+    }
+
+    return [
+        'label' => $label,
+        'redacted' => false,
+        'name' => $entity['name'] !== '' ? $entity['name'] : 'Not listed',
+        'street' => $entity['street'] ?? '',
+        'city' => $entity['city'] ?? '',
+        'state' => $entity['state'] ?? '',
+        'postalCode' => $entity['postalCode'] ?? '',
+        'country' => $entity['country'] ?? '',
+        'phone' => $entity['phone'] ?? '',
+        'email' => $entity['email'] ?? '',
+    ];
+};
+
+$registrarInformation = [
+    'registrar' => $registrarEntity['name'] ?? ($lookup['registrar'] ?? null),
+    'ianaId' => $lookup['registrarIanaId'] ?? null,
+    'url' => $registrarEntity['url'] ?? null,
+    'email' => $registrarEntity['email'] ?? null,
+    'abuseEmail' => is_array($abuseEntity) ? ($abuseEntity['email'] ?? null) : null,
+    'abusePhone' => is_array($abuseEntity) ? ($abuseEntity['phone'] ?? null) : null,
+];
 
 $contactState = $lookupStatus === 'registered'
     ? 'REDACTED FOR PRIVACY'
@@ -82,6 +128,25 @@ whois_json([
     'domain' => $domain,
     'summary' => whois_domain_lookup_summary($lookup),
     'availabilityHeadline' => $availabilityHeadline,
+    'profile' => [
+        'updatedRelative' => $updatedRelative,
+        'domainInformation' => [
+            'domain' => $domain,
+            'registeredOn' => whois_rdap_date_only($lookup['created'] ?? null),
+            'expiresOn' => whois_rdap_date_only($lookup['expiration'] ?? null),
+            'updatedOn' => whois_rdap_date_only($lookup['updated'] ?? null),
+            'status' => $lookupStatus,
+            'statusLabel' => whois_domain_lookup_badge($lookup),
+            'statuses' => $statuses,
+            'nameServers' => $nameservers,
+        ],
+        'registrarInformation' => $registrarInformation,
+        'contacts' => [
+            'registrant' => $buildContactCard($registrantEntity, 'Registrant Contact'),
+            'administrative' => $buildContactCard($administrativeEntity, 'Administrative Contact'),
+            'technical' => $buildContactCard($technicalEntity, 'Technical Contact'),
+        ],
+    ],
     'lookup' => [
         'domain' => $domain,
         'status' => $lookupStatus,

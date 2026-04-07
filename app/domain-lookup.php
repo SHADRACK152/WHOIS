@@ -279,6 +279,76 @@ function whois_rdap_vcard_field(array $entity, string $fieldName): string
     return '';
 }
 
+function whois_rdap_vcard_value(array $entity, string $fieldName): mixed
+{
+    $vcard = $entity['vcardArray'][1] ?? null;
+
+    if (!is_array($vcard)) {
+        return null;
+    }
+
+    foreach ($vcard as $entry) {
+        if (!is_array($entry) || !isset($entry[0])) {
+            continue;
+        }
+
+        if (strtolower(trim((string) $entry[0])) !== strtolower($fieldName)) {
+            continue;
+        }
+
+        return $entry[3] ?? null;
+    }
+
+    return null;
+}
+
+function whois_rdap_vcard_address(array $entity): array
+{
+    $value = whois_rdap_vcard_value($entity, 'adr');
+    $parts = is_array($value) ? array_values($value) : [];
+
+    return [
+        'street' => is_string($parts[2] ?? null) ? trim((string) $parts[2]) : '',
+        'city' => is_string($parts[3] ?? null) ? trim((string) $parts[3]) : '',
+        'state' => is_string($parts[4] ?? null) ? trim((string) $parts[4]) : '',
+        'postalCode' => is_string($parts[5] ?? null) ? trim((string) $parts[5]) : '',
+        'country' => is_string($parts[6] ?? null) ? trim((string) $parts[6]) : '',
+    ];
+}
+
+function whois_rdap_contact_value(mixed $value): string
+{
+    $text = whois_rdap_stringify_value($value);
+
+    if ($text === '') {
+        return '';
+    }
+
+    $normalized = preg_replace('/^tel:/i', '', $text) ?? $text;
+    $normalized = preg_replace('/^mailto:/i', '', $normalized) ?? $normalized;
+
+    return trim($normalized);
+}
+
+function whois_rdap_vcard_link(array $entity): string
+{
+    $links = is_array($entity['links'] ?? null) ? whois_rdap_links($entity['links']) : [];
+
+    foreach ($links as $link) {
+        if (($link['rel'] ?? '') === 'about' && ($link['href'] ?? '') !== '') {
+            return (string) $link['href'];
+        }
+    }
+
+    foreach ($links as $link) {
+        if (($link['href'] ?? '') !== '') {
+            return (string) $link['href'];
+        }
+    }
+
+    return whois_rdap_contact_value(whois_rdap_vcard_value($entity, 'url'));
+}
+
 function whois_rdap_entity_list(array $entities): array
 {
     $normalized = [];
@@ -300,12 +370,13 @@ function whois_rdap_entity_list(array $entities): array
         }
 
         $address = whois_rdap_vcard_field($entity, 'adr');
-        $email = whois_rdap_vcard_field($entity, 'email');
-        $phone = whois_rdap_vcard_field($entity, 'tel');
+        $addressParts = whois_rdap_vcard_address($entity);
+        $email = whois_rdap_contact_value(whois_rdap_vcard_value($entity, 'email'));
+        $phone = whois_rdap_contact_value(whois_rdap_vcard_value($entity, 'tel'));
         $name = whois_rdap_vcard_field($entity, 'fn');
         $organization = whois_rdap_vcard_field($entity, 'org');
         $title = whois_rdap_vcard_field($entity, 'title');
-        $url = whois_rdap_vcard_field($entity, 'url');
+        $url = whois_rdap_vcard_link($entity);
 
         $publicIds = [];
         foreach ($entity['publicIds'] ?? [] as $publicId) {
@@ -328,13 +399,41 @@ function whois_rdap_entity_list(array $entities): array
             'email' => $email,
             'phone' => $phone,
             'address' => $address,
+            'street' => $addressParts['street'],
+            'city' => $addressParts['city'],
+            'state' => $addressParts['state'],
+            'postalCode' => $addressParts['postalCode'],
+            'country' => $addressParts['country'],
             'url' => $url,
             'status' => is_array($entity['status'] ?? null) ? array_values(array_filter(array_map(static fn ($status) => is_string($status) ? trim($status) : '', $entity['status']))) : [],
             'publicIds' => $publicIds,
+            'links' => $url !== '' ? [['href' => $url]] : [],
+            'children' => whois_rdap_entity_list(is_array($entity['entities'] ?? null) ? $entity['entities'] : []),
         ];
     }
 
     return $normalized;
+}
+
+function whois_rdap_find_entity_by_role(array $entities, string $role): ?array
+{
+    foreach ($entities as $entity) {
+        if (!is_array($entity)) {
+            continue;
+        }
+
+        if (in_array($role, $entity['roles'] ?? [], true)) {
+            return $entity;
+        }
+
+        $childEntity = whois_rdap_find_entity_by_role(is_array($entity['children'] ?? null) ? $entity['children'] : [], $role);
+
+        if (is_array($childEntity)) {
+            return $childEntity;
+        }
+    }
+
+    return null;
 }
 
 function whois_rdap_text_blocks(array $items): array
@@ -398,6 +497,50 @@ function whois_rdap_links(array $links): array
     }
 
     return $normalized;
+}
+
+function whois_rdap_date_only(?string $value): string
+{
+    if (!is_string($value)) {
+        return '';
+    }
+
+    $value = trim($value);
+
+    if ($value === '') {
+        return '';
+    }
+
+    return substr($value, 0, 10);
+}
+
+function whois_rdap_relative_time_label(?string $value): string
+{
+    if (!is_string($value)) {
+        return '';
+    }
+
+    $value = trim($value);
+
+    if ($value === '') {
+        return '';
+    }
+
+    try {
+        $then = new DateTimeImmutable($value);
+        $now = new DateTimeImmutable('now', $then->getTimezone());
+        $difference = $now->diff($then);
+    } catch (Throwable $exception) {
+        return '';
+    }
+
+    if ($difference->days === 0) {
+        return $difference->invert === 1 ? 'Updated today' : 'Updated today';
+    }
+
+    $label = $difference->days . ' day' . ($difference->days === 1 ? '' : 's');
+
+    return $difference->invert === 1 ? 'Updated ' . $label . ' ago' : 'Updated in ' . $label;
 }
 
 function whois_domain_lookup(string $input): array
