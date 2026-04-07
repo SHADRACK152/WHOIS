@@ -117,12 +117,10 @@ function whois_ai_http_post_json(string $url, array $payload, string $apiKey, in
 
         if ($responseBody === false) {
             $error = curl_error($handle);
-            curl_close($handle);
             throw new RuntimeException($error !== '' ? $error : 'Grok request failed.');
         }
 
         $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
-        curl_close($handle);
     } else {
         $headers = [
             'Authorization: Bearer ' . $apiKey,

@@ -47,12 +47,10 @@ function whois_http_get_json(string $url): array
 
         if ($responseBody === false) {
             $error = curl_error($handle);
-            curl_close($handle);
             throw new RuntimeException($error !== '' ? $error : 'Lookup request failed.');
         }
 
         $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
-        curl_close($handle);
     } else {
         $context = stream_context_create([
             'http' => [

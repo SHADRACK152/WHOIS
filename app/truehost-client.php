@@ -94,12 +94,10 @@ function whois_truehost_request(string $action, array $fields = []): array
 
         if ($responseBody === false) {
             $error = curl_error($handle);
-            curl_close($handle);
             throw new RuntimeException($error !== '' ? $error : 'Truehost request failed.');
         }
 
         $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
-        curl_close($handle);
     } else {
         $context = stream_context_create([
             'http' => [
@@ -223,11 +221,8 @@ function whois_truehost_tld_pricing_from_page(): array
 
             if ($html === false) {
                 $error = curl_error($handle);
-                curl_close($handle);
                 throw new RuntimeException($error !== '' ? $error : 'Truehost pricing page request failed.');
             }
-
-            curl_close($handle);
         } else {
             $context = stream_context_create([
                 'http' => [
