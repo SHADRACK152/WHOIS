@@ -197,6 +197,209 @@ function whois_rdap_supported_tlds(): array
     return $cache;
 }
 
+function whois_rdap_stringify_value(mixed $value): string
+{
+    if (is_string($value)) {
+        return trim($value);
+    }
+
+    if (is_int($value) || is_float($value) || is_bool($value)) {
+        return trim((string) $value);
+    }
+
+    if (!is_array($value)) {
+        return '';
+    }
+
+    $parts = [];
+
+    foreach ($value as $item) {
+        $part = whois_rdap_stringify_value($item);
+
+        if ($part !== '') {
+            $parts[] = $part;
+        }
+    }
+
+    return trim(implode(', ', $parts));
+}
+
+function whois_rdap_event_list(array $events): array
+{
+    $normalized = [];
+
+    foreach ($events as $event) {
+        if (!is_array($event)) {
+            continue;
+        }
+
+        $action = trim((string) ($event['eventAction'] ?? ''));
+        $date = is_string($event['eventDate'] ?? null) ? trim((string) $event['eventDate']) : '';
+        $actor = is_string($event['eventActor'] ?? null) ? trim((string) $event['eventActor']) : '';
+
+        if ($action === '' && $date === '' && $actor === '') {
+            continue;
+        }
+
+        $normalized[] = [
+            'action' => $action,
+            'date' => $date,
+            'actor' => $actor,
+        ];
+    }
+
+    return $normalized;
+}
+
+function whois_rdap_vcard_field(array $entity, string $fieldName): string
+{
+    $vcard = $entity['vcardArray'][1] ?? null;
+
+    if (!is_array($vcard)) {
+        return '';
+    }
+
+    foreach ($vcard as $entry) {
+        if (!is_array($entry) || !isset($entry[0])) {
+            continue;
+        }
+
+        if (strtolower(trim((string) $entry[0])) !== strtolower($fieldName)) {
+            continue;
+        }
+
+        $value = $entry[3] ?? null;
+        $text = whois_rdap_stringify_value($value);
+
+        if ($text !== '') {
+            return $text;
+        }
+    }
+
+    return '';
+}
+
+function whois_rdap_entity_list(array $entities): array
+{
+    $normalized = [];
+
+    foreach ($entities as $entity) {
+        if (!is_array($entity)) {
+            continue;
+        }
+
+        $roles = [];
+        foreach ($entity['roles'] ?? [] as $role) {
+            if (is_string($role)) {
+                $role = strtolower(trim($role));
+
+                if ($role !== '') {
+                    $roles[] = $role;
+                }
+            }
+        }
+
+        $address = whois_rdap_vcard_field($entity, 'adr');
+        $email = whois_rdap_vcard_field($entity, 'email');
+        $phone = whois_rdap_vcard_field($entity, 'tel');
+        $name = whois_rdap_vcard_field($entity, 'fn');
+        $organization = whois_rdap_vcard_field($entity, 'org');
+        $title = whois_rdap_vcard_field($entity, 'title');
+        $url = whois_rdap_vcard_field($entity, 'url');
+
+        $publicIds = [];
+        foreach ($entity['publicIds'] ?? [] as $publicId) {
+            if (!is_array($publicId)) {
+                continue;
+            }
+
+            $publicIds[] = [
+                'type' => is_string($publicId['type'] ?? null) ? trim((string) $publicId['type']) : '',
+                'identifier' => is_string($publicId['identifier'] ?? null) ? trim((string) $publicId['identifier']) : '',
+            ];
+        }
+
+        $normalized[] = [
+            'handle' => is_string($entity['handle'] ?? null) ? trim((string) $entity['handle']) : '',
+            'roles' => $roles,
+            'name' => $name,
+            'organization' => $organization,
+            'title' => $title,
+            'email' => $email,
+            'phone' => $phone,
+            'address' => $address,
+            'url' => $url,
+            'status' => is_array($entity['status'] ?? null) ? array_values(array_filter(array_map(static fn ($status) => is_string($status) ? trim($status) : '', $entity['status']))) : [],
+            'publicIds' => $publicIds,
+        ];
+    }
+
+    return $normalized;
+}
+
+function whois_rdap_text_blocks(array $items): array
+{
+    $normalized = [];
+
+    foreach ($items as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $text = [];
+
+        $description = $item['description'] ?? [];
+        if (is_string($description)) {
+            $description = [$description];
+        }
+
+        foreach ($description as $line) {
+            if (is_string($line) && trim($line) !== '') {
+                $text[] = trim($line);
+            }
+        }
+
+        $title = $item['title'] ?? '';
+        if (is_string($title)) {
+            $title = [$title];
+        }
+
+        foreach ($title as $line) {
+            if (is_string($line) && trim($line) !== '') {
+                $text[] = trim($line);
+            }
+        }
+
+        $normalized[] = [
+            'title' => is_string($item['title'] ?? null) ? trim((string) $item['title']) : '',
+            'description' => $text,
+            'links' => is_array($item['links'] ?? null) ? $item['links'] : [],
+        ];
+    }
+
+    return $normalized;
+}
+
+function whois_rdap_links(array $links): array
+{
+    $normalized = [];
+
+    foreach ($links as $link) {
+        if (!is_array($link)) {
+            continue;
+        }
+
+        $normalized[] = [
+            'href' => is_string($link['href'] ?? null) ? trim((string) $link['href']) : '',
+            'rel' => is_string($link['rel'] ?? null) ? trim((string) $link['rel']) : '',
+            'title' => is_string($link['title'] ?? null) ? trim((string) $link['title']) : '',
+            'type' => is_string($link['type'] ?? null) ? trim((string) $link['type']) : '',
+        ];
+    }
+
+    return $normalized;
+}
+
 function whois_domain_lookup(string $input): array
 {
     $domain = whois_domain_normalize($input);
@@ -207,11 +410,23 @@ function whois_domain_lookup(string $input): array
             'status' => 'unknown',
             'statusLabel' => 'Enter a domain to begin',
             'registrar' => null,
+            'handle' => null,
+            'objectClassName' => null,
+            'port43' => null,
+            'statuses' => [],
             'created' => null,
+            'expiration' => null,
             'updated' => null,
             'nameservers' => [],
+            'secureDns' => null,
+            'events' => [],
+            'entities' => [],
+            'notices' => [],
+            'remarks' => [],
+            'links' => [],
             'availabilityNote' => 'Type a domain to check registration status.',
             'rdapSource' => null,
+            'rawRdap' => null,
         ];
     }
 
@@ -224,11 +439,23 @@ function whois_domain_lookup(string $input): array
             'status' => 'unknown',
             'statusLabel' => 'Registry lookup unavailable',
             'registrar' => null,
+            'handle' => null,
+            'objectClassName' => null,
+            'port43' => null,
+            'statuses' => [],
             'created' => null,
+            'expiration' => null,
             'updated' => null,
             'nameservers' => [],
+            'secureDns' => null,
+            'events' => [],
+            'entities' => [],
+            'notices' => [],
+            'remarks' => [],
+            'links' => [],
             'availabilityNote' => 'No RDAP endpoint was found for this TLD.',
             'rdapSource' => null,
+            'rawRdap' => null,
         ];
     }
 
@@ -242,11 +469,23 @@ function whois_domain_lookup(string $input): array
             'status' => 'unknown',
             'statusLabel' => 'Lookup failed',
             'registrar' => null,
+            'handle' => null,
+            'objectClassName' => null,
+            'port43' => null,
+            'statuses' => [],
             'created' => null,
+            'expiration' => null,
             'updated' => null,
             'nameservers' => [],
+            'secureDns' => null,
+            'events' => [],
+            'entities' => [],
+            'notices' => [],
+            'remarks' => [],
+            'links' => [],
             'availabilityNote' => $exception->getMessage(),
             'rdapSource' => $rdapUrl,
+            'rawRdap' => null,
         ];
     }
 
@@ -259,11 +498,23 @@ function whois_domain_lookup(string $input): array
             'status' => 'available',
             'statusLabel' => 'Available',
             'registrar' => null,
+            'handle' => null,
+            'objectClassName' => null,
+            'port43' => null,
+            'statuses' => [],
             'created' => null,
+            'expiration' => null,
             'updated' => null,
             'nameservers' => [],
+            'secureDns' => null,
+            'events' => [],
+            'entities' => [],
+            'notices' => [],
+            'remarks' => [],
+            'links' => [],
             'availabilityNote' => 'RDAP returned no registration record for this domain.',
             'rdapSource' => $rdapUrl,
+            'rawRdap' => null,
         ];
     }
 
@@ -273,15 +524,28 @@ function whois_domain_lookup(string $input): array
             'status' => 'unknown',
             'statusLabel' => 'Lookup returned no data',
             'registrar' => null,
+            'handle' => null,
+            'objectClassName' => null,
+            'port43' => null,
+            'statuses' => [],
             'created' => null,
+            'expiration' => null,
             'updated' => null,
             'nameservers' => [],
+            'secureDns' => null,
+            'events' => [],
+            'entities' => [],
+            'notices' => [],
+            'remarks' => [],
+            'links' => [],
             'availabilityNote' => 'The registry response could not be parsed.',
             'rdapSource' => $rdapUrl,
+            'rawRdap' => null,
         ];
     }
 
     $events = is_array($body['events'] ?? null) ? $body['events'] : [];
+    $normalizedEvents = whois_rdap_event_list($events);
     $nameservers = [];
 
     foreach ($body['nameservers'] ?? [] as $nameserver) {
@@ -314,11 +578,26 @@ function whois_domain_lookup(string $input): array
         }
     }
 
+    $statuses = [];
+    foreach ($body['status'] ?? [] as $status) {
+        if (is_string($status)) {
+            $status = trim($status);
+
+            if ($status !== '') {
+                $statuses[] = $status;
+            }
+        }
+    }
+    $statuses = array_values(array_unique($statuses));
+
     $registrar = null;
+    $entities = [];
     foreach ($body['entities'] ?? [] as $entity) {
         if (!is_array($entity)) {
             continue;
         }
+
+        $entities[] = whois_rdap_entity_list([$entity])[0] ?? [];
 
         $roles = $entity['roles'] ?? [];
         if (is_array($roles) && in_array('registrar', $roles, true)) {
@@ -330,17 +609,70 @@ function whois_domain_lookup(string $input): array
         }
     }
 
+    $notices = whois_rdap_text_blocks(is_array($body['notices'] ?? null) ? $body['notices'] : []);
+    $remarks = whois_rdap_text_blocks(is_array($body['remarks'] ?? null) ? $body['remarks'] : []);
+    $links = whois_rdap_links(is_array($body['links'] ?? null) ? $body['links'] : []);
+    $secureDns = is_array($body['secureDNS'] ?? null) ? $body['secureDNS'] : null;
+    $handle = is_string($body['handle'] ?? null) ? trim((string) $body['handle']) : null;
+    $objectClassName = is_string($body['objectClassName'] ?? null) ? trim((string) $body['objectClassName']) : null;
+    $port43 = is_string($body['port43'] ?? null) ? trim((string) $body['port43']) : null;
+
+    $registrarIanaId = null;
+    foreach ($entities as $entity) {
+        if (!is_array($entity)) {
+            continue;
+        }
+
+        if (in_array('registrar', $entity['roles'] ?? [], true)) {
+            foreach ($body['entities'] ?? [] as $rawEntity) {
+                if (!is_array($rawEntity)) {
+                    continue;
+                }
+
+                $roles = $rawEntity['roles'] ?? [];
+                if (!is_array($roles) || !in_array('registrar', $roles, true)) {
+                    continue;
+                }
+
+                if (is_array($rawEntity['publicIds'] ?? null)) {
+                    foreach ($rawEntity['publicIds'] as $publicId) {
+                        if (!is_array($publicId)) {
+                            continue;
+                        }
+
+                        if (strtolower((string) ($publicId['type'] ?? '')) === 'iana registrar id') {
+                            $registrarIanaId = is_string($publicId['identifier'] ?? null) ? trim((string) $publicId['identifier']) : null;
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return [
         'domain' => $domain,
         'status' => 'registered',
         'statusLabel' => 'Registered',
         'registrar' => is_string($registrar) ? $registrar : null,
+        'registrarIanaId' => $registrarIanaId,
+        'handle' => $handle,
+        'objectClassName' => $objectClassName,
+        'port43' => $port43,
+        'statuses' => $statuses,
         'created' => $created,
         'expiration' => $expiration,
         'updated' => $updated,
         'nameservers' => $nameservers,
+        'secureDns' => $secureDns,
+        'events' => $normalizedEvents,
+        'entities' => $entities,
+        'notices' => $notices,
+        'remarks' => $remarks,
+        'links' => $links,
         'availabilityNote' => 'RDAP reports an active registration record for this domain.',
         'rdapSource' => $rdapUrl,
+        'rawRdap' => $body,
     ];
 }
 

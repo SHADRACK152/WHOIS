@@ -64,6 +64,15 @@ $availabilityHeadline = $lookupStatus === 'available'
     ? 'Available'
     : ($lookupStatus === 'registered' || $lookupStatus === 'unavailable' ? 'Taken' : 'Unknown');
 
+$entities = is_array($lookup['entities'] ?? null) ? $lookup['entities'] : [];
+$events = is_array($lookup['events'] ?? null) ? $lookup['events'] : [];
+$notices = is_array($lookup['notices'] ?? null) ? $lookup['notices'] : [];
+$remarks = is_array($lookup['remarks'] ?? null) ? $lookup['remarks'] : [];
+$links = is_array($lookup['links'] ?? null) ? $lookup['links'] : [];
+$secureDns = is_array($lookup['secureDns'] ?? null) ? $lookup['secureDns'] : null;
+$statuses = is_array($lookup['statuses'] ?? null) ? $lookup['statuses'] : [];
+$rawRdap = $lookup['rawRdap'] ?? null;
+
 $contactState = $lookupStatus === 'registered'
     ? 'REDACTED FOR PRIVACY'
     : 'Not available';
@@ -78,22 +87,41 @@ whois_json([
         'status' => $lookupStatus,
         'statusLabel' => whois_domain_lookup_badge($lookup),
         'registrar' => $lookup['registrar'] ?? null,
+        'registrarIanaId' => $lookup['registrarIanaId'] ?? null,
+        'handle' => $lookup['handle'] ?? null,
+        'objectClassName' => $lookup['objectClassName'] ?? null,
+        'port43' => $lookup['port43'] ?? null,
+        'statuses' => $statuses,
         'created' => $lookup['created'] ?? null,
         'expiration' => $lookup['expiration'] ?? null,
         'updated' => $lookup['updated'] ?? null,
         'nameservers' => $nameservers,
+        'secureDns' => $secureDns,
+        'events' => $events,
+        'entities' => $entities,
+        'notices' => $notices,
+        'remarks' => $remarks,
+        'links' => $links,
         'availabilityNote' => $lookup['availabilityNote'] ?? null,
         'rdapSource' => $lookup['rdapSource'] ?? null,
+        'rawRdap' => $rawRdap,
     ],
     'contacts' => [
         'registrant' => $contactState,
         'administrative' => $contactState,
         'technical' => $contactState,
+        'entities' => $entities,
     ],
     'metrics' => [
         'supportedTlds' => count(whois_rdap_supported_tlds()),
         'checkedExtensions' => count($candidateTlds),
         'availableAlternatives' => count(array_filter($alternatives, static fn (array $candidate): bool => $candidate['available'] === true)),
+        'statusCount' => count($statuses),
+        'contactCount' => count($entities),
+        'eventCount' => count($events),
+        'noticeCount' => count($notices),
+        'remarkCount' => count($remarks),
     ],
     'alternatives' => $alternatives,
+    'rawRdap' => $rawRdap,
 ]);

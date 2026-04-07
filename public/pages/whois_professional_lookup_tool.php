@@ -180,6 +180,67 @@ tailwind.config = {
           <?php endif; ?>
         </div>
       </div>
+
+      <div class="mt-8 grid gap-4 md:grid-cols-2">
+        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registry Metadata</p>
+          <div class="mt-4 space-y-3 text-sm">
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Handle</span><span id="whois-handle" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['handle'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Object Class</span><span id="whois-object-class" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['objectClassName'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Port 43</span><span id="whois-port43" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['port43'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">RDAP Source</span><span id="whois-rdap-source" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['rdapSource'] ?? 'Unavailable'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status Flags</p>
+          <div id="whois-status-list" class="mt-4 flex flex-wrap gap-2">
+            <?php if ($hasInitialLookup && !empty($initialLookup['statuses']) && is_array($initialLookup['statuses'])): ?>
+              <?php foreach ($initialLookup['statuses'] as $status): ?>
+                <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo htmlspecialchars((string) $status, ENT_QUOTES, 'UTF-8'); ?></span>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <span class="text-sm text-on-surface-variant">Search required</span>
+            <?php endif; ?>
+          </div>
+          <div id="whois-secure-dns" class="mt-4 text-sm text-on-surface-variant"><?php echo $hasInitialLookup && is_array($initialLookup['secureDns'] ?? null) ? htmlspecialchars('DNSSEC details available', ENT_QUOTES, 'UTF-8') : 'Search required'; ?></div>
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contact Entities</p>
+        <div id="whois-contact-entities" class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registrant, administrative, and technical entities.</div>
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Events</p>
+        <div id="whois-events" class="mt-4 space-y-3">
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registry events.</div>
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Notices</p>
+            <div id="whois-notices" class="mt-4 space-y-3">
+              <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registry notices.</div>
+            </div>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</p>
+            <div id="whois-remarks" class="mt-4 space-y-3">
+              <div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">Search a domain to view registry remarks.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <details class="mt-8 rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
+        <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Raw RDAP Record</summary>
+        <pre id="whois-raw-rdap" class="mt-4 max-h-[28rem] overflow-auto rounded-2xl bg-neutral-950 p-5 text-xs leading-6 text-neutral-100">Search a domain to view the raw RDAP payload.</pre>
+      </details>
     </article>
 
     <aside class="space-y-6">
@@ -240,6 +301,17 @@ tailwind.config = {
   const updated = document.getElementById('whois-updated');
   const statusText = document.getElementById('whois-status-text');
   const nameservers = document.getElementById('whois-nameservers');
+  const handle = document.getElementById('whois-handle');
+  const objectClass = document.getElementById('whois-object-class');
+  const port43 = document.getElementById('whois-port43');
+  const rdapSource = document.getElementById('whois-rdap-source');
+  const statusList = document.getElementById('whois-status-list');
+  const secureDns = document.getElementById('whois-secure-dns');
+  const contactEntities = document.getElementById('whois-contact-entities');
+  const events = document.getElementById('whois-events');
+  const notices = document.getElementById('whois-notices');
+  const remarks = document.getElementById('whois-remarks');
+  const rawRdap = document.getElementById('whois-raw-rdap');
   const alternatives = document.getElementById('whois-alternatives');
   const alternativeCount = document.getElementById('whois-alternative-count');
   const brandFitInput = document.getElementById('brand-fit-input');
@@ -272,6 +344,144 @@ tailwind.config = {
     }
 
     nameservers.innerHTML = list.map((item) => '<span class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-sm font-semibold text-primary">' + escapeHtml(item) + '</span>').join('');
+  }
+
+  function renderChipList(container, items, emptyMessage) {
+    if (!container) return;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      container.innerHTML = '<span class="text-sm text-on-surface-variant">' + escapeHtml(emptyMessage) + '</span>';
+      return;
+    }
+
+    container.innerHTML = items.map((item) => '<span class="rounded-full border border-outline-variant/30 bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">' + escapeHtml(item) + '</span>').join('');
+  }
+
+  function renderSecureDns(block) {
+    if (!secureDns) return;
+
+    if (!block || typeof block !== 'object') {
+      secureDns.textContent = 'Search required';
+      return;
+    }
+
+    const parts = [];
+
+    if (Object.prototype.hasOwnProperty.call(block, 'delegationSigned')) {
+      parts.push('Delegation signed: ' + (block.delegationSigned ? 'Yes' : 'No'));
+    }
+
+    if (Object.prototype.hasOwnProperty.call(block, 'zoneSigned')) {
+      parts.push('Zone signed: ' + (block.zoneSigned ? 'Yes' : 'No'));
+    }
+
+    if (Array.isArray(block.dsData)) {
+      parts.push('DS records: ' + block.dsData.length);
+    }
+
+    secureDns.textContent = parts.length > 0 ? parts.join(' · ') : 'Search required';
+  }
+
+  function renderEntities(list) {
+    if (!contactEntities) return;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      contactEntities.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">No contact entities were returned by the registry.</div>';
+      return;
+    }
+
+    contactEntities.innerHTML = list.map((entity) => {
+      const roles = Array.isArray(entity.roles) && entity.roles.length > 0 ? entity.roles : ['unlabeled'];
+      const roleChips = roles.map((role) => '<span class="rounded-full bg-neutral-200 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-700">' + escapeHtml(role) + '</span>').join(' ');
+      const publicIds = Array.isArray(entity.publicIds) && entity.publicIds.length > 0
+        ? entity.publicIds.map((publicId) => publicId.identifier ? escapeHtml((publicId.type || 'id') + ': ' + publicId.identifier) : '').filter(Boolean)
+        : [];
+      const statusTags = Array.isArray(entity.status) && entity.status.length > 0
+        ? entity.status.map((status) => '<span class="rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">' + escapeHtml(status) + '</span>').join(' ')
+        : '<span class="text-xs text-on-surface-variant">No entity status returned.</span>';
+
+      return [
+        '<article class="rounded-2xl border border-outline-variant/20 bg-white p-4">',
+        '<div class="flex items-start justify-between gap-4">',
+        '<div>',
+        '<h4 class="text-lg font-bold text-primary break-all">' + escapeHtml(entity.name || entity.organization || entity.handle || 'Redacted entity') + '</h4>',
+        '<div class="mt-2 flex flex-wrap gap-2">' + roleChips + '</div>',
+        '</div>',
+        '<span class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">' + escapeHtml(entity.handle || 'No handle') + '</span>',
+        '</div>',
+        '<div class="mt-4 space-y-2 text-sm text-on-surface-variant">',
+        '<div><span class="font-semibold text-primary">Organization:</span> ' + escapeHtml(entity.organization || 'Not listed') + '</div>',
+        '<div><span class="font-semibold text-primary">Title:</span> ' + escapeHtml(entity.title || 'Not listed') + '</div>',
+        '<div><span class="font-semibold text-primary">Email:</span> ' + escapeHtml(entity.email || 'Not listed') + '</div>',
+        '<div><span class="font-semibold text-primary">Phone:</span> ' + escapeHtml(entity.phone || 'Not listed') + '</div>',
+        '<div><span class="font-semibold text-primary">Address:</span> ' + escapeHtml(entity.address || 'Not listed') + '</div>',
+        '<div><span class="font-semibold text-primary">URL:</span> ' + escapeHtml(entity.url || 'Not listed') + '</div>',
+        '</div>',
+        '<div class="mt-4 flex flex-wrap gap-2">' + statusTags + '</div>',
+        publicIds.length > 0 ? '<div class="mt-4 flex flex-wrap gap-2">' + publicIds.map((item) => '<span class="rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">' + item + '</span>').join('') + '</div>' : '',
+        '</article>'
+      ].join('');
+    }).join('');
+  }
+
+  function renderEvents(list) {
+    if (!events) return;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      events.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">No registry events were returned.</div>';
+      return;
+    }
+
+    events.innerHTML = list.map((event) => {
+      const title = event.action || 'event';
+      const date = event.date || 'Not listed';
+      const actor = event.actor || '';
+
+      return [
+        '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4">',
+        '<div class="flex items-start justify-between gap-4">',
+        '<div>',
+        '<p class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">' + escapeHtml(title) + '</p>',
+        '<p class="mt-2 text-sm font-semibold text-primary">' + escapeHtml(date) + '</p>',
+        '</div>',
+        '<span class="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">' + escapeHtml(actor || 'registry') + '</span>',
+        '</div>',
+        '</div>'
+      ].join('');
+    }).join('');
+  }
+
+  function renderTextBlocks(container, list, emptyMessage) {
+    if (!container) return;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      container.innerHTML = '<div class="rounded-2xl border border-outline-variant/20 bg-white p-4 text-sm text-on-surface-variant">' + escapeHtml(emptyMessage) + '</div>';
+      return;
+    }
+
+    container.innerHTML = list.map((item) => {
+      const descriptions = Array.isArray(item.description) ? item.description : [];
+      const links = Array.isArray(item.links) ? item.links : [];
+
+      return [
+        '<article class="rounded-2xl border border-outline-variant/20 bg-white p-4">',
+        item.title ? '<p class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">' + escapeHtml(item.title) + '</p>' : '',
+        descriptions.length > 0 ? '<div class="mt-2 space-y-1 text-sm text-on-surface-variant">' + descriptions.map((line) => '<p>' + escapeHtml(line) + '</p>').join('') + '</div>' : '<p class="mt-2 text-sm text-on-surface-variant">No description returned.</p>',
+        links.length > 0 ? '<div class="mt-3 flex flex-wrap gap-2">' + links.map((link) => '<span class="rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">' + escapeHtml((link.rel || 'link') + (link.title ? ' · ' + link.title : '')) + '</span>').join('') + '</div>' : '',
+        '</article>'
+      ].join('');
+    }).join('');
+  }
+
+  function renderRawRdap(raw) {
+    if (!rawRdap) return;
+
+    if (!raw || typeof raw !== 'object') {
+      rawRdap.textContent = 'Search a domain to view the raw RDAP payload.';
+      return;
+    }
+
+    rawRdap.textContent = JSON.stringify(raw, null, 2);
   }
 
   function renderAlternatives(list) {
@@ -338,16 +548,29 @@ tailwind.config = {
       if (statusText) statusText.textContent = lookup.statusLabel || 'Unknown';
       if (summary) summary.textContent = data.summary || 'Live registry data returned.';
       if (statusLabel) statusLabel.textContent = data.availabilityHeadline || 'Unknown';
+      if (handle) handle.textContent = lookup.handle || 'Not listed';
+      if (objectClass) objectClass.textContent = lookup.objectClassName || 'Not listed';
+      if (port43) port43.textContent = lookup.port43 || 'Not listed';
+      if (rdapSource) rdapSource.textContent = lookup.rdapSource || 'Unavailable';
 
       setBadge(lookup.status || 'unknown', data.availabilityHeadline || lookup.statusLabel || 'Unknown');
       renderNameservers(lookup.nameservers || []);
+      renderChipList(statusList, lookup.statuses || [], 'No statuses returned.');
+      renderSecureDns(lookup.secureDns || null);
+      renderEntities(lookup.entities || []);
+      renderEvents(lookup.events || []);
+      renderTextBlocks(notices, lookup.notices || [], 'No notices returned.');
+      renderTextBlocks(remarks, lookup.remarks || [], 'No remarks returned.');
+      renderRawRdap(lookup.rawRdap || data.rawRdap || null);
       renderAlternatives(data.alternatives || []);
 
       if (brandFitResult) {
         const supportedTlds = data.metrics && typeof data.metrics.supportedTlds === 'number' ? data.metrics.supportedTlds : 0;
         const availableAlternatives = data.metrics && typeof data.metrics.availableAlternatives === 'number' ? data.metrics.availableAlternatives : 0;
+        const contactCount = data.metrics && typeof data.metrics.contactCount === 'number' ? data.metrics.contactCount : 0;
+        const eventCount = data.metrics && typeof data.metrics.eventCount === 'number' ? data.metrics.eventCount : 0;
         brandFitResult.textContent = supportedTlds > 0
-          ? 'Checked against ' + supportedTlds + ' delegated TLDs with ' + availableAlternatives + ' open alternatives.'
+          ? 'Checked against ' + supportedTlds + ' delegated TLDs, ' + contactCount + ' contact entities, ' + eventCount + ' events, and ' + availableAlternatives + ' open alternatives.'
           : 'No delegated TLD data available right now.';
       }
 
