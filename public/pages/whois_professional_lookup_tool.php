@@ -88,11 +88,6 @@ tailwind.config = {
         <p class="text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400">WHOIS Domain Lookup</p>
         <h1 class="mt-2 text-3xl font-black tracking-tight lg:text-5xl">WHOIS lookup</h1>
       </div>
-      <div class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">
-        <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-1.5">Live</span>
-        <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-1.5">Registry</span>
-        <span class="rounded-full border border-outline-variant/30 bg-white px-3 py-1.5">Inline</span>
-      </div>
     </div>
 
     <form id="whois-lookup-form" class="mt-6">
