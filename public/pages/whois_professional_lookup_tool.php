@@ -160,77 +160,69 @@ tailwind.config = {
         </div>
       </div>
 
-      <div class="grid gap-4 lg:grid-cols-2">
-        <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+      <section class="grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Domain Information</p>
-          <div class="mt-4 grid gap-3 text-sm">
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registered On</span><span class="font-bold text-primary" id="whois-domain-registered-on"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['created'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Expires On</span><span id="whois-expiration" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['expiration'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Updated On</span><span id="whois-updated" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Name Servers</span><span class="font-bold text-primary text-right">Live</span></div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Registered On</span><span id="whois-domain-registered-on" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['created'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Expires On</span><span id="whois-expiration" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['expiration'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Updated On</span><span id="whois-updated" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(whois_rdap_date_only((string) ($initialLookup['updated'] ?? null)), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Name Servers</span><span class="mt-2 block font-bold text-primary">Live</span></div>
           </div>
-        </section>
+        </div>
 
-        <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+        <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrar Information</p>
-          <div class="mt-4 grid gap-3 text-sm">
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">IANA ID</span><span id="whois-registrar-iana" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrarIanaId'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">URL</span><span id="whois-registrar-url" class="font-bold text-primary break-all text-right"><?php echo 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Email</span><span id="whois-registrar-email" class="font-bold text-primary break-all text-right"><?php echo 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Abuse Email</span><span id="whois-registrar-abuse-email" class="font-bold text-primary break-all text-right"><?php echo 'Search required'; ?></span></div>
-            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Abuse Phone</span><span id="whois-registrar-abuse-phone" class="font-bold text-primary break-all text-right"><?php echo 'Search required'; ?></span></div>
-          </div>
-        </section>
-      </div>
-
-      <div class="grid gap-4 xl:grid-cols-3">
-        <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Registrant Contact</p>
-          <div id="whois-registrant-contact" class="mt-4 space-y-2 text-sm text-on-surface-variant">
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search required</div>
-          </div>
-        </section>
-        <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Administrative Contact</p>
-          <div id="whois-administrative-contact" class="mt-4 space-y-2 text-sm text-on-surface-variant">
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search required</div>
-          </div>
-        </section>
-        <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Technical Contact</p>
-          <div id="whois-technical-contact" class="mt-4 space-y-2 text-sm text-on-surface-variant">
-            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search required</div>
-          </div>
-        </section>
-      </div>
-
-      <details class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-        <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">More Record Data</summary>
-        <div class="mt-4 grid gap-4 lg:grid-cols-2">
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Notices</p>
-            <div id="whois-notices" class="mt-4 space-y-3">
-              <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">Search to load notices.</div>
-            </div>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</p>
-            <div id="whois-remarks" class="mt-4 space-y-3">
-              <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">Search to load remarks.</div>
-            </div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">IANA ID</span><span id="whois-registrar-iana" class="mt-2 block font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrarIanaId'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">URL</span><span id="whois-registrar-url" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Email</span><span id="whois-registrar-email" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
+            <div class="rounded-2xl border border-outline-variant/20 bg-white p-4"><span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Abuse Email</span><span id="whois-registrar-abuse-email" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span><span class="mt-3 block text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Abuse Phone</span><span id="whois-registrar-abuse-phone" class="mt-2 block break-all font-bold text-primary"><?php echo 'Search required'; ?></span></div>
           </div>
         </div>
-        <div class="mt-6">
-          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Events</p>
-          <div id="whois-events" class="mt-4 space-y-3">
-            <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">Search to load events.</div>
+      </section>
+
+      <section class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Contacts</p>
+        <div class="mt-4 grid gap-4 xl:grid-cols-3">
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Registrant</p>
+            <div id="whois-registrant-contact" class="mt-3 space-y-2 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">Search required</div></div>
+          </div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Administrative</p>
+            <div id="whois-administrative-contact" class="mt-3 space-y-2 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">Search required</div></div>
+          </div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Technical</p>
+            <div id="whois-technical-contact" class="mt-3 space-y-2 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">Search required</div></div>
           </div>
         </div>
-        <details class="mt-6 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
-          <summary class="cursor-pointer list-none text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Raw RDAP</summary>
-          <pre id="whois-raw-rdap" class="mt-4 max-h-[20rem] overflow-auto rounded-2xl bg-neutral-950 p-5 text-xs leading-6 text-neutral-100">Search to load raw data.</pre>
-        </details>
-      </details>
+      </section>
+
+      <section class="rounded-2xl border border-outline-variant/30 bg-white p-5 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
+        <div class="flex items-center justify-between gap-4">
+          <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">More Record Data</p>
+          <details class="rounded-full border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
+            <summary class="cursor-pointer list-none">Raw RDAP</summary>
+            <pre id="whois-raw-rdap" class="mt-3 max-h-[12rem] overflow-auto rounded-2xl bg-neutral-950 p-4 text-xs leading-6 text-neutral-100">Search to load raw data.</pre>
+          </details>
+        </div>
+        <div class="mt-4 grid gap-4 xl:grid-cols-3">
+          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Events</p>
+            <div id="whois-events" class="mt-3 space-y-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search to load events.</div></div>
+          </div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Notices</p>
+            <div id="whois-notices" class="mt-3 space-y-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search to load notices.</div></div>
+          </div>
+          <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Remarks</p>
+            <div id="whois-remarks" class="mt-3 space-y-3 text-sm text-on-surface-variant"><div class="rounded-2xl border border-outline-variant/20 bg-white p-4">Search to load remarks.</div></div>
+          </div>
+        </div>
+      </section>
     </article>
 
     <aside class="space-y-6 lg:sticky lg:top-24 self-start">
