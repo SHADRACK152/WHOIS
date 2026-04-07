@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/domain-lookup.php';
+
 function whois_truehost_env(string $name): ?string
 {
     $value = getenv($name);
@@ -156,6 +158,12 @@ function whois_truehost_tld_pricing(): array
         return $cache;
     }
 
+    $cache = whois_truehost_tld_pricing_from_page();
+
+    if (is_array($cache) && ($cache['pricing'] ?? []) !== []) {
+        return $cache;
+    }
+
     $response = null;
 
     try {
@@ -178,7 +186,7 @@ function whois_truehost_tld_pricing(): array
         }
     }
 
-    $cache = whois_truehost_tld_pricing_from_page();
+    $cache = is_array($cache) ? $cache : whois_truehost_tld_pricing_from_page();
 
     return $cache;
 }
@@ -298,6 +306,20 @@ function whois_truehost_tld_price(string $tld, string $mode = 'register'): ?arra
     $currency = is_array($pricing['currency'] ?? null) ? $pricing['currency'] : [];
     $pricingEntry = $pricing['pricing'][$tld] ?? null;
 
+    if (!is_array($pricingEntry) || $pricingEntry === [] || (($pricing['source'] ?? '') !== 'page' && !isset($pricingEntry[$mode]))) {
+        $pagePricing = whois_truehost_tld_pricing_from_page();
+
+        if (is_array($pagePricing['pricing'] ?? null)) {
+            $fallbackEntry = $pagePricing['pricing'][$tld] ?? null;
+
+            if (is_array($fallbackEntry) && $fallbackEntry !== []) {
+                $pricing = $pagePricing;
+                $currency = is_array($pricing['currency'] ?? null) ? $pricing['currency'] : [];
+                $pricingEntry = $fallbackEntry;
+            }
+        }
+    }
+
     if (!is_array($pricingEntry)) {
         return null;
     }
@@ -359,18 +381,46 @@ function whois_truehost_domain_lookup(string $domain): array
             'domain' => $domain,
         ]);
     } catch (Throwable $exception) {
+        $response = null;
+    }
+
+    if (!is_array($response)) {
+        if (function_exists('whois_domain_lookup')) {
+            $fallback = whois_domain_lookup($domain);
+
+            return [
+                'domain' => (string) ($fallback['domain'] ?? $domain),
+                'status' => (string) ($fallback['status'] ?? 'unknown'),
+                'statusLabel' => (string) ($fallback['statusLabel'] ?? 'Unknown'),
+                'whois' => is_string($fallback['whois'] ?? null) ? $fallback['whois'] : null,
+                'availabilityNote' => (string) ($fallback['availabilityNote'] ?? 'Registry lookup unavailable.'),
+            ];
+        }
+
         return [
             'domain' => $domain,
             'status' => 'unknown',
             'statusLabel' => 'Lookup failed',
             'whois' => null,
-            'availabilityNote' => $exception->getMessage(),
+            'availabilityNote' => 'Registry lookup unavailable.',
         ];
     }
 
     $status = strtolower((string) ($response['status'] ?? 'unknown'));
 
     if ($status !== 'available' && $status !== 'unavailable') {
+        if (function_exists('whois_domain_lookup')) {
+            $fallback = whois_domain_lookup($domain);
+
+            return [
+                'domain' => (string) ($fallback['domain'] ?? $domain),
+                'status' => (string) ($fallback['status'] ?? 'unknown'),
+                'statusLabel' => (string) ($fallback['statusLabel'] ?? 'Unknown'),
+                'whois' => is_string($fallback['whois'] ?? null) ? $fallback['whois'] : null,
+                'availabilityNote' => (string) ($fallback['availabilityNote'] ?? 'Registry lookup unavailable.'),
+            ];
+        }
+
         $status = 'unknown';
     }
 

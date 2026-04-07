@@ -489,7 +489,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <p class="text-sm text-on-surface-variant mb-6 leading-relaxed"><?php echo htmlspecialchars($lookupNote, ENT_QUOTES, 'UTF-8'); ?></p>
 <div class="space-y-2 text-[11px] uppercase tracking-[0.18em] text-secondary">
-<div>Source: <span class="text-on-surface-variant normal-case tracking-normal">Registry pricing API</span></div>
+<div>Source: <span class="text-on-surface-variant normal-case tracking-normal">Live registry pricing</span></div>
 <div>Currency: <span class="text-on-surface-variant normal-case tracking-normal"><?php echo htmlspecialchars($selectedCurrency, ENT_QUOTES, 'UTF-8'); ?></span></div>
 </div>
 <div class="h-1 bg-surface-variant w-full overflow-hidden rounded-full">
