@@ -112,7 +112,7 @@ $buildContactCard = static function (?array $entity, string $label): array {
     return [
         'label' => $label,
         'redacted' => false,
-        'name' => $entity['name'] !== '' ? $entity['name'] : 'Not listed',
+        'name' => (($entity['name'] ?? '') !== '') ? (string) $entity['name'] : 'Not listed',
         'street' => $entity['street'] ?? '',
         'city' => $entity['city'] ?? '',
         'state' => $entity['state'] ?? '',
@@ -121,6 +121,14 @@ $buildContactCard = static function (?array $entity, string $label): array {
         'phone' => $entity['phone'] ?? '',
         'email' => $entity['email'] ?? '',
     ];
+};
+
+$registrantCard = $buildContactCard($registrantEntity, 'Registrant Contact');
+$administrativeCard = $buildContactCard($administrativeEntity, 'Administrative Contact');
+$technicalCard = $buildContactCard($technicalEntity, 'Technical Contact');
+
+$contactStateForCard = static function (array $card, string $fallback): string {
+    return $card['redacted'] ? $fallback : 'Available';
 };
 
 $registrarInformation = [
@@ -155,9 +163,9 @@ whois_json([
         ],
         'registrarInformation' => $registrarInformation,
         'contacts' => [
-            'registrant' => $buildContactCard($registrantEntity, 'Registrant Contact'),
-            'administrative' => $buildContactCard($administrativeEntity, 'Administrative Contact'),
-            'technical' => $buildContactCard($technicalEntity, 'Technical Contact'),
+            'registrant' => $registrantCard,
+            'administrative' => $administrativeCard,
+            'technical' => $technicalCard,
         ],
     ],
     'lookup' => [
@@ -183,15 +191,16 @@ whois_json([
         'availabilityNote' => $lookup['availabilityNote'] ?? null,
         'rdapSource' => $lookup['rdapSource'] ?? null,
         'whoisSource' => $lookup['whoisSource'] ?? null,
+        'publicRdapSource' => $lookup['publicRdapSource'] ?? null,
         'lookupSourceLabel' => $lookup['lookupSourceLabel'] ?? null,
         'eventRows' => $eventRows,
         'rawRdap' => $rawRdap,
         'rawWhois' => $lookup['rawWhois'] ?? null,
     ],
     'contacts' => [
-        'registrant' => $contactState,
-        'administrative' => $contactState,
-        'technical' => $contactState,
+        'registrant' => $contactStateForCard($registrantCard, $contactState),
+        'administrative' => $contactStateForCard($administrativeCard, $contactState),
+        'technical' => $contactStateForCard($technicalCard, $contactState),
         'entities' => $entities,
     ],
     'metrics' => [

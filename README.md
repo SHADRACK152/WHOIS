@@ -25,6 +25,8 @@ This folder is the PHP-only backend scaffold for the WHOIS pages suite.
 - Set `GROQ_API_KEY` in the environment before using the AI workflows.
 - Optional overrides: `GROQ_MODEL`, `GROQ_BASE_URL`, and `GROQ_TIMEOUT`.
 - Set `WHOIS_INSECURE_SSL=1` if the RDAP lookup needs to bypass local certificate verification in this environment.
+- The backend can also use the public RDAP proxy at `https://rdap.org` as a free supplemental lookup source for sparse records.
+- Optional overrides: `PUBLIC_RDAP_BASE_URL`, `PUBLIC_RDAP_TIMEOUT`, and `PUBLIC_RDAP_INSECURE_SSL`.
 - Set `TRUEHOST_ENDPOINT`, `TRUEHOST_IDENTIFIER`, `TRUEHOST_SECRET`, and `TRUEHOST_ACCESSKEY` to fetch live domain pricing and availability from Truehost.
 - Optional Truehost overrides: `TRUEHOST_CURRENCYID`, `TRUEHOST_TIMEOUT`, and `TRUEHOST_INSECURE_SSL`.
 - Set `DOMAINR_RAPIDAPI_KEY` and optionally `DOMAINR_RAPIDAPI_HOST=domainr.p.rapidapi.com` to verify premium or priced domains through Domainr's RapidAPI tier.
@@ -46,4 +48,4 @@ This folder is the PHP-only backend scaffold for the WHOIS pages suite.
 - Deploy from the `backend/` directory so Vercel picks up `vercel.json`.
 - The deployment uses `backend/api/index.php` as the front controller with the `vercel-php@0.9.0` runtime.
 - The function bundle includes `app/**` and `public/**` so the existing PHP pages and assets resolve correctly.
-- Set `GROQ_API_KEY` for the AI workflows and add the Truehost variables if you want live pricing and availability.
+- Set `GROQ_API_KEY` for the AI workflows and add the Truehost and public RDAP variables if you want live pricing, availability, and richer free WHOIS coverage.

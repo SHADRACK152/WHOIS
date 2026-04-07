@@ -98,17 +98,15 @@ function whois_http_get_json(string $url): array
     ];
 }
 
+require_once __DIR__ . '/public-rdap-client.php';
+
 function whois_domain_lookup_empty_result(string $domain, string $status, string $statusLabel, string $note, ?string $rdapSource = null, ?string $whoisSource = null): array
 {
-    $lookupSourceLabel = 'Registry';
-
-    if ($rdapSource !== null && $whoisSource !== null) {
-        $lookupSourceLabel = 'RDAP + WHOIS';
-    } elseif ($whoisSource !== null) {
-        $lookupSourceLabel = 'WHOIS';
-    } elseif ($rdapSource !== null) {
-        $lookupSourceLabel = 'RDAP';
-    }
+    $lookupSourceLabel = whois_domain_lookup_source_label([
+        'rdapSource' => $rdapSource,
+        'whoisSource' => $whoisSource,
+        'publicRdapSource' => null,
+    ]);
 
     return [
         'domain' => $domain,
@@ -120,9 +118,9 @@ function whois_domain_lookup_empty_result(string $domain, string $status, string
         'objectClassName' => null,
         'port43' => null,
         'statuses' => [],
-        'created' => null,
-        'expiration' => null,
-        'updated' => null,
+            'created' => null,
+            'expiration' => null,
+            'updated' => null,
         'nameservers' => [],
         'secureDns' => null,
         'events' => [],
@@ -234,6 +232,7 @@ function whois_whois_parse_fields(string $text): array
 {
     $fields = [];
     $currentKey = null;
+    $currentSectionPrefix = '';
     $lines = preg_split('/\r\n|\r|\n/', $text) ?: [];
 
     foreach ($lines as $line) {
@@ -242,13 +241,44 @@ function whois_whois_parse_fields(string $text): array
 
         if ($trimmed === '') {
             $currentKey = null;
+            $currentSectionPrefix = '';
+            continue;
+        }
+
+        $sectionLabel = strtolower($trimmed);
+
+        if (preg_match('/^(domain information|registrar information|registrant contact|administrative contact|technical contact|raw registry data|more record data|contacts|events|notices|remarks)$/i', $trimmed) === 1) {
+            if (str_contains($sectionLabel, 'registrant contact')) {
+                $currentSectionPrefix = 'registrant';
+            } elseif (str_contains($sectionLabel, 'administrative contact')) {
+                $currentSectionPrefix = 'administrative';
+            } elseif (str_contains($sectionLabel, 'technical contact')) {
+                $currentSectionPrefix = 'technical';
+            } elseif (str_contains($sectionLabel, 'registrar information')) {
+                $currentSectionPrefix = 'registrar';
+            } elseif (str_contains($sectionLabel, 'domain information')) {
+                $currentSectionPrefix = 'domain';
+            } else {
+                $currentSectionPrefix = '';
+            }
+
+            $currentKey = null;
             continue;
         }
 
         if (preg_match('/^\s*([^:]{2,80}):\s*(.*)$/u', $line, $matches) === 1) {
             $currentKey = whois_whois_normalize_key($matches[1]);
             $fields[$currentKey] ??= [];
-            $fields[$currentKey][] = trim($matches[2]);
+
+            $value = trim($matches[2]);
+            $fields[$currentKey][] = $value;
+
+            if ($currentSectionPrefix !== '') {
+                $sectionKey = whois_whois_normalize_key($currentSectionPrefix . ' ' . $matches[1]);
+                $fields[$sectionKey] ??= [];
+                $fields[$sectionKey][] = $value;
+            }
+
             continue;
         }
 
@@ -257,6 +287,18 @@ function whois_whois_parse_fields(string $text): array
 
             if ($index >= 0) {
                 $fields[$currentKey][$index] = trim($fields[$currentKey][$index] . ' ' . trim($matches[1]));
+
+                if ($currentSectionPrefix !== '') {
+                    $sectionKey = whois_whois_normalize_key($currentSectionPrefix . ' ' . $currentKey);
+
+                    if (array_key_exists($sectionKey, $fields)) {
+                        $sectionIndex = count($fields[$sectionKey]) - 1;
+
+                        if ($sectionIndex >= 0) {
+                            $fields[$sectionKey][$sectionIndex] = $fields[$currentKey][$index];
+                        }
+                    }
+                }
             }
         }
     }
@@ -489,7 +531,7 @@ function whois_whois_lookup_domain(string $domain, string $tld): array
         'title' => ['registrar title'],
         'email' => ['registrar email'],
         'phone' => ['registrar phone'],
-        'street' => ['registrar street address', 'registrar address'],
+        'street' => ['registrar street', 'registrar street address', 'registrar address'],
         'city' => ['registrar city'],
         'state' => ['registrar state', 'registrar state/province'],
         'postalCode' => ['registrar postal code', 'registrar postalcode'],
@@ -504,7 +546,7 @@ function whois_whois_lookup_domain(string $domain, string $tld): array
         'title' => ['abuse title'],
         'email' => ['abuse contact email', 'abuse email', 'registrar abuse contact email'],
         'phone' => ['abuse contact phone', 'abuse phone', 'registrar abuse contact phone'],
-        'street' => ['abuse street address', 'abuse address'],
+        'street' => ['abuse street', 'abuse street address', 'abuse address'],
         'city' => ['abuse city'],
         'state' => ['abuse state', 'abuse state/province'],
         'postalCode' => ['abuse postal code'],
@@ -519,7 +561,7 @@ function whois_whois_lookup_domain(string $domain, string $tld): array
         'title' => ['registrant title'],
         'email' => ['registrant email'],
         'phone' => ['registrant phone'],
-        'street' => ['registrant street address', 'registrant address'],
+        'street' => ['registrant street', 'registrant street address', 'registrant address'],
         'city' => ['registrant city'],
         'state' => ['registrant state', 'registrant state/province'],
         'postalCode' => ['registrant postal code', 'registrant postalcode'],
@@ -534,7 +576,7 @@ function whois_whois_lookup_domain(string $domain, string $tld): array
         'title' => ['administrative title', 'admin title'],
         'email' => ['administrative email', 'admin email'],
         'phone' => ['administrative phone', 'admin phone'],
-        'street' => ['administrative street address', 'admin street address', 'administrative address', 'admin address'],
+        'street' => ['administrative street', 'administrative street address', 'admin street address', 'administrative address', 'admin address'],
         'city' => ['administrative city', 'admin city'],
         'state' => ['administrative state', 'admin state', 'administrative state/province', 'admin state/province'],
         'postalCode' => ['administrative postal code', 'admin postal code'],
@@ -549,7 +591,7 @@ function whois_whois_lookup_domain(string $domain, string $tld): array
         'title' => ['technical title', 'tech title'],
         'email' => ['technical email', 'tech email'],
         'phone' => ['technical phone', 'tech phone'],
-        'street' => ['technical street address', 'tech street address', 'technical address', 'tech address'],
+        'street' => ['technical street', 'technical street address', 'tech street address', 'technical address', 'tech address'],
         'city' => ['technical city', 'tech city'],
         'state' => ['technical state', 'tech state', 'technical state/province', 'tech state/province'],
         'postalCode' => ['technical postal code', 'tech postal code'],
@@ -671,15 +713,10 @@ function whois_domain_lookup_merge_whois(array $lookup, array $whoisLookup): arr
     }
 
     $lookup['whoisSource'] = $whoisLookup['whoisSource'] ?? ($lookup['whoisSource'] ?? null);
+    $lookup['publicRdapSource'] = $whoisLookup['publicRdapSource'] ?? ($lookup['publicRdapSource'] ?? null);
     $lookup['rawWhois'] = $whoisLookup['rawWhois'] ?? ($lookup['rawWhois'] ?? null);
 
-    if (!empty($lookup['rdapSource']) && !empty($lookup['whoisSource'])) {
-        $lookup['lookupSourceLabel'] = 'RDAP + WHOIS';
-    } elseif (!empty($lookup['whoisSource'])) {
-        $lookup['lookupSourceLabel'] = 'WHOIS';
-    } elseif (!empty($lookup['rdapSource'])) {
-        $lookup['lookupSourceLabel'] = 'RDAP';
-    }
+    $lookup['lookupSourceLabel'] = whois_domain_lookup_source_label($lookup);
 
     if (($lookup['status'] ?? 'unknown') === 'registered') {
         $lookup['availabilityNote'] = 'Live registry data confirms this domain is registered.';
@@ -721,6 +758,70 @@ function whois_domain_lookup_should_use_whois_fallback(array $lookup): bool
     }
 
     return $missingFields > 0;
+}
+
+function whois_domain_lookup_has_contact_roles(array $entities): bool
+{
+    $requiredRoles = ['registrant', 'administrative', 'technical'];
+
+    foreach ($requiredRoles as $role) {
+        if (whois_rdap_find_entity_by_role($entities, $role) === null) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+function whois_domain_lookup_source_label(array $lookup): string
+{
+    $sources = [];
+
+    if (!empty($lookup['rdapSource'])) {
+        $sources[] = 'RDAP';
+    }
+
+    if (!empty($lookup['whoisSource'])) {
+        $sources[] = 'WHOIS';
+    }
+
+    if (!empty($lookup['publicRdapSource'])) {
+        $sources[] = 'Public RDAP';
+    }
+
+    if ($sources === []) {
+        return 'Registry';
+    }
+
+    return implode(' + ', array_values(array_unique($sources)));
+}
+
+function whois_domain_lookup_has_public_rdap_gap(array $lookup): bool
+{
+    $entities = is_array($lookup['entities'] ?? null) ? $lookup['entities'] : [];
+
+    foreach (['registrant', 'administrative', 'technical'] as $role) {
+        $entity = whois_rdap_find_entity_by_role($entities, $role);
+
+        if (!is_array($entity) || ($entity['redacted'] ?? false) === true) {
+            return true;
+        }
+
+        $content = trim(implode(' ', array_filter([
+            (string) ($entity['name'] ?? ''),
+            (string) ($entity['organization'] ?? ''),
+            (string) ($entity['email'] ?? ''),
+            (string) ($entity['phone'] ?? ''),
+            (string) ($entity['address'] ?? ''),
+        ])));
+
+        if ($content === '') {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function whois_rdap_bootstrap_services(): array
@@ -1271,6 +1372,7 @@ function whois_domain_lookup(string $input): array
             'links' => [],
             'availabilityNote' => 'The registry returned no registration record for this domain.',
             'rdapSource' => $rdapUrl,
+            'publicRdapSource' => null,
             'rawRdap' => null,
         ];
     }
@@ -1415,19 +1517,33 @@ function whois_domain_lookup(string $input): array
         'links' => $links,
         'availabilityNote' => 'Live registry data confirms this domain is registered.',
         'rdapSource' => $rdapUrl,
+        'publicRdapSource' => null,
         'whoisSource' => null,
         'rawRdap' => $body,
         'rawWhois' => null,
         'lookupSourceLabel' => 'RDAP',
     ];
 
-    if (whois_domain_lookup_should_use_whois_fallback($lookup)) {
+    $rdapHasRedactedData = is_array($body['redacted'] ?? null) && ($body['redacted'] ?? []) !== [];
+    $rdapHasAllContactRoles = whois_domain_lookup_has_contact_roles($entities);
+
+    if ($rdapHasRedactedData || !$rdapHasAllContactRoles || whois_domain_lookup_should_use_whois_fallback($lookup)) {
         $whoisLookup = whois_whois_lookup_domain($domain, $tld);
 
         if (($whoisLookup['status'] ?? 'unknown') !== 'unknown') {
             $lookup = whois_domain_lookup_merge_whois($lookup, $whoisLookup);
         }
     }
+
+    if (whois_domain_lookup_has_public_rdap_gap($lookup)) {
+        $publicRdapLookup = whois_public_rdap_lookup_domain($domain);
+
+        if (($publicRdapLookup['status'] ?? 'unknown') !== 'unknown') {
+            $lookup = whois_domain_lookup_merge_whois($lookup, $publicRdapLookup);
+        }
+    }
+
+    $lookup['lookupSourceLabel'] = whois_domain_lookup_source_label($lookup);
 
     return $lookup;
 }
