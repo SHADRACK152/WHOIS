@@ -5,7 +5,8 @@ $currentPage = strtolower((string) basename((string) ($_SERVER['SCRIPT_NAME'] ??
 
 $navItems = [
     ['label' => 'Home', 'href' => 'whois_premium_domain_intelligence_landing_page.php', 'match' => ['whois_premium_domain_intelligence_landing_page.php', 'index.php']],
-    ['label' => 'Search', 'href' => 'whois_ai_domain_search.php', 'match' => ['whois_ai_domain_search.php', 'whois_professional_lookup_tool.php', 'whois_premium_ai_domain_search.php', 'whois_domain_search_results.php', 'whois_domain_search_results_atom_inspired.php', 'whois_search_results_with_premium_logos.php', 'whois_optimized_premium_search_results.php', 'whois_comprehensive_search_results.php', 'whois_comprehensive_search_results_atom_inspired.php', 'whois_domain_search_atom_inspired.php']],
+  ['label' => 'WHOIS Search', 'href' => 'whois_professional_lookup_tool.php', 'match' => ['whois_professional_lookup_tool.php']],
+  ['label' => 'Search', 'href' => 'whois_ai_domain_search.php', 'match' => ['whois_ai_domain_search.php', 'whois_premium_ai_domain_search.php', 'whois_domain_search_results.php', 'whois_domain_search_results_atom_inspired.php', 'whois_search_results_with_premium_logos.php', 'whois_optimized_premium_search_results.php', 'whois_comprehensive_search_results.php', 'whois_comprehensive_search_results_atom_inspired.php', 'whois_domain_search_atom_inspired.php']],
     ['label' => 'AI Assistants', 'href' => 'whois_ai_brand_assistant.php', 'match' => ['whois_ai_brand_assistant.php', 'whois_ai_business_idea_generator.php', 'whois_ai_domain_name_generator.php']],
     ['label' => 'Marketplace', 'href' => 'whois_premium_domain_marketplace.php', 'match' => ['whois_premium_domain_marketplace.php', 'whois_submit_domain_for_auction.php', 'whois_limited_time_domain_auctions.php']],
     ['label' => 'Tools', 'href' => 'whois_domain_tools_overview.php', 'match' => ['whois_domain_tools_overview.php', 'whois_domain_appraisal_tool.php']],
@@ -36,7 +37,6 @@ $navItems = [
           </div>
         </div>
       </details>
-      <a class="rounded-full bg-primary px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-on-primary transition-colors hover:bg-primary-container" href="whois_ai_domain_search.php">Search</a>
     </div>
   </div>
 </nav>
