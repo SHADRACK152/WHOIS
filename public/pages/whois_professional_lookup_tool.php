@@ -191,15 +191,9 @@ tailwind.config = {
         <div id="whois-events" class="mt-3 space-y-2 text-sm text-on-surface-variant">Search to load events.</div>
       </section>
 
-      <section class="grid gap-6 md:grid-cols-2">
-        <div>
-          <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Notices</h3>
-          <div id="whois-notices" class="mt-3 space-y-3 text-sm text-on-surface-variant">Search to load notices.</div>
-        </div>
-        <div>
-          <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</h3>
-          <div id="whois-remarks" class="mt-3 space-y-3 text-sm text-on-surface-variant">Search to load remarks.</div>
-        </div>
+      <section>
+        <h3 class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Remarks</h3>
+        <div id="whois-remarks" class="mt-3 space-y-3 text-sm text-on-surface-variant">Search to load remarks.</div>
       </section>
 
       <details class="border-t border-outline-variant/35 pt-4">

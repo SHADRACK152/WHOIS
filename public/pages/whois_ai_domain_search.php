@@ -162,22 +162,6 @@ if ($hasSearch && $lookupStatus === 'unknown' && is_string($lookup['availability
 }
 
 $globalTlds = whois_ai_search_supported_global_tlds();
-$supportedTldCount = count(whois_rdap_supported_tlds());
-$searchSuggestions = [];
-
-if ($hasSearch) {
-  $searchSuggestions = array_values(array_unique([
-    $searchDomain,
-    $searchStem . '.music',
-    $searchStem . '.grey',
-    $searchStem . '.shop',
-    $searchStem . '.dev',
-    $searchStem . '.app',
-    $searchStem . '.xyz',
-  ]));
-} else {
-  $searchSuggestions = ['trovalabs.music', 'trovalabs.grey', 'brand.shop', 'studio.dev', 'mosaic.app', 'northstar.xyz'];
-}
 
 $alternativeCards = [];
 
@@ -407,20 +391,6 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 </form>
-<div class="flex flex-wrap justify-center gap-3 mb-6 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-<?php foreach ($searchSuggestions as $searchSuggestion): ?>
-<a class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2 hover:border-black hover:text-black transition-colors" href="whois_ai_domain_search.php?query=<?php echo rawurlencode($searchSuggestion); ?>&amp;currency=<?php echo rawurlencode($selectedCurrency); ?>"><?php echo htmlspecialchars($searchSuggestion, ENT_QUOTES, 'UTF-8'); ?></a>
-<?php endforeach; ?>
-</div>
-<div class="flex flex-wrap items-center justify-center gap-3 text-sm font-medium text-neutral-500">
-<span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Free RDAP supports <?php echo (int) $supportedTldCount; ?> delegated TLDs</span>
-<span class="rounded-full border border-outline-variant/30 bg-surface-container-lowest px-4 py-2">Try .music, .grey, .shop, .dev, .app, .xyz</span>
-</div>
-<div class="mt-4 flex flex-wrap justify-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-<?php foreach (array_slice($globalTlds, 0, 10) as $globalTld): ?>
-<a class="rounded-full border border-outline-variant/30 bg-white px-3 py-2 hover:border-black hover:text-black transition-colors" href="whois_ai_domain_search.php?query=<?php echo rawurlencode($searchStem !== '' ? $searchStem . '.' . $globalTld : 'trovalabs.' . $globalTld); ?>&amp;currency=<?php echo rawurlencode($selectedCurrency); ?>"><?php echo htmlspecialchars('.' . $globalTld, ENT_QUOTES, 'UTF-8'); ?></a>
-<?php endforeach; ?>
-</div>
 </div>
 </section>
 <?php if ($hasSearch): ?>
