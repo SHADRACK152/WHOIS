@@ -4,18 +4,26 @@ declare(strict_types=1);
 require __DIR__ . '/../../app/bootstrap.php';
 require __DIR__ . '/../../app/domain-lookup.php';
 
-$initialDomain = trim((string) ($_GET['domain'] ?? $_GET['query'] ?? $_GET['q'] ?? 'trovalabs.com'));
-$initialDomain = whois_domain_normalize($initialDomain);
+$initialInput = trim((string) ($_GET['domain'] ?? $_GET['query'] ?? $_GET['q'] ?? ''));
+$initialDomain = $initialInput !== '' ? whois_domain_normalize($initialInput) : '';
 
-if ($initialDomain === '') {
-    $initialDomain = 'trovalabs.com';
-}
-
-$initialLookup = whois_domain_lookup_cached($initialDomain);
-$initialSummary = whois_domain_lookup_summary($initialLookup);
+$hasInitialLookup = $initialDomain !== '';
+$initialLookup = $hasInitialLookup ? whois_domain_lookup_cached($initialDomain) : [
+  'domain' => '',
+  'status' => 'unknown',
+  'statusLabel' => 'Awaiting search',
+  'registrar' => null,
+  'created' => null,
+  'expiration' => null,
+  'updated' => null,
+  'nameservers' => [],
+  'availabilityNote' => 'Search a domain to load live WHOIS data.',
+  'rdapSource' => null,
+];
+$initialSummary = $hasInitialLookup ? whois_domain_lookup_summary($initialLookup) : 'Search a domain to load live WHOIS data.';
 $initialStatus = (string) ($initialLookup['status'] ?? 'unknown');
-$initialBadge = whois_domain_lookup_badge($initialLookup);
-$initialNameservers = array_slice(is_array($initialLookup['nameservers'] ?? null) ? $initialLookup['nameservers'] : [], 0, 6);
+$initialBadge = $hasInitialLookup ? whois_domain_lookup_badge($initialLookup) : 'Awaiting search';
+$initialNameservers = $hasInitialLookup ? array_slice(is_array($initialLookup['nameservers'] ?? null) ? $initialLookup['nameservers'] : [], 0, 6) : [];
 
 header('Content-Type: text/html; charset=utf-8');
 ?>
@@ -127,28 +135,28 @@ tailwind.config = {
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Current result</p>
-          <h2 id="whois-domain-heading" class="mt-3 break-all text-3xl font-black tracking-tight lg:text-4xl"><?php echo htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8'); ?></h2>
+          <h2 id="whois-domain-heading" class="mt-3 break-all text-3xl font-black tracking-tight lg:text-4xl"><?php echo $hasInitialLookup ? htmlspecialchars($initialDomain, ENT_QUOTES, 'UTF-8') : 'No domain searched yet'; ?></h2>
           <p id="whois-summary" class="mt-3 max-w-3xl text-base leading-7 text-on-surface-variant"><?php echo htmlspecialchars($initialSummary, ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
-        <span id="whois-domain-badge" class="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] <?php echo $initialStatus === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-900 text-white'; ?>"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></span>
+        <span id="whois-domain-badge" class="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] <?php echo !$hasInitialLookup ? 'bg-neutral-200 text-neutral-700' : ($initialStatus === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-neutral-900 text-white'); ?>"><?php echo htmlspecialchars($initialBadge, ENT_QUOTES, 'UTF-8'); ?></span>
       </div>
 
       <div class="mt-8 grid gap-4 sm:grid-cols-2">
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">WHOIS Information</p>
           <div class="mt-4 grid gap-4 text-sm">
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Domain Name</span><span id="whois-domain-name" class="font-bold text-primary"><?php echo htmlspecialchars(strtoupper($initialDomain), ENT_QUOTES, 'UTF-8'); ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registrar</span><span id="whois-registrar" class="font-bold text-primary"><?php echo htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Unavailable'), ENT_QUOTES, 'UTF-8'); ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Creation Date</span><span id="whois-created" class="font-bold text-primary"><?php echo htmlspecialchars((string) ($initialLookup['created'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8'); ?></span></div>
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Expiration Date</span><span id="whois-expiration" class="font-bold text-primary"><?php echo htmlspecialchars((string) ($initialLookup['expiration'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8'); ?></span></div>
-            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Updated Date</span><span id="whois-updated" class="font-bold text-primary"><?php echo htmlspecialchars((string) ($initialLookup['updated'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8'); ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Domain Name</span><span id="whois-domain-name" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars(strtoupper($initialDomain), ENT_QUOTES, 'UTF-8') : '---'; ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registrar</span><span id="whois-registrar" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['registrar'] ?? 'Unavailable'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Creation Date</span><span id="whois-created" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['created'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Expiration Date</span><span id="whois-expiration" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['expiration'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
+            <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Updated Date</span><span id="whois-updated" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['updated'] ?? 'Not listed'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
           </div>
         </div>
 
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Status</p>
           <div class="mt-4 space-y-4 text-sm">
-            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registry State</span><span id="whois-status-text" class="font-bold text-primary"><?php echo htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8'); ?></span></div>
+            <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Registry State</span><span id="whois-status-text" class="font-bold text-primary"><?php echo $hasInitialLookup ? htmlspecialchars((string) ($initialLookup['statusLabel'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8') : 'Search required'; ?></span></div>
             <div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3"><span class="text-on-surface-variant">Lookup Source</span><span class="font-bold text-primary">Global RDAP</span></div>
             <div class="flex items-center justify-between gap-4"><span class="text-on-surface-variant">Result Mode</span><span class="font-bold text-primary">Live, no reload</span></div>
           </div>
@@ -168,7 +176,7 @@ tailwind.config = {
               <span class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-sm font-semibold text-primary"><?php echo htmlspecialchars((string) $nameserver, ENT_QUOTES, 'UTF-8'); ?></span>
             <?php endforeach; ?>
           <?php else: ?>
-            <span class="text-sm text-on-surface-variant">Nameservers will appear here after lookup.</span>
+            <span class="text-sm text-on-surface-variant">No results yet. Search a domain to load nameservers.</span>
           <?php endif; ?>
         </div>
       </div>
@@ -201,7 +209,7 @@ tailwind.config = {
             <span class="material-symbols-outlined text-neutral-400 text-lg">public</span>
             <span class="material-symbols-outlined text-neutral-400 text-sm">info</span>
           </div>
-          <p id="whois-supported-tlds" class="mt-4 text-2xl font-black text-primary"><?php echo (string) count(whois_rdap_supported_tlds()); ?></p>
+          <p id="whois-supported-tlds" class="mt-4 text-2xl font-black text-primary">-</p>
           <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Extensions Reg.</p>
         </div>
         <div class="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5">
@@ -209,7 +217,7 @@ tailwind.config = {
             <span class="material-symbols-outlined text-neutral-400 text-lg">history</span>
             <span class="material-symbols-outlined text-neutral-400 text-sm">info</span>
           </div>
-          <p id="whois-alternative-count" class="mt-4 text-2xl font-black text-primary">0</p>
+          <p id="whois-alternative-count" class="mt-4 text-2xl font-black text-primary">-</p>
           <p class="mt-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Alternatives</p>
         </div>
       </div>
@@ -382,7 +390,9 @@ tailwind.config = {
     });
   }
 
-  lookupDomain(input ? input.value : 'trovalabs.com');
+  if (input && input.value.trim()) {
+    lookupDomain(input.value);
+  }
 })();
 </script>
 <script src="../assets/js/nav-state.js"></script>
