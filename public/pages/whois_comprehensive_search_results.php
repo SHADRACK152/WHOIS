@@ -569,8 +569,8 @@ header('Content-Type: text/html; charset=utf-8');
 <section class="mt-16">
 <div class="flex items-center justify-between mb-6">
 <div>
-<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Premium Domains</h3>
-<p class="text-xs text-secondary mt-2">AI-backed premium appraisals with indicative ask prices</p>
+<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Verified Premium Offers</h3>
+<p class="text-xs text-secondary mt-2">Domainr verifies premium or priced status before any value is shown</p>
 </div>
 <span class="text-xs text-neutral-400"><?php echo htmlspecialchars((string) ($premiumMarket['ok'] ? 'Live API' : 'API unavailable'), ENT_QUOTES, 'UTF-8'); ?></span>
 </div>
@@ -585,7 +585,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <div class="text-right shrink-0">
 <p class="text-lg font-black mb-1"><?php echo htmlspecialchars((string) $collectionItem['ask'], ENT_QUOTES, 'UTF-8'); ?></p>
-<p class="text-[10px] text-secondary mb-3">Appraisal: <?php echo htmlspecialchars((string) $collectionItem['appraisal'], ENT_QUOTES, 'UTF-8'); ?></p>
+<p class="text-[10px] text-secondary mb-3">Offer: <?php echo htmlspecialchars((string) $collectionItem['appraisal'], ENT_QUOTES, 'UTF-8'); ?></p>
 <button class="px-4 py-1.5 bg-primary text-on-primary rounded-lg text-[11px] font-bold"><?php echo htmlspecialchars((string) $collectionItem['status'], ENT_QUOTES, 'UTF-8'); ?></button>
 </div>
 </div>
@@ -593,7 +593,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 <?php else: ?>
 <div class="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
-Premium appraisals are temporarily unavailable. The API returned no structured premium listings for this search.
+No verified premium offers were returned. Set DOMAINR_RAPIDAPI_KEY to enable premium-status checks, or continue using the brandable ideas below.
 </div>
 <?php endif; ?>
 </section>

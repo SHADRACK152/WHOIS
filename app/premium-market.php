@@ -3,70 +3,46 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/domain-lookup.php';
+require_once __DIR__ . '/domain-research-client.php';
 require_once __DIR__ . '/currency.php';
-require_once __DIR__ . '/grok-client.php';
 
-function whois_premium_market_prompt(string $searchDomain, string $searchStem): string
+function whois_premium_market_candidate_domains(string $searchDomain): array
 {
-    return <<<PROMPT
-Return strict JSON only. No markdown, no commentary, no code fences.
+    $domain = whois_domain_normalize($searchDomain);
 
-Create 4 premium aftermarket domain listings inspired by "{$searchDomain}" and the brand root "{$searchStem}".
-Use realistic marketplace pricing, not retail registration pricing.
-Prefer short, memorable names with .com, .ai, .io, .co, or .net.
-
-Schema:
-{
-  "market": "Premium Marketplace",
-  "currency": "USD",
-  "listings": [
-    {
-      "domain": "example.com",
-      "category": "Brandable",
-      "appraisal": 24500,
-      "askPrice": 18900,
-      "status": "Available now",
-      "reason": "Short rationale for why the name is premium."
-    }
-  ]
-}
-PROMPT;
-}
-
-function whois_premium_market_extract_json(string $output): ?array
-{
-    $trimmed = trim($output);
-
-    if ($trimmed === '') {
-        return null;
+    if ($domain === '') {
+        $domain = 'brand.com';
     }
 
-    $decoded = json_decode($trimmed, true);
+    $searchRoot = preg_replace('/\.[^.]+$/', '', $domain) ?? $domain;
+    $searchStem = preg_replace('/[^a-z0-9]/', '', $searchRoot) ?? '';
 
-    if (is_array($decoded)) {
-        return $decoded;
+    if ($searchStem === '') {
+        $searchStem = 'brand';
     }
 
-    if (preg_match('/```(?:json)?\s*(.*?)\s*```/is', $trimmed, $matches) === 1) {
-        $decoded = json_decode(trim($matches[1]), true);
+    $baseRoots = array_values(array_unique(array_filter([
+        $searchStem,
+        preg_replace('/s$/', '', $searchStem) ?: $searchStem,
+        $searchStem . 'labs',
+        $searchStem . 'hq',
+        $searchStem . 'cloud',
+        $searchStem . 'studio',
+        $searchStem . 'group',
+        $searchStem . 'app',
+        $searchStem . 'data',
+    ])));
 
-        if (is_array($decoded)) {
-            return $decoded;
+    $tlds = ['com', 'ai', 'io', 'co', 'net'];
+    $candidates = [];
+
+    foreach ($baseRoots as $baseRoot) {
+        foreach ($tlds as $tld) {
+            $candidates[] = $baseRoot . '.' . $tld;
         }
     }
 
-    $start = strpos($trimmed, '{');
-    $end = strrpos($trimmed, '}');
-
-    if ($start !== false && $end !== false && $end > $start) {
-        $decoded = json_decode(substr($trimmed, $start, $end - $start + 1), true);
-
-        if (is_array($decoded)) {
-            return $decoded;
-        }
-    }
-
-    return null;
+    return array_values(array_unique($candidates));
 }
 
 function whois_premium_market_amount(mixed $value): ?float
@@ -129,9 +105,10 @@ function whois_premium_market_normalize_listing(array $listing, string $fallback
     $domain = whois_premium_market_normalize_domain((string) ($listing['domain'] ?? ''), $fallbackDomain);
     $category = trim((string) ($listing['category'] ?? 'Premium'));
     $reason = trim((string) ($listing['reason'] ?? ''));
-    $status = trim((string) ($listing['status'] ?? 'Available now'));
-    $appraisalAmount = whois_premium_market_amount($listing['appraisal'] ?? null);
-    $askAmount = whois_premium_market_amount($listing['askPrice'] ?? ($listing['ask'] ?? null));
+    $status = trim((string) ($listing['status'] ?? 'Verified premium'));
+    $offerAmount = whois_premium_market_amount($listing['offerPrice'] ?? ($listing['askPrice'] ?? ($listing['ask'] ?? null)));
+    $appraisalAmount = whois_premium_market_amount($listing['appraisal'] ?? $offerAmount);
+    $askAmount = whois_premium_market_amount($listing['askPrice'] ?? $offerAmount);
 
     if ($domain === '' || $reason === '' || $appraisalAmount === null || $askAmount === null) {
         return null;
@@ -158,76 +135,68 @@ function whois_premium_market_normalize_listing(array $listing, string $fallback
 
 function whois_premium_market_listings(string $searchDomain, array $context = [], ?string $displayCurrency = null): array
 {
-    $domain = whois_domain_normalize($searchDomain);
-
-    if ($domain === '') {
-        $domain = 'brand.com';
-    }
-
-    $searchRoot = preg_replace('/\.[^.]+$/', '', $domain) ?? $domain;
-    $searchStem = preg_replace('/[^a-z0-9]/', '', $searchRoot) ?? '';
-
-    if ($searchStem === '') {
-        $searchStem = 'brand';
-    }
-
     $displayCurrency = whois_currency_normalize_code($displayCurrency ?? (string) ($context['currency'] ?? 'USD'), 'USD');
 
-    $prompt = whois_premium_market_prompt($domain, $searchStem);
-
-    try {
-        $response = whois_ai_request('premium_search', $prompt, array_merge([
-            'domain' => $domain,
-            'searchStem' => $searchStem,
-        ], $context));
-    } catch (Throwable $exception) {
-        return [
-            'ok' => false,
-            'workflow' => 'premium_search',
-            'market' => 'Premium Marketplace',
-            'currency' => 'USD',
-            'listings' => [],
-            'error' => $exception->getMessage(),
-        ];
-    }
-
-    $payload = whois_premium_market_extract_json((string) ($response['output'] ?? ''));
-
-    if (!is_array($payload)) {
-        return [
-            'ok' => false,
-            'workflow' => 'premium_search',
-            'market' => 'Premium Marketplace',
-            'currency' => 'USD',
-            'listings' => [],
-            'error' => 'Premium search returned an unstructured response.',
-            'raw' => $response['output'] ?? null,
-        ];
-    }
-
-    $currency = strtoupper(trim((string) ($payload['currency'] ?? 'USD')));
+    $currency = 'USD';
     $listings = [];
-    $items = is_array($payload['listings'] ?? null) ? $payload['listings'] : [];
 
-    foreach ($items as $item) {
-        if (!is_array($item)) {
+    foreach (whois_premium_market_candidate_domains($searchDomain) as $candidateDomain) {
+        $research = whois_domainr_status($candidateDomain);
+
+        if (!($research['ok'] ?? false) || !($research['isPremium'] ?? false)) {
             continue;
         }
 
-        $normalized = whois_premium_market_normalize_listing($item, $searchStem . '.com', $currency, $displayCurrency);
+        $offer = is_array($research['offers'][0] ?? null) ? $research['offers'][0] : null;
+        $offerPrice = whois_premium_market_amount($offer['price'] ?? null);
+        $offerCurrency = strtoupper(trim((string) ($offer['currency'] ?? 'USD')));
+
+        if ($offerPrice === null) {
+            continue;
+        }
+
+        $candidate = [
+            'domain' => $candidateDomain,
+            'category' => strtoupper(trim((string) ($research['status'] ?? 'Verified Premium'))),
+            'reason' => trim((string) (is_array($research['record'] ?? null) ? ($research['record']['summary'] ?? '') : '')),
+            'status' => strtoupper(trim((string) ($research['status'] ?? 'premium'))),
+            'appraisal' => $offerPrice,
+            'askPrice' => $offerPrice,
+        ];
+
+        if ($candidate['reason'] === '') {
+            $vendor = trim((string) ($offer['vendor'] ?? 'Domainr'));
+
+            $candidate['reason'] = $vendor !== ''
+                ? 'Verified premium status with an offer from ' . $vendor . '.'
+                : 'Verified premium status with an active offer.';
+        }
+
+        $normalized = whois_premium_market_normalize_listing($candidate, $candidateDomain, $offerCurrency, $displayCurrency);
 
         if ($normalized !== null) {
+            $normalized['status'] = strtoupper(trim((string) ($research['status'] ?? $normalized['status'])));
             $listings[] = $normalized;
         }
+    }
+
+    if ($listings === []) {
+        return [
+            'ok' => false,
+            'workflow' => 'premium_search',
+            'market' => 'Verified Premium Offers',
+            'currency' => $displayCurrency,
+            'listings' => [],
+            'error' => 'No verified premium offers were returned. Set DOMAINR_RAPIDAPI_KEY to enable premium-status checks.',
+        ];
     }
 
     return [
         'ok' => $listings !== [],
         'workflow' => 'premium_search',
-        'market' => is_string($payload['market'] ?? null) && trim((string) $payload['market']) !== '' ? trim((string) $payload['market']) : 'Premium Marketplace',
+        'market' => 'Verified Premium Offers',
         'currency' => $displayCurrency,
-        'sourceCurrency' => $currency !== '' ? $currency : 'USD',
+        'sourceCurrency' => 'USD',
         'listings' => $listings,
-        'usage' => $response['usage'] ?? null,
     ];
 }

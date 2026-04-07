@@ -27,6 +27,8 @@ This folder is the PHP-only backend scaffold for the WHOIS pages suite.
 - Set `WHOIS_INSECURE_SSL=1` if the RDAP lookup needs to bypass local certificate verification in this environment.
 - Set `TRUEHOST_ENDPOINT`, `TRUEHOST_IDENTIFIER`, `TRUEHOST_SECRET`, and `TRUEHOST_ACCESSKEY` to fetch live domain pricing and availability from Truehost.
 - Optional Truehost overrides: `TRUEHOST_CURRENCYID`, `TRUEHOST_TIMEOUT`, and `TRUEHOST_INSECURE_SSL`.
+- Set `DOMAINR_RAPIDAPI_KEY` and optionally `DOMAINR_RAPIDAPI_HOST=domainr.p.rapidapi.com` to verify premium or priced domains through Domainr's RapidAPI tier.
+- Optional Domainr override: `DOMAINR_TIMEOUT`.
 
 ## Start The App
 
