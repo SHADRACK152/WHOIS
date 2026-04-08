@@ -85,11 +85,14 @@ tailwind.config = {
     text-transform: uppercase;
   }
 
-  .status-dot {
-    border-radius: 9999px;
-    display: inline-block;
-    height: 8px;
-    width: 8px;
+  .status-icon {
+    align-items: center;
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 900;
+    justify-content: center;
+    line-height: 1;
+    width: 10px;
   }
 
   .status-pending {
@@ -97,8 +100,8 @@ tailwind.config = {
     color: #616161;
   }
 
-  .status-pending .status-dot {
-    background: #9e9e9e;
+  .status-pending .status-icon {
+    color: #9e9e9e;
   }
 
   .status-resolved {
@@ -106,8 +109,8 @@ tailwind.config = {
     color: #1b5e20;
   }
 
-  .status-resolved .status-dot {
-    background: #2e7d32;
+  .status-resolved .status-icon {
+    color: #2e7d32;
   }
 
   .status-failed {
@@ -115,8 +118,8 @@ tailwind.config = {
     color: #b71c1c;
   }
 
-  .status-failed .status-dot {
-    background: #d32f2f;
+  .status-failed .status-icon {
+    color: #d32f2f;
   }
 
   #dns-leaflet-map {
@@ -135,8 +138,19 @@ tailwind.config = {
     height: 14px;
     border-radius: 9999px;
     border: 2px solid #fff;
+    color: #ffffff;
     display: block;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 10px;
+    position: relative;
+    text-align: center;
     box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28), 0 0 0 6px rgba(158, 158, 158, 0.16);
+  }
+
+  .leaflet-dns-pin .leaflet-dns-symbol {
+    display: block;
+    transform: translateY(-1px);
   }
 
   .leaflet-dns-pin.is-pending {
@@ -261,8 +275,8 @@ tailwind.config = {
               <p class="mt-1 text-xs text-on-surface-variant"><?php echo htmlspecialchars($node['provider'], ENT_QUOTES, 'UTF-8'); ?> • <?php echo htmlspecialchars($node['resolver'], ENT_QUOTES, 'UTF-8'); ?></p>
               <div class="mt-2">
                 <span class="status-pill status-pending" data-node-status="<?php echo htmlspecialchars($node['markerId'], ENT_QUOTES, 'UTF-8'); ?>">
-                  <span class="status-dot"></span>
-                  Pending
+                  <span class="status-icon">&times;</span>
+                  No Response
                 </span>
               </div>
             </div>
@@ -287,9 +301,9 @@ tailwind.config = {
         <a href="https://www.mapchart.net/world.html" target="_blank" rel="noopener noreferrer" class="rounded-full border border-outline-variant/30 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-neutral-600 hover:text-black">Open World Map</a>
       </div>
       <div class="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-500">
-        <span class="status-pill status-resolved"><span class="status-dot"></span>Resolved</span>
-        <span class="status-pill status-failed"><span class="status-dot"></span>Not Resolved</span>
-        <span class="status-pill status-pending"><span class="status-dot"></span>No Response</span>
+        <span class="status-pill status-resolved"><span class="status-icon">&#10003;</span>Resolved</span>
+        <span class="status-pill status-failed"><span class="status-icon">&times;</span>Not Resolved</span>
+        <span class="status-pill status-pending"><span class="status-icon">&times;</span>No Response</span>
       </div>
       <div id="dns-map-wrap" class="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
         <div id="dns-leaflet-map"></div>
@@ -368,10 +382,26 @@ tailwind.config = {
   const statusByMarker = new Map();
   const markerElements = new Map();
 
+  function markerSymbol(status) {
+    if (status === 'resolved') {
+      return '&#10003;';
+    }
+
+    return '&times;';
+  }
+
+  function badgeSymbol(state) {
+    if (state === 'status-resolved') {
+      return '&#10003;';
+    }
+
+    return '&times;';
+  }
+
   function markerIcon(status) {
     return L.divIcon({
       className: 'leaflet-dns-icon',
-      html: '<span class="leaflet-dns-pin is-' + status + '"></span>',
+      html: '<span class="leaflet-dns-pin is-' + status + '"><span class="leaflet-dns-symbol">' + markerSymbol(status) + '</span></span>',
       iconSize: [14, 14],
       iconAnchor: [7, 7],
     });
@@ -514,14 +544,14 @@ tailwind.config = {
 
     badge.classList.remove('status-pending', 'status-resolved', 'status-failed');
     badge.classList.add(state);
-    badge.innerHTML = '<span class="status-dot"></span>' + label;
+    badge.innerHTML = '<span class="status-icon">' + badgeSymbol(state) + '</span>' + label;
   }
 
   function resetStatuses() {
     document.querySelectorAll('[data-node-status]').forEach(function (el) {
       el.classList.remove('status-resolved', 'status-failed');
       el.classList.add('status-pending');
-      el.innerHTML = '<span class="status-dot"></span>Pending';
+      el.innerHTML = '<span class="status-icon">&times;</span>No Response';
     });
 
     markerElements.forEach(function (_marker, markerId) {
