@@ -555,29 +555,7 @@ WHOIS Intelligence Suite
 </section>
 </main>
 <!-- Footer -->
-<footer class="bg-neutral-50 dark:bg-neutral-950 w-full border-t border-neutral-200 dark:border-neutral-800">
-<div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 max-w-7xl mx-auto gap-8 font-['Inter'] text-sm">
-<div class="flex flex-col items-center md:items-start gap-4">
-<div class="text-lg font-black tracking-tighter text-black dark:text-white">WHOIS</div>
-<p class="text-neutral-500 dark:text-neutral-400 max-w-xs text-center md:text-left">Building the future of domain intelligence and brand security with AI-driven insights.</p>
-</div>
-<div class="flex flex-wrap justify-center gap-8 text-neutral-500 dark:text-neutral-400">
-<a class="hover:text-black dark:hover:text-white transition-all" href="#">Privacy Policy</a>
-<a class="hover:text-black dark:hover:text-white transition-all" href="#">Terms of Service</a>
-<a class="hover:text-black dark:hover:text-white transition-all" href="#">Cookie Policy</a>
-<a class="hover:text-black dark:hover:text-white transition-all" href="#">API Documentation</a>
-<a class="hover:text-black dark:hover:text-white transition-all" href="../admin/login.php">Admin Login</a>
-</div>
-<div class="flex gap-6">
-<a class="text-neutral-500 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
-<a class="text-neutral-500 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined">share</span></a>
-<a class="text-neutral-500 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined">mail</span></a>
-</div>
-</div>
-<div class="max-w-7xl mx-auto px-8 pb-12 text-center text-neutral-400 text-xs">
-            &copy; 2024 WHOIS Intelligence. All rights reserved.
-        </div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

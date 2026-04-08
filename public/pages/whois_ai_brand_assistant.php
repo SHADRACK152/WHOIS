@@ -218,6 +218,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </aside>
 </main>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/ai-workflows.js"></script>
 <script>
 (function () {

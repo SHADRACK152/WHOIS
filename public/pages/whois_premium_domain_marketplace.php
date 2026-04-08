@@ -296,56 +296,7 @@ No listings match the current filters. Try a different extension or raise the pr
 </main>
 </div>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 mt-20">
-<div class="max-w-7xl mx-auto px-8 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
-<div class="col-span-1 md:col-span-1">
-<span class="text-lg font-black text-black dark:text-white font-headline tracking-tighter">WHOIS.ARCHITECT</span>
-<p class="mt-4 text-neutral-400 text-xs leading-relaxed max-w-xs">The premium destination for digital real estate. Curating the world's most valuable top-level domains for visionary creators.</p>
-<div class="flex gap-4 mt-6">
-<div class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors">
-<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
-</div>
-<div class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors">
-<span class="material-symbols-outlined text-sm" data-icon="language">language</span>
-</div>
-</div>
-</div>
-<div>
-<h4 class="font-bold text-[10px] uppercase tracking-widest mb-6">Marketplace</h4>
-<ul class="space-y-3">
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Browse All</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Premium .AI</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Short Names</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">New Extensions</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-bold text-[10px] uppercase tracking-widest mb-6">Resources</h4>
-<ul class="space-y-3">
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">API Docs</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Valuation Tool</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Brokerage</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Secure Escrow</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-bold text-[10px] uppercase tracking-widest mb-6">Company</h4>
-<ul class="space-y-3">
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">About Us</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Contact</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Privacy Policy</a></li>
-<li><a class="text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-opacity text-xs" href="#">Terms of Service</a></li>
-</ul>
-</div>
-</div>
-<div class="max-w-7xl mx-auto px-8 py-8 border-t border-neutral-100 flex flex-col md:flex-row justify-between items-center gap-6">
-<p class="font-['Inter'] text-xs tracking-normal text-neutral-400">&copy; 2024 WHOIS.ARCHITECT. All rights reserved.</p>
-<div class="flex items-center gap-4 grayscale opacity-40">
-<span class="text-[10px] font-bold uppercase tracking-widest mr-2">ICANN Accredited</span>
-<img class="h-6 w-auto object-contain" data-alt="minimalist monochrome logo for icann accreditation official seal grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNfkQhDToRlD5HtRMPkkFVyk4hd2t_3V1vCHNsGHmPA3ULMX867tYa1VJHGlFjJjlQHqat7WHJbz99pjGSiKF2XpUlpvSOIF8etfQxglD9cQ_uiB80jBtqzfnUJhdgPGYQuFkuzygUHFEluKWQ_NqZ_dXtFUdr7eadevqlngmaLxoLfO0EJY974YLv6XF_5nCLwIIMgAijx2DRyj6humK5qNPYlLaUIeyVbsX91PsuOgwuaACXno2VlBMP2Omg10M795saOOKK7lbn"/>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script>
 (function () {
   const searchInput = document.getElementById('marketplace-search-input');

@@ -379,43 +379,6 @@ header('Content-Type: text/html; charset=utf-8');
   </section>
 </main>
 
-<footer class="bg-neutral-50 w-full border-t border-neutral-200">
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-8 py-16 px-6 max-w-screen-2xl mx-auto font-['Inter'] text-sm leading-relaxed">
-    <div class="col-span-2 md:col-span-1">
-      <span class="text-xl font-bold tracking-tighter text-black mb-6 block">WHOIS</span>
-      <p class="text-neutral-500 max-w-xs">
-        The global authority for domain intelligence, appraisal, and marketplace insights.
-      </p>
-    </div>
-    <div>
-      <h4 class="font-bold text-black mb-6">Products</h4>
-      <ul class="space-y-4">
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_ai_domain_search.php">Domain Search</a></li>
-        <li><a class="text-black underline font-bold" href="whois_domain_appraisal_tool.php">Appraisal Tool</a></li>
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_premium_domain_marketplace.php">Marketplace</a></li>
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_submit_domain_for_auction.php">Seller Hub</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 class="font-bold text-black mb-6">Resources</h4>
-      <ul class="space-y-4">
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_domain_tools_overview.php">Tools</a></li>
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_partner_with_us.php">Portfolio Management</a></li>
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_ai_brand_assistant.php">Brand Assistant</a></li>
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="whois_premium_domain_intelligence_landing_page.php">Branding Guide</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 class="font-bold text-black mb-6">Legal</h4>
-      <ul class="space-y-4">
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="#">Privacy Policy</a></li>
-        <li><a class="text-neutral-500 hover:text-black transition-colors" href="#">Terms of Service</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="px-6 py-8 max-w-screen-2xl mx-auto border-t border-neutral-200/50">
-    <p class="text-neutral-400 text-xs text-center">&copy; 2024 WHOIS Global Authority. All rights reserved.</p>
-  </div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>

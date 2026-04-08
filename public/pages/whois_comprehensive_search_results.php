@@ -688,38 +688,7 @@ No verified premium offers were returned. Set DOMAINR_RAPIDAPI_KEY to enable pre
 </section>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 mt-20">
-<div class="flex flex-col md:flex-row justify-between items-center px-12 py-12 w-full max-w-[1440px] mx-auto">
-<div class="mb-8 md:mb-0">
-<span class="font-['Manrope'] font-bold text-2xl text-black dark:text-white">WHOIS</span>
-<p class="text-neutral-400 dark:text-neutral-600 text-sm mt-2 max-w-xs font-['Inter']">Securing the next billion digital identities with AI-driven precision and architectural integrity.</p>
-</div>
-<div class="flex flex-wrap justify-center gap-8 md:gap-12">
-<div class="flex flex-col gap-2">
-<span class="text-black dark:text-white font-bold text-xs uppercase tracking-widest mb-2">Company</span>
-<a class="text-neutral-400 dark:text-neutral-600 hover:text-black dark:hover:text-white transition-opacity duration-300 text-sm" href="#">About</a>
-<a class="text-neutral-400 dark:text-neutral-600 hover:text-black dark:hover:text-white transition-opacity duration-300 text-sm" href="#">Careers</a>
-</div>
-<div class="flex flex-col gap-2">
-<span class="text-black dark:text-white font-bold text-xs uppercase tracking-widest mb-2">Legal</span>
-<a class="text-neutral-400 dark:text-neutral-600 hover:text-black dark:hover:text-white transition-opacity duration-300 text-sm" href="#">Privacy</a>
-<a class="text-neutral-400 dark:text-neutral-600 hover:text-black dark:hover:text-white transition-opacity duration-300 text-sm" href="#">Legal</a>
-</div>
-<div class="flex flex-col gap-2">
-<span class="text-black dark:text-white font-bold text-xs uppercase tracking-widest mb-2">Resources</span>
-<a class="text-neutral-400 dark:text-neutral-600 hover:text-black dark:hover:text-white transition-opacity duration-300 text-sm" href="#">API</a>
-<a class="text-neutral-400 dark:text-neutral-600 hover:text-black dark:hover:text-white transition-opacity duration-300 text-sm" href="#">Support</a>
-</div>
-</div>
-</div>
-<div class="px-12 pb-8 flex flex-col md:flex-row justify-between items-center w-full max-w-[1440px] mx-auto border-t border-neutral-100 dark:border-neutral-900 pt-8">
-<span class="text-neutral-400 dark:text-neutral-600 text-sm tracking-wide font-['Inter']">&copy; 2024 WHOIS. All rights reserved.</span>
-<div class="flex gap-6 mt-4 md:mt-0">
-<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-black transition-colors" data-icon="public">public</span>
-<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-black transition-colors" data-icon="share">share</span>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script>
   (function () {
     const input = document.getElementById('comprehensive-search-input');

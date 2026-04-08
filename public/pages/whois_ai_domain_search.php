@@ -478,20 +478,7 @@ Verified premium checks are unavailable right now. The page will still show live
 </section>
 <?php endif; ?>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 bg-white">
-<div class="flex flex-col md:flex-row justify-between items-center px-12 py-12 max-w-7xl mx-auto gap-8">
-<div class="flex flex-col gap-2 items-center md:items-start">
-<div class="font-black text-xl text-black">WHOIS</div>
-<p class="font-['Inter'] text-[10px] uppercase tracking-widest text-neutral-400">&copy; 2024 WHOIS AI. All rights reserved.</p>
-</div>
-<div class="flex gap-8">
-<a class="font-['Inter'] text-xs uppercase tracking-widest text-neutral-400 hover:text-black hover:underline decoration-1 underline-offset-4 transition-all" href="#">Privacy</a>
-<a class="font-['Inter'] text-xs uppercase tracking-widest text-neutral-400 hover:text-black hover:underline decoration-1 underline-offset-4 transition-all" href="#">Terms</a>
-<a class="font-['Inter'] text-xs uppercase tracking-widest text-neutral-400 hover:text-black hover:underline decoration-1 underline-offset-4 transition-all" href="#">Support</a>
-<a class="font-['Inter'] text-xs uppercase tracking-widest text-neutral-400 hover:text-black hover:underline decoration-1 underline-offset-4 transition-all" href="#">Twitter</a>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

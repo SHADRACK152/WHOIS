@@ -72,6 +72,7 @@ header('Content-Type: text/html; charset=utf-8');
     <?php endif; ?>
   </section>
 </main>
+<?php require __DIR__ . '/_footer.php'; ?>
 
 <script>
 (() => {

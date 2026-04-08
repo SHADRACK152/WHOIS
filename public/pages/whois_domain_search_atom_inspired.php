@@ -289,20 +289,7 @@ header('Content-Type: text/html; charset=utf-8');
 </aside>
 </div>
 <!-- Simple Footer -->
-<footer class="w-full border-t border-outline bg-white mt-12">
-<div class="flex flex-col md:flex-row justify-between items-center py-12 px-8 max-w-[1600px] mx-auto">
-<div class="mb-8 md:mb-0 text-center md:text-left">
-<span class="font-black text-black font-headline text-xl block mb-2">WHOIS</span>
-<p class="text-[10px] uppercase tracking-[0.3em] font-bold text-on-surface-variant">&copy; 2024 Monolith Architecture. All rights reserved.</p>
-</div>
-<div class="flex flex-wrap justify-center gap-8 items-center">
-<a class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant hover:text-black transition-colors" href="#">Privacy</a>
-<a class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant hover:text-black transition-colors" href="#">Terms</a>
-<a class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant hover:text-black transition-colors" href="#">API Docs</a>
-<a class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant hover:text-black transition-colors" href="#">Support</a>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

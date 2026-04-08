@@ -463,38 +463,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer -->
-<footer class="bg-neutral-50 dark:bg-neutral-950 w-full py-20 px-8">
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 max-w-screen-2xl mx-auto font-['Inter'] text-sm leading-relaxed">
-<div class="col-span-2">
-<div class="text-lg font-black text-black dark:text-white mb-6">WHOIS</div>
-<p class="text-neutral-500 dark:text-neutral-400 mb-8 max-w-xs">The authority in premium domain acquisition and AI-driven market valuations. Secure your digital legacy.</p>
-</div>
-<div class="flex flex-col space-y-4">
-<span class="font-semibold text-black dark:text-white mb-2">Services</span>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">Domain Search</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">Appraisal</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">Transfer</a>
-</div>
-<div class="flex flex-col space-y-4">
-<span class="font-semibold text-black dark:text-white mb-2">Legal</span>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">Privacy</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">Terms</a>
-</div>
-<div class="flex flex-col space-y-4">
-<span class="font-semibold text-black dark:text-white mb-2">Company</span>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">About</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" href="#">Careers</a>
-</div>
-<div class="col-span-full pt-12 mt-12 border-t border-neutral-200 dark:border-neutral-800 flex justify-between items-center text-neutral-400">
-<span>&copy; 2024 WHOIS Authority. All rights reserved.</span>
-<div class="flex space-x-6">
-<span class="material-symbols-outlined text-xl cursor-pointer hover:text-black">public</span>
-<span class="material-symbols-outlined text-xl cursor-pointer hover:text-black">terminal</span>
-<span class="material-symbols-outlined text-xl cursor-pointer hover:text-black">security</span>
-</div>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

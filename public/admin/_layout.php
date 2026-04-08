@@ -32,6 +32,8 @@ function whois_admin_render_page(array $page, callable $contentRenderer): void
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></title>
+<link rel="icon" type="image/png" href="../assets/img/favicon.png"/>
+<link rel="apple-touch-icon" href="../assets/img/whois-icon.png"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>

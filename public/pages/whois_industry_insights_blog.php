@@ -262,49 +262,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 bg-neutral-100">
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 px-8 py-16 max-w-7xl mx-auto">
-<div class="col-span-2">
-<div class="font-manrope font-bold text-black text-2xl tracking-tighter mb-4">WHOIS</div>
-<p class="font-inter text-sm text-neutral-600 max-w-xs">Building the next generation of digital identity discovery and management. Powered by architectural AI.</p>
-</div>
-<div class="space-y-4">
-<h4 class="font-bold text-xs uppercase tracking-widest text-black">Product</h4>
-<ul class="space-y-2 text-sm text-neutral-500">
-<li><a class="hover:text-black transition-all" href="#">Marketplace</a></li>
-<li><a class="hover:text-black transition-all" href="#">AI Search</a></li>
-<li><a class="hover:text-black transition-all" href="#">Pricing</a></li>
-</ul>
-</div>
-<div class="space-y-4">
-<h4 class="font-bold text-xs uppercase tracking-widest text-black">Company</h4>
-<ul class="space-y-2 text-sm text-neutral-500">
-<li><a class="hover:text-black transition-all" href="#">About</a></li>
-<li><a class="text-black underline" href="#">Blog</a></li>
-<li><a class="hover:text-black transition-all" href="#">Careers</a></li>
-</ul>
-</div>
-<div class="space-y-4">
-<h4 class="font-bold text-xs uppercase tracking-widest text-black">Legal</h4>
-<ul class="space-y-2 text-sm text-neutral-500">
-<li><a class="hover:text-black transition-all" href="#">Terms</a></li>
-<li><a class="hover:text-black transition-all" href="#">Privacy</a></li>
-<li><a class="hover:text-black transition-all" href="#">Cookies</a></li>
-</ul>
-</div>
-<div class="space-y-4">
-<h4 class="font-bold text-xs uppercase tracking-widest text-black">Social</h4>
-<ul class="space-y-2 text-sm text-neutral-500">
-<li><a class="hover:text-black transition-all" href="#">Twitter</a></li>
-<li><a class="hover:text-black transition-all" href="#">LinkedIn</a></li>
-<li><a class="hover:text-black transition-all" href="#">Github</a></li>
-</ul>
-</div>
-</div>
-<div class="max-w-7xl mx-auto px-8 py-8 border-t border-neutral-200">
-<p class="font-inter text-sm text-neutral-600">&copy; 2024 WHOIS Authority. All rights reserved.</p>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

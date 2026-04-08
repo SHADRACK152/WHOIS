@@ -278,19 +278,7 @@ header('Content-Type: text/html; charset=utf-8');
 </form>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 bg-neutral-50 py-12 px-8 font-manrope text-sm">
-<div class="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-<div class="font-bold text-black text-lg">WHOIS</div>
-<div class="flex flex-wrap justify-center gap-8">
-<a class="text-neutral-500 hover:text-black transition-colors" href="#">Privacy Policy</a>
-<a class="text-neutral-500 hover:text-black transition-colors" href="#">Terms of Service</a>
-<a class="text-neutral-500 hover:text-black transition-colors underline font-medium" href="#">Auction Rules</a>
-<a class="text-neutral-500 hover:text-black transition-colors" href="#">API Support</a>
-<a class="text-neutral-500 hover:text-black transition-colors" href="#">Contact</a>
-</div>
-<div class="text-neutral-500">&copy; 2024 WHOIS Authority. All rights reserved.</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 <script>
 (function () {

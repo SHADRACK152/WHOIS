@@ -197,20 +197,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
-<div class="py-12 px-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 font-['Inter'] text-sm">
-<div class="flex flex-col items-center md:items-start gap-4">
-<div class="text-lg font-bold text-black dark:text-white">WHOIS</div>
-<p class="text-neutral-500 dark:text-neutral-400">&copy; 2024 WHOIS Premium Domain Services. All rights reserved.</p>
-</div>
-<div class="flex flex-wrap justify-center gap-8">
-<a class="text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors" href="#">Terms of Service</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors" href="#">API Documentation</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors" href="#">Contact Support</a>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

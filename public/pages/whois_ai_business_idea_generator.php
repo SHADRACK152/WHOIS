@@ -275,37 +275,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer -->
-<footer class="bg-neutral-50 w-full pt-16 pb-8">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-12 px-8 max-w-screen-2xl mx-auto border-t border-neutral-200 py-16">
-<div class="col-span-2 md:col-span-1">
-<p class="text-lg font-bold text-neutral-900 mb-4">ARCHITECT AI</p>
-<p class="text-neutral-500 text-sm max-w-xs leading-relaxed">The premier destination for AI-powered identity search and brand construction.</p>
-</div>
-<div>
-<h5 class="text-neutral-900 font-bold text-sm mb-6 uppercase tracking-wider">Product</h5>
-<ul class="space-y-4">
-<li><a class="text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">Features</a></li>
-<li><a class="text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">AI Search</a></li>
-<li><a class="text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">Domain Tools</a></li>
-</ul>
-</div>
-<div>
-<h5 class="text-neutral-900 font-bold text-sm mb-6 uppercase tracking-wider">Company</h5>
-<ul class="space-y-4">
-<li><a class="text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">About Us</a></li>
-<li><a class="text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">Careers</a></li>
-<li><a class="text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">Privacy Policy</a></li>
-</ul>
-</div>
-</div>
-<div class="max-w-screen-2xl mx-auto px-8 pt-8 flex flex-col md:flex-row justify-between items-center border-t border-neutral-100">
-<p class="text-neutral-500 text-xs">&copy; 2024 Architect AI. All rights reserved.</p>
-<div class="flex gap-6 mt-4 md:mt-0">
-<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-primary transition-colors">public</span>
-<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-primary transition-colors">share</span>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/ai-workflows.js"></script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>

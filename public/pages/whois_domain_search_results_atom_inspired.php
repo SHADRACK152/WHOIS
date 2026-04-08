@@ -301,54 +301,7 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-inter text-sm antialiased mt-20">
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 px-8 py-16 max-w-7xl mx-auto">
-<div class="lg:col-span-2">
-<span class="font-manrope font-black text-black dark:text-white text-2xl">WHOIS</span>
-<p class="mt-4 text-neutral-500 dark:text-neutral-400 max-w-xs leading-relaxed">The global authority for digital identity and domain intelligence. Built for the modern architect.</p>
-</div>
-<div>
-<h4 class="font-semibold text-black dark:text-white mb-6">Domain Services</h4>
-<ul class="space-y-4">
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Search Domains</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Transfer Tools</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">WHOIS Lookup</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-semibold text-black dark:text-white mb-6">Marketplace</h4>
-<ul class="space-y-4">
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Premium Domains</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Brokers</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Auctions</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-semibold text-black dark:text-white mb-6">Branding Tools</h4>
-<ul class="space-y-4">
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Name Generator</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">AI Insights</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Logo Kit</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-semibold text-black dark:text-white mb-6">Support</h4>
-<ul class="space-y-4">
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Help Center</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">API Access</a></li>
-<li><a class="text-neutral-500 dark:text-neutral-400 hover:underline decoration-1 underline-offset-4 transition-opacity" href="#">Privacy Policy</a></li>
-</ul>
-</div>
-</div>
-<div class="border-t border-neutral-200 dark:border-neutral-800 py-8 px-8 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-<p class="text-neutral-500 text-xs">&copy; 2024 WHOIS Architecture. All rights reserved.</p>
-<div class="flex gap-6">
-<a class="text-neutral-400 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined text-lg">public</span></a>
-<a class="text-neutral-400 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined text-lg">mail</span></a>
-<a class="text-neutral-400 hover:text-black transition-colors" href="#"><span class="material-symbols-outlined text-lg">shield</span></a>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

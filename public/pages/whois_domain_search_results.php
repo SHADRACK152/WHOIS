@@ -303,19 +303,7 @@ header('Content-Type: text/html; charset=utf-8');
 </aside>
 </div>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
-<div class="flex flex-col md:flex-row justify-between items-center py-12 px-8 max-w-7xl mx-auto">
-<div class="mb-8 md:mb-0 text-center md:text-left">
-<span class="font-black text-neutral-900 dark:text-neutral-50 font-headline text-lg mb-2 block">WHOIS</span>
-<p class="text-xs uppercase tracking-widest font-manrope text-neutral-400 dark:text-neutral-500">&copy; 2024 WHOIS Architecture. All rights reserved.</p>
-</div>
-<div class="flex gap-8 items-center opacity-70 hover:opacity-100 transition-opacity">
-<a class="text-xs uppercase tracking-widest font-manrope text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors" href="#">Privacy Policy</a>
-<a class="text-xs uppercase tracking-widest font-manrope text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors" href="#">Terms of Service</a>
-<a class="text-xs uppercase tracking-widest font-manrope text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors" href="#">API Documentation</a>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

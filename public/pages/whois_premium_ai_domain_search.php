@@ -392,31 +392,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer Shell -->
-<footer class="w-full border-t border-neutral-200/50 dark:border-neutral-800/50 bg-[#F9F9F9] dark:bg-neutral-900">
-<div class="flex flex-col md:flex-row justify-between items-center px-12 py-12 w-full gap-8 max-w-7xl mx-auto">
-<div class="flex flex-col gap-4">
-<div class="font-black text-2xl text-black dark:text-white font-headline">WHOIS</div>
-<p class="text-neutral-400 text-xs font-headline tracking-tight max-w-[200px]">The architect of modern digital identity.</p>
-</div>
-<div class="flex flex-wrap justify-center gap-8">
-<a class="font-['Manrope'] text-xs uppercase tracking-widest font-medium text-neutral-400 dark:text-neutral-500 hover:underline decoration-1 underline-offset-4 flex items-center gap-2" href="#">
-<span class="material-symbols-outlined text-sm">verified_user</span> Privacy
-                </a>
-<a class="font-['Manrope'] text-xs uppercase tracking-widest font-medium text-neutral-400 dark:text-neutral-500 hover:underline decoration-1 underline-offset-4 flex items-center gap-2" href="#">
-<span class="material-symbols-outlined text-sm">description</span> Terms
-                </a>
-<a class="font-['Manrope'] text-xs uppercase tracking-widest font-medium text-neutral-400 dark:text-neutral-500 hover:underline decoration-1 underline-offset-4 flex items-center gap-2" href="#">
-<span class="material-symbols-outlined text-sm">help</span> Support
-                </a>
-<a class="font-['Manrope'] text-xs uppercase tracking-widest font-medium text-neutral-400 dark:text-neutral-500 hover:underline decoration-1 underline-offset-4 flex items-center gap-2" href="#">
-<span class="material-symbols-outlined text-sm">chat</span> Twitter
-                </a>
-</div>
-<div class="text-neutral-400 text-[10px] uppercase tracking-[0.2em]">
-                &copy; 2024 WHOIS AI. All rights reserved.
-            </div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

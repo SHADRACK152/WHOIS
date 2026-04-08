@@ -425,40 +425,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-[#E5E5E5] dark:border-[#262626] mt-20 bg-white dark:bg-black">
-<div class="max-w-7xl mx-auto px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-<div class="col-span-2 md:col-span-1">
-<div class="text-lg font-black text-black dark:text-white mb-4">WHOIS AI</div>
-<p class="font-['Inter'] text-xs uppercase tracking-widest text-[#737373] max-w-xs leading-relaxed">
-                    &copy; 2024 WHOIS AI. Architecting Digital Identities.
-                </p>
-</div>
-<div>
-<h4 class="font-bold mb-6 text-sm uppercase tracking-widest">Platform</h4>
-<ul class="space-y-4 font-['Inter'] text-xs uppercase tracking-widest text-[#737373]">
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Marketplace</a></li>
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Extensions</a></li>
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Pricing</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
-<ul class="space-y-4 font-['Inter'] text-xs uppercase tracking-widest text-[#737373]">
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Privacy Policy</a></li>
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Terms of Service</a></li>
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">API Documentation</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-bold mb-6 text-sm uppercase tracking-widest">Connect</h4>
-<ul class="space-y-4 font-['Inter'] text-xs uppercase tracking-widest text-[#737373]">
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Twitter</a></li>
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">LinkedIn</a></li>
-<li><a class="hover:text-black dark:hover:text-white transition-colors" href="#">Support</a></li>
-</ul>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/ai-workflows.js"></script>
 <script src="../assets/js/ai-workflows.js"></script>
 <script src="../assets/js/nav-state.js"></script>

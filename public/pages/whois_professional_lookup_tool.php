@@ -219,6 +219,7 @@ tailwind.config = {
     </aside>
   </section>
 </main>
+<?php require __DIR__ . '/_footer.php'; ?>
 
 <script>
 (function () {

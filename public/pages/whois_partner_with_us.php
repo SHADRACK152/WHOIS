@@ -232,39 +232,7 @@ header('Content-Type: text/html; charset=utf-8');
 </section>
 </main>
 <!-- Footer -->
-<footer class="w-full border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 font-manrope text-sm leading-relaxed">
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 px-6 lg:px-12 py-20 max-w-7xl mx-auto">
-<div class="col-span-2">
-<span class="text-xl font-black text-black dark:text-white mb-4 block">WHOIS</span>
-<p class="text-neutral-500 dark:text-neutral-400 max-w-xs mb-8">Building the next generation of domain acquisition and brand architecture tools.</p>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-semibold text-black dark:text-white mb-2">Products</span>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Marketplace</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">AI Search</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Domain Appraisal</a>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-semibold text-black dark:text-white mb-2">Company</span>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">About</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Careers</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Press</a>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-semibold text-black dark:text-white mb-2">Legal</span>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Terms of Service</a>
-<a class="text-neutral-500 dark:text-neutral-400 hover:underline hover:text-black dark:hover:text-white transition-colors" href="#">Cookies</a>
-</div>
-</div>
-<div class="px-6 lg:px-12 py-8 border-t border-neutral-100 dark:border-neutral-900 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-<span class="text-neutral-500 dark:text-neutral-400">&copy; 2024 WHOIS. Built for the Digital Architect.</span>
-<div class="flex gap-6">
-<span class="material-symbols-outlined text-neutral-400 hover:text-black transition-colors cursor-pointer" data-icon="public">public</span>
-<span class="material-symbols-outlined text-neutral-400 hover:text-black transition-colors cursor-pointer" data-icon="alternate_email">alternate_email</span>
-</div>
-</div>
-</footer>
+<?php require __DIR__ . '/_footer.php'; ?>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 
