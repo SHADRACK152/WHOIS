@@ -136,7 +136,6 @@ function whois_ai_search_detect_country(): string
 function whois_ai_search_country_bundle_tlds(string $country): array
 {
   $country = strtoupper(trim($country));
-  $supported = array_flip(whois_rdap_supported_tlds());
 
   $cc = strtolower($country);
   $primaryCandidates = ['com'];
@@ -154,14 +153,12 @@ function whois_ai_search_country_bundle_tlds(string $country): array
   $bundle = [];
 
   foreach ($primaryCandidates as $candidate) {
-    if (!isset($supported[$candidate])) {
-      continue;
-    }
-
     if (!in_array($candidate, $bundle, true)) {
       $bundle[] = $candidate;
     }
   }
+
+  $supported = array_flip(whois_rdap_supported_tlds());
 
   foreach (['net', 'org', 'io', 'ai'] as $fallbackTld) {
     if (count($bundle) >= 3) {
@@ -188,7 +185,7 @@ function whois_ai_search_bundle_tld_candidates(string $country): array
   $ordered = [];
 
   foreach ($primary as $tld) {
-    if (isset($supported[$tld]) && !in_array($tld, $ordered, true)) {
+    if (!in_array($tld, $ordered, true)) {
       $ordered[] = $tld;
     }
   }
@@ -235,16 +232,6 @@ if ($searchStem === '') {
   $searchStem = 'brand';
 }
 
-$lookup = $hasSearch
-  ? whois_truehost_domain_lookup($searchDomain)
-  : [
-    'domain' => '',
-    'status' => 'unknown',
-    'statusLabel' => 'Enter a domain to begin',
-    'whois' => null,
-    'availabilityNote' => 'Type a domain to check registration status.',
-  ];
-
 $rdapLookup = $hasSearch
   ? whois_domain_lookup_cached($searchDomain)
   : [
@@ -259,19 +246,15 @@ $rdapLookup = $hasSearch
     'rdapSource' => null,
   ];
 
-$lookupStatus = strtolower((string) ($rdapLookup['status'] ?? $lookup['status'] ?? 'unknown'));
-
-if ($lookupStatus === 'unknown') {
-  $lookupStatus = strtolower((string) ($lookup['status'] ?? 'unknown'));
-}
+$lookupStatus = strtolower((string) ($rdapLookup['status'] ?? 'unknown'));
 
 $lookupMeta = whois_ai_search_status_meta($lookupStatus);
 $lookupSummary = $hasSearch
   ? whois_domain_lookup_summary($rdapLookup)
   : 'Enter any root plus any delegated TLD, or type a full domain such as trovalabs.music.';
 
-if ($hasSearch && $lookupStatus === 'unknown' && is_string($lookup['availabilityNote'] ?? null)) {
-  $lookupSummary = (string) $lookup['availabilityNote'];
+if ($hasSearch && $lookupStatus === 'unknown' && is_string($rdapLookup['availabilityNote'] ?? null)) {
+  $lookupSummary = (string) $rdapLookup['availabilityNote'];
 }
 
 $globalTlds = whois_ai_search_supported_global_tlds();
@@ -297,7 +280,6 @@ if ($hasSearch) {
 
 $premiumMarketData = $hasSearch
   ? whois_premium_market_listings($searchDomain, [
-    'lookup' => $lookup,
     'currency' => $selectedCurrency,
   ], $selectedCurrency)
   : [
@@ -313,6 +295,7 @@ $bundleSubtotal = 0.0;
 $bundlePricedItems = 0;
 $bundleExcludedCount = 0;
 $bundleMaxItems = 3;
+$useTruehostBundleLookup = $countryCode === 'KE';
 
 if ($hasSearch) {
   foreach ($bundleCandidateTlds as $bundleTld) {
@@ -326,7 +309,9 @@ if ($hasSearch) {
       continue;
     }
 
-    $bundleLookup = whois_domain_lookup_cached($bundleDomain);
+    $bundleLookup = $useTruehostBundleLookup
+      ? whois_truehost_domain_lookup($bundleDomain)
+      : whois_domain_lookup_cached($bundleDomain);
     $bundleMeta = whois_ai_search_status_meta((string) ($bundleLookup['status'] ?? 'unknown'));
     $bundlePriceData = whois_truehost_tld_price($bundleTld);
     $bundlePrice = whois_ai_search_price_label($bundlePriceData, $selectedCurrency);
