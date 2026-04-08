@@ -17,6 +17,7 @@ $navItems = [
 <nav class="fixed top-0 z-50 w-full border-b border-outline-variant/20 bg-white/85 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 lg:px-8">
     <a class="flex shrink-0 items-baseline gap-3 text-black" href="whois_premium_domain_intelligence_landing_page.php">
+      <img src="/assets/img/whois-icon.png" alt="WHOIS icon" class="h-8 w-8 rounded-full object-cover"/>
       <span class="font-['Manrope'] text-xl font-black tracking-tighter">WHOIS</span>
       <span class="hidden text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400 sm:inline">Intelligence Suite</span>
     </a>
@@ -40,3 +41,17 @@ $navItems = [
     </div>
   </div>
 </nav>
+<script>
+(function () {
+  if (!document.head) return;
+
+  var existing = document.querySelector("link[rel='icon']");
+  if (existing) return;
+
+  var link = document.createElement('link');
+  link.rel = 'icon';
+  link.type = 'image/png';
+  link.href = '/assets/img/favicon.png';
+  document.head.appendChild(link);
+})();
+</script>
