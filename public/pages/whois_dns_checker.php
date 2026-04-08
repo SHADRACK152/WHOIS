@@ -634,6 +634,27 @@ tailwind.config = {
       }
       return statusRank(a) - statusRank(b);
     });
+
+    // Reorder resolver cards in the DOM to match sorted results
+    const nodeList = document.querySelector('.dns-node-list');
+    if (nodeList) {
+      const cardMap = {};
+      nodeList.querySelectorAll('[data-node-card]').forEach(function(card) {
+        const markerId = String(card.getAttribute('data-node-card') || '');
+        cardMap[markerId] = card;
+      });
+      // Remove all cards
+      while (nodeList.firstChild) {
+        nodeList.removeChild(nodeList.firstChild);
+      }
+      // Append cards in sorted order
+      safeRows.forEach(function(row) {
+        const markerId = String(row.markerId || '');
+        if (cardMap[markerId]) {
+          nodeList.appendChild(cardMap[markerId]);
+        }
+      });
+    }
     let resolved = 0;
 
     safeRows.forEach(function (row) {
