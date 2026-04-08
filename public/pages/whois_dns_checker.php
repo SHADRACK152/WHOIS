@@ -624,7 +624,16 @@ tailwind.config = {
   }
 
   function applyResults(rows) {
-    const safeRows = Array.isArray(rows) ? rows : [];
+    const safeRows = Array.isArray(rows) ? rows.slice() : [];
+    // Sort: resolved first, then failed, then pending
+    safeRows.sort(function(a, b) {
+      function statusRank(row) {
+        if (row.resolved) return 0; // resolved
+        if (row.ok) return 1; // not resolved
+        return 2; // no response
+      }
+      return statusRank(a) - statusRank(b);
+    });
     let resolved = 0;
 
     safeRows.forEach(function (row) {
