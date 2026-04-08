@@ -39,7 +39,9 @@ asort($countries);
 <title>WHOIS | DNS Checker</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script id="tailwind-config">
 tailwind.config = {
   darkMode: "class",
@@ -117,105 +119,45 @@ tailwind.config = {
     background: #d32f2f;
   }
 
-  #dns-custom-map {
-    position: relative;
+  #dns-leaflet-map {
     min-width: 920px;
-    height: 460px;
+    height: 500px;
     border-radius: 18px;
-    overflow: hidden;
-    background:
-      radial-gradient(circle at 20% 35%, rgba(10, 71, 121, 0.2), transparent 40%),
-      radial-gradient(circle at 70% 20%, rgba(11, 84, 153, 0.18), transparent 42%),
-      linear-gradient(180deg, #f8fcff 0%, #ebf4fb 100%);
   }
 
-  #dns-custom-map::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
-    background-size: 48px 48px;
-    opacity: 0.45;
-    pointer-events: none;
+  .leaflet-dns-icon {
+    background: transparent;
+    border: 0;
   }
 
-  .continent-blob {
-    position: absolute;
-    background: linear-gradient(145deg, #b9d9a9 0%, #8fbe7f 100%);
-    border: 1px solid rgba(58, 90, 64, 0.22);
-    border-radius: 48% 52% 45% 55% / 40% 50% 50% 60%;
-    box-shadow: inset 0 -10px 24px rgba(47, 98, 53, 0.15);
-    opacity: 0.92;
-  }
-
-  .blob-na { left: 7%; top: 19%; width: 23%; height: 35%; transform: rotate(-9deg); }
-  .blob-sa { left: 24%; top: 55%; width: 13%; height: 31%; transform: rotate(7deg); }
-  .blob-eu { left: 47%; top: 20%; width: 12%; height: 14%; transform: rotate(-4deg); }
-  .blob-af { left: 47%; top: 35%; width: 15%; height: 32%; transform: rotate(3deg); }
-  .blob-as { left: 57%; top: 18%; width: 29%; height: 36%; transform: rotate(2deg); }
-  .blob-au { left: 78%; top: 66%; width: 14%; height: 18%; transform: rotate(-8deg); }
-
-  #dns-map-points {
-    position: absolute;
-    inset: 0;
-  }
-
-  .dns-map-pin {
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    border: 2px solid #fff;
+  .leaflet-dns-pin {
+    width: 14px;
+    height: 14px;
     border-radius: 9999px;
+    border: 2px solid #fff;
+    display: block;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28), 0 0 0 6px rgba(158, 158, 158, 0.16);
+  }
+
+  .leaflet-dns-pin.is-pending {
     background: #9e9e9e;
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(158, 158, 158, 0.16);
-    transform: translate(-50%, -50%);
-    transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
-    cursor: pointer;
-    padding: 0;
   }
 
-  .dns-map-pin:hover {
-    transform: translate(-50%, -50%) scale(1.14);
-  }
-
-  .dns-map-pin.is-resolved {
+  .leaflet-dns-pin.is-resolved {
     background: #2e7d32;
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(46, 125, 50, 0.2);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28), 0 0 0 6px rgba(46, 125, 50, 0.2);
   }
 
-  .dns-map-pin.is-failed {
+  .leaflet-dns-pin.is-failed {
     background: #d32f2f;
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(211, 47, 47, 0.2);
-  }
-
-  .dns-map-pin.is-pending {
-    background: #9e9e9e;
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(158, 158, 158, 0.16);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28), 0 0 0 6px rgba(211, 47, 47, 0.2);
   }
 
   @media (max-width: 900px) {
-    #dns-custom-map {
+    #dns-leaflet-map {
       min-width: 760px;
-      height: 420px;
+      height: 460px;
     }
-  }
-
-  #dns-map-tooltip {
-    position: fixed;
-    z-index: 60;
-    display: none;
-    max-width: min(360px, calc(100vw - 24px));
-    border: 1px solid rgba(0, 0, 0, 0.14);
-    border-radius: 10px;
-    background: #111;
-    color: #fff;
-    font-size: 12px;
-    line-height: 1.35;
-    padding: 8px 10px;
-    pointer-events: none;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
   }
 
   .map-card-focus {
@@ -350,17 +292,8 @@ tailwind.config = {
         <span class="status-pill status-pending"><span class="status-dot"></span>No Response</span>
       </div>
       <div id="dns-map-wrap" class="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
-        <div id="dns-custom-map">
-          <div class="continent-blob blob-na"></div>
-          <div class="continent-blob blob-sa"></div>
-          <div class="continent-blob blob-eu"></div>
-          <div class="continent-blob blob-af"></div>
-          <div class="continent-blob blob-as"></div>
-          <div class="continent-blob blob-au"></div>
-          <div id="dns-map-points"></div>
-        </div>
+        <div id="dns-leaflet-map"></div>
       </div>
-      <div id="dns-map-tooltip" role="tooltip" aria-hidden="true"></div>
     </section>
 
     <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
@@ -421,10 +354,10 @@ tailwind.config = {
   const countrySelect = document.getElementById('dns-country');
   const quickFilters = document.querySelectorAll('[data-quick-filter]');
   const summary = document.getElementById('dns-summary');
-  const pointsLayer = document.getElementById('dns-map-points');
-  const mapTooltip = document.getElementById('dns-map-tooltip');
+  const mapEl = document.getElementById('dns-leaflet-map');
 
   let refreshTimer = null;
+  let map = null;
 
   const markerColors = {
     pending: '#9e9e9e',
@@ -435,20 +368,32 @@ tailwind.config = {
   const statusByMarker = new Map();
   const markerElements = new Map();
 
-  function projectLongitude(lon) {
-    return ((lon + 180) / 360) * 100;
+  function markerIcon(status) {
+    return L.divIcon({
+      className: 'leaflet-dns-icon',
+      html: '<span class="leaflet-dns-pin is-' + status + '"></span>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
   }
 
-  function projectLatitude(lat) {
-    return ((90 - lat) / 180) * 100;
-  }
-
-  function buildCustomMapPins() {
-    if (!pointsLayer || !Array.isArray(nodeMeta)) {
+  function buildLeafletMap() {
+    if (!mapEl || typeof window.L === 'undefined' || !Array.isArray(nodeMeta)) {
       return;
     }
 
-    pointsLayer.innerHTML = '';
+    map = L.map(mapEl, {
+      worldCopyJump: true,
+      minZoom: 2,
+      maxZoom: 8,
+      zoomControl: true,
+    }).setView([20, 0], 2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 8,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
     markerElements.clear();
 
     nodeMeta.forEach(function (node) {
@@ -460,52 +405,17 @@ tailwind.config = {
         return;
       }
 
-      const pin = document.createElement('button');
-      pin.type = 'button';
-      pin.className = 'dns-map-pin is-pending';
-      pin.setAttribute('id', markerId);
-      pin.setAttribute('data-marker-id', markerId);
-      pin.style.left = projectLongitude(lon) + '%';
-      pin.style.top = projectLatitude(lat) + '%';
+      const marker = L.marker([lat, lon], {
+        icon: markerIcon('pending'),
+        title: String((node && node.location) || markerId),
+      }).addTo(map);
 
-      pointsLayer.appendChild(pin);
-      markerElements.set(markerId, pin);
+      marker.on('click', function () {
+        focusServerCard(markerId);
+      });
+
+      markerElements.set(markerId, marker);
     });
-  }
-
-  function showMapTooltip(text, x, y) {
-    if (!mapTooltip) {
-      return;
-    }
-
-    mapTooltip.textContent = text;
-    mapTooltip.style.display = 'block';
-    mapTooltip.setAttribute('aria-hidden', 'false');
-
-    const pad = 12;
-    const rect = mapTooltip.getBoundingClientRect();
-    let left = x + 14;
-    let top = y + 14;
-
-    if (left + rect.width + pad > window.innerWidth) {
-      left = x - rect.width - 14;
-    }
-
-    if (top + rect.height + pad > window.innerHeight) {
-      top = y - rect.height - 14;
-    }
-
-    mapTooltip.style.left = Math.max(pad, left) + 'px';
-    mapTooltip.style.top = Math.max(pad, top) + 'px';
-  }
-
-  function hideMapTooltip() {
-    if (!mapTooltip) {
-      return;
-    }
-
-    mapTooltip.style.display = 'none';
-    mapTooltip.setAttribute('aria-hidden', 'true');
   }
 
   function setMarkerTooltip(markerId, text) {
@@ -519,8 +429,12 @@ tailwind.config = {
       return;
     }
 
-    marker.setAttribute('aria-label', text);
-    marker.dataset.tooltipText = text;
+    marker.bindTooltip(text, {
+      sticky: true,
+      direction: 'top',
+      offset: [0, -10],
+      opacity: 0.95,
+    });
   }
 
   function focusServerCard(markerId) {
@@ -547,25 +461,10 @@ tailwind.config = {
       return;
     }
 
-    markerElements.forEach(function (marker) {
-      marker.style.cursor = 'pointer';
-
-      marker.addEventListener('mouseenter', function (event) {
-        const text = String(marker.dataset.tooltipText || marker.getAttribute('aria-label') || marker.getAttribute('location') || 'DNS node');
-        showMapTooltip(text, event.clientX, event.clientY);
-      });
-
-      marker.addEventListener('mousemove', function (event) {
-        const text = String(marker.dataset.tooltipText || marker.getAttribute('aria-label') || marker.getAttribute('location') || 'DNS node');
-        showMapTooltip(text, event.clientX, event.clientY);
-      });
-
-      marker.addEventListener('mouseleave', function () {
-        hideMapTooltip();
-      });
-
-      marker.addEventListener('click', function () {
-        focusServerCard(String(marker.getAttribute('data-marker-id') || marker.id || ''));
+    markerElements.forEach(function (marker, markerId) {
+      marker.off('click');
+      marker.on('click', function () {
+        focusServerCard(markerId);
       });
     });
   }
@@ -602,18 +501,8 @@ tailwind.config = {
       return;
     }
 
-    const color = markerColors[status] || markerColors.pending;
-    marker.classList.remove('is-pending', 'is-resolved', 'is-failed');
-
-    if (status === 'resolved') {
-      marker.classList.add('is-resolved');
-    } else if (status === 'failed') {
-      marker.classList.add('is-failed');
-    } else {
-      marker.classList.add('is-pending');
-    }
-
-    marker.style.backgroundColor = color;
+    const normalized = status === 'resolved' || status === 'failed' ? status : 'pending';
+    marker.setIcon(markerIcon(normalized));
   }
 
   function setCardStatus(markerId, state, label) {
@@ -662,8 +551,7 @@ tailwind.config = {
         const marker = markerElements.get(markerId);
 
         if (marker) {
-          marker.style.opacity = visible ? '1' : '0.15';
-          marker.style.pointerEvents = visible ? 'auto' : 'none';
+          marker.setOpacity(visible ? 1 : 0.15);
         }
       }
     });
@@ -797,6 +685,8 @@ tailwind.config = {
     return;
   }
 
+  buildLeafletMap();
+
   button.addEventListener('click', function () {
     runCheck();
   });
@@ -855,7 +745,6 @@ tailwind.config = {
     });
   });
 
-  buildCustomMapPins();
   resetStatuses();
   initializeMarkerTooltips();
   bindMarkerInteractions();
