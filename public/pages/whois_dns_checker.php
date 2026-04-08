@@ -6,15 +6,24 @@ require __DIR__ . '/../../app/dns-checker-nodes.php';
 
 $domainValue = trim((string) ($_GET['domain'] ?? 'cheapestdomains.co.ke'));
 
-$mapSvgPath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'DNSChecker_Map.svg';
 $mapSvg = '';
 
-if (is_file($mapSvgPath)) {
-    $raw = file_get_contents($mapSvgPath);
+$mapSvgCandidates = [
+  dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'DNSChecker_Map.svg',
+  dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'DNSChecker_Map.svg',
+];
 
-    if (is_string($raw) && trim($raw) !== '') {
-        $mapSvg = $raw;
-    }
+foreach ($mapSvgCandidates as $mapSvgPath) {
+  if (!is_file($mapSvgPath)) {
+    continue;
+  }
+
+  $raw = file_get_contents($mapSvgPath);
+
+  if (is_string($raw) && trim($raw) !== '') {
+    $mapSvg = $raw;
+    break;
+  }
 }
 
 $nodes = whois_dns_checker_nodes();
