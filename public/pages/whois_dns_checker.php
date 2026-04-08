@@ -406,6 +406,7 @@ tailwind.config = {
 
   let refreshTimer = null;
   let map = null;
+  let activeRunToken = 0;
 
   const markerColors = {
     pending: '#9e9e9e',
@@ -598,6 +599,8 @@ tailwind.config = {
     const continent = String((continentSelect && continentSelect.value) || 'all').toLowerCase();
     const country = String((countrySelect && countrySelect.value) || 'all').toLowerCase();
 
+    const visibleMarkerIds = [];
+
     document.querySelectorAll('[data-node-card]').forEach(function (card) {
       const markerId = String(card.getAttribute('data-node-card') || '');
       const cardIp = String(card.getAttribute('data-ip-family') || '').toLowerCase();
@@ -611,6 +614,10 @@ tailwind.config = {
 
       card.style.display = visible ? '' : 'none';
 
+      if (visible && markerId !== '') {
+        visibleMarkerIds.push(markerId);
+      }
+
       if (markerId !== '') {
         const marker = markerElements.get(markerId);
 
@@ -619,13 +626,15 @@ tailwind.config = {
         }
       }
     });
+
+    return visibleMarkerIds;
   }
 
-  function applyResults(payload) {
-    const rows = Array.isArray(payload.results) ? payload.results : [];
+  function applyResults(rows) {
+    const safeRows = Array.isArray(rows) ? rows : [];
     let resolved = 0;
 
-    rows.forEach(function (row) {
+    safeRows.forEach(function (row) {
       const markerId = String(row.markerId || '');
       const isResolved = Boolean(row.resolved);
       const isOk = Boolean(row.ok);
@@ -656,12 +665,51 @@ tailwind.config = {
       setMarkerTooltip(markerId, location + ' | ' + provider + ' | ' + resolver + ' | ' + details);
     });
 
-    const total = rows.length;
-    const percentage = total > 0 ? Math.round((resolved / total) * 100) : 0;
-    setSummary('Propagation: ' + resolved + '/' + total + ' servers resolved (' + percentage + '%).');
+    return {
+      total: safeRows.length,
+      resolved: resolved,
+    };
+  }
+
+  function chunkMarkerIds(markerIds, size) {
+    const chunks = [];
+
+    for (let i = 0; i < markerIds.length; i += size) {
+      chunks.push(markerIds.slice(i, i + size));
+    }
+
+    return chunks;
+  }
+
+  async function fetchBatch(params, markerIds, runToken) {
+    const batchParams = new URLSearchParams(params.toString());
+    batchParams.set('markerIds', markerIds.join(','));
+
+    const response = await fetch('/api/dns-checker.php?' + batchParams.toString(), {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (runToken !== activeRunToken) {
+      return null;
+    }
+
+    const payload = await response.json();
+
+    if (runToken !== activeRunToken) {
+      return null;
+    }
+
+    if (!response.ok || !payload.ok) {
+      throw new Error((payload && payload.error) ? payload.error : 'DNS check failed.');
+    }
+
+    return payload;
   }
 
   async function runCheck() {
+    const runToken = ++activeRunToken;
     const query = String(input.value || '').trim();
 
     if (query === '') {
@@ -673,6 +721,13 @@ tailwind.config = {
     const ipFamily = String((ipFamilySelect && ipFamilySelect.value) || 'all').toLowerCase();
     const continent = String((continentSelect && continentSelect.value) || 'all').toLowerCase();
     const country = String((countrySelect && countrySelect.value) || 'all').toLowerCase();
+    const markerIds = applyVisibility();
+
+    if (markerIds.length === 0) {
+      setSummary('No resolvers match the selected filters.');
+      return;
+    }
+
     const params = new URLSearchParams({
       domain: query,
       type: type,
@@ -682,33 +737,64 @@ tailwind.config = {
     });
 
     resetStatuses();
-    setSummary('Checking global resolvers...');
+    setSummary('Checking global resolvers... 0/' + markerIds.length + ' checked.');
     button.disabled = true;
     button.textContent = 'Checking...';
 
     try {
-      const response = await fetch('/api/dns-checker.php?' + params.toString(), {
-        headers: {
-          'Accept': 'application/json'
+      const batchSize = 12;
+      const maxConcurrent = 6;
+      const batches = chunkMarkerIds(markerIds, batchSize);
+      let checked = 0;
+      let resolved = 0;
+      let cursor = 0;
+
+      async function worker() {
+        while (cursor < batches.length) {
+          const current = cursor;
+          cursor += 1;
+          const batchMarkerIds = batches[current];
+          const payload = await fetchBatch(params, batchMarkerIds, runToken);
+
+          if (payload === null || runToken !== activeRunToken) {
+            return;
+          }
+
+          const stats = applyResults(payload.results);
+          checked += stats.total;
+          resolved += stats.resolved;
+
+          const percent = markerIds.length > 0 ? Math.round((resolved / markerIds.length) * 100) : 0;
+          setSummary('Checking global resolvers... ' + checked + '/' + markerIds.length + ' checked (' + resolved + ' resolved, ' + percent + '%).');
         }
-      });
+      }
 
-      const payload = await response.json();
+      const workers = [];
+      const workerCount = Math.min(maxConcurrent, batches.length);
 
-      if (!response.ok || !payload.ok) {
-        setSummary((payload && payload.error) ? payload.error : 'DNS check failed.');
+      for (let i = 0; i < workerCount; i++) {
+        workers.push(worker());
+      }
+
+      await Promise.all(workers);
+
+      if (runToken !== activeRunToken) {
         return;
       }
 
-      applyResults(payload);
-      applyVisibility();
+      const finalPercent = markerIds.length > 0 ? Math.round((resolved / markerIds.length) * 100) : 0;
+      setSummary('Propagation: ' + resolved + '/' + markerIds.length + ' servers resolved (' + finalPercent + '%).');
       const nextUrl = '/pages/whois_dns_checker.php?domain=' + encodeURIComponent(query);
       window.history.replaceState({}, '', nextUrl);
     } catch (error) {
-      setSummary('Request failed. Please try again.');
+      if (runToken === activeRunToken) {
+        setSummary((error && error.message) ? error.message : 'Request failed. Please try again.');
+      }
     } finally {
-      button.disabled = false;
-      button.textContent = 'DNS Check';
+      if (runToken === activeRunToken) {
+        button.disabled = false;
+        button.textContent = 'DNS Check';
+      }
     }
   }
 

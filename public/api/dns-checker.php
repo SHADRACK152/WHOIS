@@ -12,6 +12,7 @@ $type = strtoupper(trim((string) ($_GET['type'] ?? 'A')));
 $ipFamily = strtolower(trim((string) ($_GET['ipFamily'] ?? 'all')));
 $continent = strtolower(trim((string) ($_GET['continent'] ?? 'all')));
 $country = strtolower(trim((string) ($_GET['country'] ?? 'all')));
+$markerIdsRaw = trim((string) ($_GET['markerIds'] ?? ''));
 $allowedTypes = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'PTR', 'SRV', 'SOA', 'CAA', 'DS', 'DNSKEY'];
 
 if ($domain === '') {
@@ -86,6 +87,20 @@ if ($country !== '' && $country !== 'all') {
     $nodes = array_values(array_filter(
         $nodes,
         static fn (array $node): bool => strtolower((string) ($node['country'] ?? '')) === $country
+    ));
+}
+
+if ($markerIdsRaw !== '') {
+    $ids = array_values(array_filter(array_map('trim', explode(',', $markerIdsRaw)), static fn (string $id): bool => $id !== ''));
+    $idLookup = [];
+
+    foreach ($ids as $id) {
+        $idLookup[$id] = true;
+    }
+
+    $nodes = array_values(array_filter(
+        $nodes,
+        static fn (array $node): bool => isset($idLookup[(string) ($node['markerId'] ?? '')])
     ));
 }
 
