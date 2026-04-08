@@ -635,7 +635,7 @@ tailwind.config = {
       return statusRank(a) - statusRank(b);
     });
 
-    // Reorder resolver cards in the DOM to match sorted results
+    // Reorder all resolver cards in the DOM, always showing all resolvers
     const nodeList = document.querySelector('.dns-node-list');
     if (nodeList) {
       const cardMap = {};
@@ -643,16 +643,31 @@ tailwind.config = {
         const markerId = String(card.getAttribute('data-node-card') || '');
         cardMap[markerId] = card;
       });
+      // Build a status map for all markerIds
+      const statusMap = {};
+      safeRows.forEach(function(row) {
+        const markerId = String(row.markerId || '');
+        if (markerId) statusMap[markerId] = row;
+      });
+      // For all cards, assign a sort rank: resolved=0, failed=1, pending=2
+      const allCards = Array.from(nodeList.querySelectorAll('[data-node-card]'));
+      allCards.sort(function(a, b) {
+        function cardRank(card) {
+          const markerId = String(card.getAttribute('data-node-card') || '');
+          const row = statusMap[markerId];
+          if (row && row.resolved) return 0;
+          if (row && row.ok) return 1;
+          return 2;
+        }
+        return cardRank(a) - cardRank(b);
+      });
       // Remove all cards
       while (nodeList.firstChild) {
         nodeList.removeChild(nodeList.firstChild);
       }
-      // Append cards in sorted order
-      safeRows.forEach(function(row) {
-        const markerId = String(row.markerId || '');
-        if (cardMap[markerId]) {
-          nodeList.appendChild(cardMap[markerId]);
-        }
+      // Append all cards in sorted order
+      allCards.forEach(function(card) {
+        nodeList.appendChild(card);
       });
     }
     let resolved = 0;
