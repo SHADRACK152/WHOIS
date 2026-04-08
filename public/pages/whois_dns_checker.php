@@ -708,12 +708,19 @@ tailwind.config = {
     return payload;
   }
 
+  let isChecking = false;
   async function runCheck() {
+    if (isChecking) {
+      setSummary('Please wait for all DNS checks to finish.');
+      return;
+    }
+    isChecking = true;
     const runToken = ++activeRunToken;
     const query = String(input.value || '').trim();
 
     if (query === '') {
       input.focus();
+      isChecking = false;
       return;
     }
 
@@ -725,6 +732,7 @@ tailwind.config = {
 
     if (markerIds.length === 0) {
       setSummary('No resolvers match the selected filters.');
+      isChecking = false;
       return;
     }
 
@@ -742,8 +750,9 @@ tailwind.config = {
     button.textContent = 'Checking...';
 
     try {
-      const batchSize = 12;
-      const maxConcurrent = 6;
+      // Increased batch size and concurrency for speed
+      const batchSize = 32;
+      const maxConcurrent = 16;
       const batches = chunkMarkerIds(markerIds, batchSize);
       let checked = 0;
       let resolved = 0;
@@ -779,6 +788,7 @@ tailwind.config = {
       await Promise.all(workers);
 
       if (runToken !== activeRunToken) {
+        isChecking = false;
         return;
       }
 
@@ -795,6 +805,7 @@ tailwind.config = {
         button.disabled = false;
         button.textContent = 'DNS Check';
       }
+      isChecking = false;
     }
   }
 
