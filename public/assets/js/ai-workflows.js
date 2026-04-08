@@ -197,7 +197,7 @@
       return true;
     }
 
-    if (text === 'Mira') {
+    if (text === 'Zola') {
       return true;
     }
 

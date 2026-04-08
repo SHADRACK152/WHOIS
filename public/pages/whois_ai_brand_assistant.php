@@ -7,7 +7,7 @@ header('Content-Type: text/html; charset=utf-8');
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>WHOIS | Mira</title>
+<title>WHOIS | Zola</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -123,7 +123,7 @@ header('Content-Type: text/html; charset=utf-8');
 <section class="flex-1 min-w-0 bg-[radial-gradient(circle_at_top,#ffffff_0%,#f7f7f7_36%,#efefef_100%)] relative overflow-hidden" data-brand-chat>
 <div class="flex h-full flex-col px-4 py-4 sm:px-6">
   <div class="mx-auto mb-4 max-w-4xl text-center">
-    <h1 class="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-primary mb-3">Mira</h1>
+    <h1 class="text-4xl md:text-5xl font-headline font-extrabold tracking-tighter text-primary mb-3">Zola</h1>
     <p class="text-on-surface-variant text-lg font-body max-w-lg mx-auto leading-relaxed">Your expert partner in domain acquisition and brand strategy.</p>
   </div>
 
@@ -142,7 +142,7 @@ header('Content-Type: text/html; charset=utf-8');
         <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Conversation</p>
         <p class="mt-1 text-sm text-on-surface-variant">Start a thread and keep the chat focused on one question at a time.</p>
       </div>
-      <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Mira</span>
+      <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Zola</span>
     </div>
 
     <div class="flex-1 min-h-0 overflow-y-auto px-5 py-6 sm:px-6" data-chat-feed>
@@ -159,7 +159,7 @@ header('Content-Type: text/html; charset=utf-8');
           <button type="button" class="rounded-full p-2.5 transition-colors hover:bg-surface-container-high">
             <span class="material-symbols-outlined text-secondary">attach_file</span>
           </button>
-          <input data-chat-input class="flex-1 border-none bg-transparent px-2 py-2 text-sm text-primary focus:ring-0 font-body placeholder-neutral-400" placeholder="Ask anything about domains or brand strategy..." type="text"/>
+          <input data-chat-input class="flex-1 border-none bg-transparent px-2 py-2 text-sm text-primary focus:ring-0 font-body placeholder-neutral-400" placeholder="Ask anything about names, domains, or brand strategy..." type="text"/>
           <button type="button" class="rounded-full p-2.5 transition-colors hover:bg-surface-container-high">
             <span class="material-symbols-outlined text-secondary">analytics</span>
           </button>
@@ -241,29 +241,7 @@ header('Content-Type: text/html; charset=utf-8');
       .replace(/```[\s\S]*?```/g, function (block) {
         return block.replace(/```/g, '');
       })
-      .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
-      .split('\n')
-      .map(function (line) {
-        return line
-          .replace(/^#{1,6}\s+/, '')
-          .replace(/^\s*[-*+]\s+/, '')
-          .replace(/^\s*\d+\.\s+/, '')
-          .replace(/\*\*(.*?)\*\*/g, '$1')
-          .replace(/__(.*?)__/g, '$1')
-          .replace(/`([^`]+)`/g, '$1')
-          .replace(/~~(.*?)~~/g, '$1')
-          .trimStart();
-      })
-      .join('\n')
-      .trim();
-  }
-
-  function normalizeAssistantText(value) {
-    return String(value || '')
-      .replace(/\r\n/g, '\n')
-      .replace(/```[\s\S]*?```/g, function (block) {
-        return block.replace(/```/g, '');
-      })
+      .replace(/NAME_OPTIONS_START[\s\S]*?NAME_OPTIONS_END/gi, '')
       .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
       .split('\n')
       .map(function (line) {
@@ -351,7 +329,7 @@ header('Content-Type: text/html; charset=utf-8');
       }
 
       if (entry && entry.message) {
-        renderThreadEntry('assistant', entry.title || 'Mira', entry.message);
+        renderThreadEntry('assistant', entry.title || 'Zola', entry.message);
       }
 
       if (!entry || (!entry.prompt && !entry.message)) {
@@ -367,7 +345,7 @@ header('Content-Type: text/html; charset=utf-8');
         return;
       }
 
-      renderThreadEntry(message.role, message.role === 'assistant' ? (entry.title || 'Mira') : 'You', message.text || '');
+      renderThreadEntry(message.role, message.role === 'assistant' ? (entry.title || 'Zola') : 'You', message.text || '');
     });
 
     scrollToBottom();
@@ -409,21 +387,105 @@ header('Content-Type: text/html; charset=utf-8');
     wrapper.innerHTML =
       '<div class="max-w-[42rem] rounded-3xl rounded-tl-none border border-outline-variant/20 bg-surface-container-lowest px-5 py-4 shadow-sm">' +
       '<div class="mb-3 flex items-center gap-2">' +
-          '<span class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Mira</span>' +
+            '<span class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Zola</span>' +
       '<span class="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500" data-chat-title></span>' +
       '</div>' +
       '<p class="whitespace-pre-wrap text-sm leading-7 text-on-surface-variant" data-chat-message></p>' +
+          '<div class="mt-4 hidden flex flex-wrap gap-2" data-chat-name-options></div>' +
       '</div>';
 
     wrapper.querySelector('[data-chat-title]').textContent = title;
-    wrapper.querySelector('[data-chat-message]').innerHTML = loading ? '<span class="inline-flex items-center gap-1"><span class="whois-typing-dot">•</span><span class="whois-typing-dot" style="animation-delay: 0.15s">•</span><span class="whois-typing-dot" style="animation-delay: 0.3s">•</span><span class="ml-2">Thinking with Grok...</span></span>' : textToHtml(message);
+    wrapper.querySelector('[data-chat-message]').innerHTML = loading ? '<span class="inline-flex items-center gap-1"><span class="whois-typing-dot">•</span><span class="whois-typing-dot" style="animation-delay: 0.15s">•</span><span class="whois-typing-dot" style="animation-delay: 0.3s">•</span><span class="ml-2">Thinking with Grok...</span></span>' : textToHtml(normalizeAssistantText(message));
 
     return wrapper;
+  }
+
+  function extractNameOptions(value) {
+    const lines = String(value || '').replace(/\r\n/g, '\n').split('\n');
+    const names = [];
+    let inOptions = false;
+
+    lines.forEach(function (line) {
+      const raw = String(line || '').trim();
+
+      if (/^NAME_OPTIONS_START$/i.test(raw)) {
+        inOptions = true;
+        return;
+      }
+
+      if (/^NAME_OPTIONS_END$/i.test(raw)) {
+        inOptions = false;
+        return;
+      }
+
+      if (!inOptions || raw === '') {
+        return;
+      }
+
+      const cleaned = raw.replace(/^\d+[\)\.]\s*/, '').trim();
+
+      if (!/^[A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+){0,2}$/.test(cleaned)) {
+        return;
+      }
+
+      names.push(cleaned);
+    });
+
+    return Array.from(new Set(names)).slice(0, 15);
+  }
+
+  function optionToDomainRoot(value) {
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 63);
+  }
+
+  function renderNameOptionButtons(messageNode, rawMessage) {
+    const container = messageNode.querySelector('[data-chat-name-options]');
+
+    if (!container) {
+      return;
+    }
+
+    const options = extractNameOptions(rawMessage);
+
+    container.innerHTML = '';
+
+    if (!options.length) {
+      container.classList.add('hidden');
+      return;
+    }
+
+    options.forEach(function (option) {
+      const root = optionToDomainRoot(option);
+
+      if (root === '') {
+        return;
+      }
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'rounded-full border border-outline-variant/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:border-primary/40 hover:bg-surface-container-high';
+      button.textContent = option;
+      button.addEventListener('click', function () {
+        window.location.href = '/pages/whois_ai_domain_search.php?query=' + encodeURIComponent(root) + '&tld=com';
+      });
+      container.appendChild(button);
+    });
+
+    if (container.childElementCount > 0) {
+      container.classList.remove('hidden');
+    } else {
+      container.classList.add('hidden');
+    }
   }
 
   function appendMessage(role, title, message, loading) {
     const messageNode = createMessage(role, title, message, loading);
     feed.appendChild(messageNode);
+
+    if (role === 'assistant' && !loading) {
+      renderNameOptionButtons(messageNode, message);
+    }
+
     scrollToBottom();
     return messageNode;
   }
@@ -477,10 +539,10 @@ header('Content-Type: text/html; charset=utf-8');
     appendMessage('user', 'You', prompt, false);
     pushConversationMessage('user', prompt);
 
-    const pending = appendMessage('assistant', 'Mira', '', true);
+    const pending = appendMessage('assistant', 'Zola', '', true);
     const historyEntry = window.WhoisAIHistory ? window.WhoisAIHistory.record({
       workflow: workflow,
-      title: 'Mira',
+      title: 'Zola',
       prompt: prompt,
       message: '',
       messages: [
@@ -513,11 +575,11 @@ header('Content-Type: text/html; charset=utf-8');
         throw new Error(data.error || 'The AI request failed.');
       }
 
-      pending.querySelector('[data-chat-title]').textContent = data.label || 'Mira';
+      pending.querySelector('[data-chat-title]').textContent = data.label || 'Zola';
 
       if (historyEntry && window.WhoisAIHistory) {
         window.WhoisAIHistory.update(historyEntry.id, {
-          title: data.label || 'Mira',
+          title: data.label || 'Zola',
           message: data.output || 'No response returned.',
           messages: [
             { role: 'user', text: prompt },
@@ -527,9 +589,11 @@ header('Content-Type: text/html; charset=utf-8');
         });
       }
 
-      pushConversationMessage('assistant', data.output || 'No response returned.');
+      const assistantOutput = data.output || 'No response returned.';
 
-      await typeIntoMessage(pending, normalizeAssistantText(data.output || 'No response returned.'));
+      pushConversationMessage('assistant', assistantOutput);
+      await typeIntoMessage(pending, normalizeAssistantText(assistantOutput));
+      renderNameOptionButtons(pending, assistantOutput);
     } catch (error) {
       pending.querySelector('[data-chat-title]').textContent = 'Grok is unavailable';
 
