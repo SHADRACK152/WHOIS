@@ -338,19 +338,24 @@ tailwind.config = {
       <p class="mt-4 text-xs text-on-surface-variant">Note: Complete DNS resolution may take up to 48 hours.</p>
     </section>
 
-    <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
-      <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">DNS Lists</p>
-      <div class="mt-3 grid gap-6 md:grid-cols-3">
+    <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Quick Filters</p>
+        <p class="text-xs text-on-surface-variant">Use the top dropdowns for full filtering; these are shortcuts.</p>
+      </div>
+
+      <div class="mt-3 grid gap-4 lg:grid-cols-2">
         <div>
-          <h4 class="text-sm font-black uppercase tracking-[0.14em] text-neutral-600">IPs</h4>
+          <h4 class="text-[11px] font-black uppercase tracking-[0.14em] text-neutral-600">IP Shortcuts</h4>
           <div class="mt-2 flex flex-wrap gap-2">
             <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="ip" data-value="ipv4">Public IPv4</button>
             <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="ip" data-value="ipv6">Public IPv6</button>
             <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="ip" data-value="all">All</button>
           </div>
         </div>
+
         <div>
-          <h4 class="text-sm font-black uppercase tracking-[0.14em] text-neutral-600">Continents</h4>
+          <h4 class="text-[11px] font-black uppercase tracking-[0.14em] text-neutral-600">Continent Shortcuts</h4>
           <div class="mt-2 flex flex-wrap gap-2">
             <?php foreach ($continentLabels as $continentCode => $continentName): ?>
               <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="continent" data-value="<?php echo htmlspecialchars($continentCode, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($continentName, ENT_QUOTES, 'UTF-8'); ?></button>
@@ -358,16 +363,17 @@ tailwind.config = {
             <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="continent" data-value="all">All</button>
           </div>
         </div>
-        <div>
-          <h4 class="text-sm font-black uppercase tracking-[0.14em] text-neutral-600">Countries</h4>
-          <div class="mt-2 flex max-h-48 flex-wrap gap-2 overflow-y-auto pr-2">
-            <?php foreach ($countries as $countryCode => $countryName): ?>
-              <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="country" data-value="<?php echo htmlspecialchars($countryCode, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($countryCode . ' ' . $countryName, ENT_QUOTES, 'UTF-8'); ?></button>
-            <?php endforeach; ?>
-            <button type="button" class="rounded-full border border-outline-variant/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="country" data-value="all">All</button>
-          </div>
-        </div>
       </div>
+
+      <details class="mt-4 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
+        <summary class="cursor-pointer text-[11px] font-black uppercase tracking-[0.14em] text-neutral-600">Country Shortcuts</summary>
+        <div class="mt-3 flex max-h-40 flex-wrap gap-2 overflow-y-auto pr-2">
+          <?php foreach ($countries as $countryCode => $countryName): ?>
+            <button type="button" class="rounded-full border border-outline-variant/30 bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="country" data-value="<?php echo htmlspecialchars($countryCode, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($countryCode . ' ' . $countryName, ENT_QUOTES, 'UTF-8'); ?></button>
+          <?php endforeach; ?>
+          <button type="button" class="rounded-full border border-outline-variant/30 bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]" data-quick-filter="country" data-value="all">All</button>
+        </div>
+      </details>
     </section>
 
     <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
