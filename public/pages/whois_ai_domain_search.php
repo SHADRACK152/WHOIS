@@ -214,7 +214,7 @@ function whois_ai_search_bundle_tld_candidates(string $country): array
   $supported = array_flip(whois_rdap_supported_tlds());
 
   $fallbacks = [
-    'net', 'org', 'io', 'ai', 'co', 'shop', 'online', 'info', 'biz', 'app', 'dev', 'site', 'store',
+    'net', 'org', 'shop', 'online', 'io', 'ai', 'co', 'info', 'biz', 'app', 'dev', 'site', 'store',
   ];
 
   $ordered = [];
@@ -238,6 +238,18 @@ function whois_ai_search_bundle_tld_candidates(string $country): array
   }
 
   return $ordered;
+}
+
+function whois_ai_search_tld_matches_country(string $tld, string $country): bool
+{
+  $normalizedTld = strtolower(trim($tld));
+  $countryCode = strtolower(trim($country));
+
+  if ($normalizedTld === '' || $countryCode === '' || strlen($countryCode) !== 2) {
+    return false;
+  }
+
+  return $normalizedTld === $countryCode || str_ends_with($normalizedTld, '.' . $countryCode);
 }
 
 function whois_ai_search_bundle_domain(string $root, string $tld): string
@@ -333,6 +345,7 @@ $bundleMaxItems = 3;
 $useTruehostBundleLookup = $countryCode === 'KE';
 $bundleTldExclusions = whois_ai_search_country_tld_exclusions($countryCode);
 $bundleSelectedTlds = [];
+$bundleLocalUnavailableTlds = [];
 
 if ($hasSearch) {
   foreach ($bundleCandidateTlds as $bundleTld) {
@@ -367,6 +380,11 @@ if ($hasSearch) {
 
     if ((string) ($bundleLookup['status'] ?? '') !== 'available') {
       $bundleExcludedCount++;
+
+      if (whois_ai_search_tld_matches_country($bundleTld, $countryCode)) {
+        $bundleLocalUnavailableTlds[] = $bundleTld;
+      }
+
       continue;
     }
 
@@ -391,6 +409,18 @@ if ($hasSearch) {
 $bundleDisplayedTlds = array_values(array_map(static function (array $item): string {
   return (string) ($item['tld'] ?? '');
 }, $bundleItems));
+$bundleHasLocalTld = false;
+
+foreach ($bundleDisplayedTlds as $bundleDisplayedTld) {
+  if (whois_ai_search_tld_matches_country($bundleDisplayedTld, $countryCode)) {
+    $bundleHasLocalTld = true;
+    break;
+  }
+}
+
+$bundleLocalUnavailableTlds = array_values(array_unique(array_map(static function (string $tld): string {
+  return strtolower(trim($tld));
+}, $bundleLocalUnavailableTlds)));
 
 $bundleDiscountRate = 0.18;
 $bundleDiscountAmount = $bundlePricedItems > 1 ? $bundleSubtotal * $bundleDiscountRate : 0.0;
@@ -524,7 +554,10 @@ header('Content-Type: text/html; charset=utf-8');
         <h3 class="text-3xl font-black text-primary">Localized starter bundle for <?php echo htmlspecialchars($countryCode, ENT_QUOTES, 'UTF-8'); ?></h3>
         <p class="mt-2 text-sm text-on-surface-variant">Recommended mix for your market. Bundle includes <?php echo htmlspecialchars(implode(', ', array_map(static fn(string $tld): string => '.' . $tld, $bundleDisplayedTlds !== [] ? $bundleDisplayedTlds : $bundleTlds)), ENT_QUOTES, 'UTF-8'); ?>.</p>
         <?php if ($bundleExcludedCount > 0): ?>
-          <p class="mt-2 text-xs text-on-surface-variant"><?php echo (int) $bundleExcludedCount; ?> registered domain(s) were excluded from this bundle.</p>
+          <p class="mt-2 text-xs text-on-surface-variant"><?php echo (int) $bundleExcludedCount; ?> non-available domain(s) were excluded from this bundle.</p>
+        <?php endif; ?>
+        <?php if (!$bundleHasLocalTld && $bundleLocalUnavailableTlds !== []): ?>
+          <p class="mt-1 text-xs text-on-surface-variant">Local extensions checked: <?php echo htmlspecialchars(implode(', ', array_map(static fn(string $tld): string => '.' . $tld, $bundleLocalUnavailableTlds)), ENT_QUOTES, 'UTF-8'); ?> (currently unavailable).</p>
         <?php endif; ?>
       </div>
       <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low px-5 py-4 text-right">
