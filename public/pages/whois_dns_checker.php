@@ -6,26 +6,6 @@ require __DIR__ . '/../../app/dns-checker-nodes.php';
 
 $domainValue = trim((string) ($_GET['domain'] ?? 'cheapestdomains.co.ke'));
 
-$mapSvg = '';
-
-$mapSvgCandidates = [
-  dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'DNSChecker_Map.svg',
-  dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'DNSChecker_Map.svg',
-];
-
-foreach ($mapSvgCandidates as $mapSvgPath) {
-  if (!is_file($mapSvgPath)) {
-    continue;
-  }
-
-  $raw = file_get_contents($mapSvgPath);
-
-  if (is_string($raw) && trim($raw) !== '') {
-    $mapSvg = $raw;
-    break;
-  }
-}
-
 $nodes = whois_dns_checker_nodes();
 $nodesJson = json_encode($nodes, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
@@ -137,19 +117,110 @@ tailwind.config = {
     background: #d32f2f;
   }
 
-  .dns-map-stage > svg {
-    display: block;
-    max-width: none;
-    width: 108%;
-    margin-left: -4%;
-    height: auto;
+  #dns-custom-map {
+    position: relative;
+    min-width: 920px;
+    height: 460px;
+    border-radius: 18px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 35%, rgba(10, 71, 121, 0.2), transparent 40%),
+      radial-gradient(circle at 70% 20%, rgba(11, 84, 153, 0.18), transparent 42%),
+      linear-gradient(180deg, #f8fcff 0%, #ebf4fb 100%);
+  }
+
+  #dns-custom-map::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .continent-blob {
+    position: absolute;
+    background: linear-gradient(145deg, #b9d9a9 0%, #8fbe7f 100%);
+    border: 1px solid rgba(58, 90, 64, 0.22);
+    border-radius: 48% 52% 45% 55% / 40% 50% 50% 60%;
+    box-shadow: inset 0 -10px 24px rgba(47, 98, 53, 0.15);
+    opacity: 0.92;
+  }
+
+  .blob-na { left: 7%; top: 19%; width: 23%; height: 35%; transform: rotate(-9deg); }
+  .blob-sa { left: 24%; top: 55%; width: 13%; height: 31%; transform: rotate(7deg); }
+  .blob-eu { left: 47%; top: 20%; width: 12%; height: 14%; transform: rotate(-4deg); }
+  .blob-af { left: 47%; top: 35%; width: 15%; height: 32%; transform: rotate(3deg); }
+  .blob-as { left: 57%; top: 18%; width: 29%; height: 36%; transform: rotate(2deg); }
+  .blob-au { left: 78%; top: 66%; width: 14%; height: 18%; transform: rotate(-8deg); }
+
+  #dns-map-points {
+    position: absolute;
+    inset: 0;
+  }
+
+  .dns-map-pin {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #fff;
+    border-radius: 9999px;
+    background: #9e9e9e;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(158, 158, 158, 0.16);
+    transform: translate(-50%, -50%);
+    transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .dns-map-pin:hover {
+    transform: translate(-50%, -50%) scale(1.14);
+  }
+
+  .dns-map-pin.is-resolved {
+    background: #2e7d32;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(46, 125, 50, 0.2);
+  }
+
+  .dns-map-pin.is-failed {
+    background: #d32f2f;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(211, 47, 47, 0.2);
+  }
+
+  .dns-map-pin.is-pending {
+    background: #9e9e9e;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 0 6px rgba(158, 158, 158, 0.16);
   }
 
   @media (max-width: 900px) {
-    .dns-map-stage > svg {
-      width: 104%;
-      margin-left: -2%;
+    #dns-custom-map {
+      min-width: 760px;
+      height: 420px;
     }
+  }
+
+  #dns-map-tooltip {
+    position: fixed;
+    z-index: 60;
+    display: none;
+    max-width: min(360px, calc(100vw - 24px));
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.35;
+    padding: 8px 10px;
+    pointer-events: none;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .map-card-focus {
+    outline: 2px solid rgba(46, 125, 50, 0.35);
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.14);
   }
 </style>
 </head>
@@ -278,17 +349,18 @@ tailwind.config = {
         <span class="status-pill status-failed"><span class="status-dot"></span>Not Resolved</span>
         <span class="status-pill status-pending"><span class="status-dot"></span>No Response</span>
       </div>
-      <?php if ($mapSvg !== ''): ?>
-        <div class="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
-          <div class="dns-map-stage min-w-[820px]">
-            <?php echo $mapSvg; ?>
-          </div>
+      <div id="dns-map-wrap" class="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
+        <div id="dns-custom-map">
+          <div class="continent-blob blob-na"></div>
+          <div class="continent-blob blob-sa"></div>
+          <div class="continent-blob blob-eu"></div>
+          <div class="continent-blob blob-af"></div>
+          <div class="continent-blob blob-as"></div>
+          <div class="continent-blob blob-au"></div>
+          <div id="dns-map-points"></div>
         </div>
-      <?php else: ?>
-        <div class="rounded-2xl border border-dashed border-outline-variant/40 bg-surface-container-low p-6 text-sm text-on-surface-variant">
-          DNSChecker_Map.svg was not found in the repository root.
-        </div>
-      <?php endif; ?>
+      </div>
+      <div id="dns-map-tooltip" role="tooltip" aria-hidden="true"></div>
     </section>
 
     <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
@@ -349,7 +421,8 @@ tailwind.config = {
   const countrySelect = document.getElementById('dns-country');
   const quickFilters = document.querySelectorAll('[data-quick-filter]');
   const summary = document.getElementById('dns-summary');
-  const svg = document.getElementById('mapSvg');
+  const pointsLayer = document.getElementById('dns-map-points');
+  const mapTooltip = document.getElementById('dns-map-tooltip');
 
   let refreshTimer = null;
 
@@ -360,28 +433,141 @@ tailwind.config = {
   };
 
   const statusByMarker = new Map();
+  const markerElements = new Map();
 
-  function setMarkerTooltip(markerId, text) {
-    if (!svg || !markerId) {
+  function projectLongitude(lon) {
+    return ((lon + 180) / 360) * 100;
+  }
+
+  function projectLatitude(lat) {
+    return ((90 - lat) / 180) * 100;
+  }
+
+  function buildCustomMapPins() {
+    if (!pointsLayer || !Array.isArray(nodeMeta)) {
       return;
     }
 
-    const marker = svg.querySelector('#' + markerId);
+    pointsLayer.innerHTML = '';
+    markerElements.clear();
+
+    nodeMeta.forEach(function (node) {
+      const markerId = String((node && node.markerId) || '');
+      const lat = Number(node && node.lat);
+      const lon = Number(node && node.lon);
+
+      if (!markerId || Number.isNaN(lat) || Number.isNaN(lon)) {
+        return;
+      }
+
+      const pin = document.createElement('button');
+      pin.type = 'button';
+      pin.className = 'dns-map-pin is-pending';
+      pin.setAttribute('id', markerId);
+      pin.setAttribute('data-marker-id', markerId);
+      pin.style.left = projectLongitude(lon) + '%';
+      pin.style.top = projectLatitude(lat) + '%';
+
+      pointsLayer.appendChild(pin);
+      markerElements.set(markerId, pin);
+    });
+  }
+
+  function showMapTooltip(text, x, y) {
+    if (!mapTooltip) {
+      return;
+    }
+
+    mapTooltip.textContent = text;
+    mapTooltip.style.display = 'block';
+    mapTooltip.setAttribute('aria-hidden', 'false');
+
+    const pad = 12;
+    const rect = mapTooltip.getBoundingClientRect();
+    let left = x + 14;
+    let top = y + 14;
+
+    if (left + rect.width + pad > window.innerWidth) {
+      left = x - rect.width - 14;
+    }
+
+    if (top + rect.height + pad > window.innerHeight) {
+      top = y - rect.height - 14;
+    }
+
+    mapTooltip.style.left = Math.max(pad, left) + 'px';
+    mapTooltip.style.top = Math.max(pad, top) + 'px';
+  }
+
+  function hideMapTooltip() {
+    if (!mapTooltip) {
+      return;
+    }
+
+    mapTooltip.style.display = 'none';
+    mapTooltip.setAttribute('aria-hidden', 'true');
+  }
+
+  function setMarkerTooltip(markerId, text) {
+    if (!markerId) {
+      return;
+    }
+
+    const marker = markerElements.get(markerId);
 
     if (!marker) {
       return;
     }
 
     marker.setAttribute('aria-label', text);
+    marker.dataset.tooltipText = text;
+  }
 
-    let titleNode = marker.querySelector('title');
+  function focusServerCard(markerId) {
+    const card = document.querySelector('[data-node-card="' + markerId + '"]');
 
-    if (!titleNode) {
-      titleNode = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      marker.appendChild(titleNode);
+    if (!card) {
+      return;
     }
 
-    titleNode.textContent = text;
+    document.querySelectorAll('.map-card-focus').forEach(function (node) {
+      node.classList.remove('map-card-focus');
+    });
+
+    card.classList.add('map-card-focus');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    setTimeout(function () {
+      card.classList.remove('map-card-focus');
+    }, 1800);
+  }
+
+  function bindMarkerInteractions() {
+    if (markerElements.size === 0) {
+      return;
+    }
+
+    markerElements.forEach(function (marker) {
+      marker.style.cursor = 'pointer';
+
+      marker.addEventListener('mouseenter', function (event) {
+        const text = String(marker.dataset.tooltipText || marker.getAttribute('aria-label') || marker.getAttribute('location') || 'DNS node');
+        showMapTooltip(text, event.clientX, event.clientY);
+      });
+
+      marker.addEventListener('mousemove', function (event) {
+        const text = String(marker.dataset.tooltipText || marker.getAttribute('aria-label') || marker.getAttribute('location') || 'DNS node');
+        showMapTooltip(text, event.clientX, event.clientY);
+      });
+
+      marker.addEventListener('mouseleave', function () {
+        hideMapTooltip();
+      });
+
+      marker.addEventListener('click', function () {
+        focusServerCard(String(marker.getAttribute('data-marker-id') || marker.id || ''));
+      });
+    });
   }
 
   function initializeMarkerTooltips() {
@@ -405,56 +591,29 @@ tailwind.config = {
     }
   }
 
-  function simplifyMapUi() {
-    if (!svg) {
-      return;
-    }
-
-    const selectors = [
-      'g.map-label',
-      'g.legend',
-      '#date-time'
-    ];
-
-    selectors.forEach(function (selector) {
-      svg.querySelectorAll(selector).forEach(function (el) {
-        if (el && el.parentNode) {
-          el.parentNode.removeChild(el);
-        }
-      });
-    });
-
-    svg.querySelectorAll('text').forEach(function (node) {
-      const text = String((node.textContent || '')).trim();
-
-      if (
-        text === 'DNS Propagation Map by DNSChecker.org' ||
-        text === 'Server Location' ||
-        text === 'Resolved' ||
-        text === 'Not Resolved' ||
-        /\d{1,2}\/\d{1,2}\/\d{4}/.test(text)
-      ) {
-        if (node && node.parentNode) {
-          node.parentNode.removeChild(node);
-        }
-      }
-    });
-  }
-
   function setMarkerStatus(markerId, status) {
-    if (!svg || !markerId) {
+    if (!markerId) {
       return;
     }
 
-    const marker = svg.querySelector('#' + markerId);
+    const marker = markerElements.get(markerId);
 
     if (!marker) {
       return;
     }
 
     const color = markerColors[status] || markerColors.pending;
-    marker.setAttribute('fill', color);
-    marker.style.fill = color;
+    marker.classList.remove('is-pending', 'is-resolved', 'is-failed');
+
+    if (status === 'resolved') {
+      marker.classList.add('is-resolved');
+    } else if (status === 'failed') {
+      marker.classList.add('is-failed');
+    } else {
+      marker.classList.add('is-pending');
+    }
+
+    marker.style.backgroundColor = color;
   }
 
   function setCardStatus(markerId, state, label) {
@@ -476,12 +635,9 @@ tailwind.config = {
       el.innerHTML = '<span class="status-dot"></span>Pending';
     });
 
-    if (svg) {
-      svg.querySelectorAll('path.marker[id]').forEach(function (marker) {
-        marker.setAttribute('fill', markerColors.pending);
-        marker.style.fill = markerColors.pending;
-      });
-    }
+    markerElements.forEach(function (_marker, markerId) {
+      setMarkerStatus(markerId, 'pending');
+    });
   }
 
   function applyVisibility() {
@@ -502,11 +658,12 @@ tailwind.config = {
 
       card.style.display = visible ? '' : 'none';
 
-      if (svg && markerId !== '') {
-        const marker = svg.querySelector('#' + markerId);
+      if (markerId !== '') {
+        const marker = markerElements.get(markerId);
 
         if (marker) {
           marker.style.opacity = visible ? '1' : '0.15';
+          marker.style.pointerEvents = visible ? 'auto' : 'none';
         }
       }
     });
@@ -698,9 +855,10 @@ tailwind.config = {
     });
   });
 
+  buildCustomMapPins();
   resetStatuses();
-  simplifyMapUi();
   initializeMarkerTooltips();
+  bindMarkerInteractions();
   applyVisibility();
   restartTimer();
   runCheck();
