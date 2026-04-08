@@ -231,16 +231,6 @@ if (!function_exists('whois_render_marketplace_row_card')) {
 </div>
 </div>
 <button class="w-full py-3 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-all" id="marketplace-apply-filters" type="button">Apply Filters</button>
-<div class="mt-auto pt-8 border-t border-neutral-100 dark:border-neutral-900 space-y-4">
-<a class="flex items-center gap-3 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors" href="#">
-<span class="material-symbols-outlined text-lg" data-icon="help_outline">help_outline</span>
-<span class="font-['Inter'] text-[10px] uppercase tracking-widest">Support</span>
-</a>
-<a class="flex items-center gap-3 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors" href="#">
-<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
-<span class="font-['Inter'] text-[10px] uppercase tracking-widest">Settings</span>
-</a>
-</div>
 </aside>
 <!-- Main Canvas -->
 <main class="flex-1 px-8 py-12 lg:px-16 overflow-x-hidden">
@@ -265,7 +255,6 @@ if (!function_exists('whois_render_marketplace_row_card')) {
 <h2 class="text-3xl font-bold font-headline tracking-tight">Trending Domains</h2>
 <p class="text-neutral-400 text-sm"><span id="marketplace-visible-count"><?php echo count($marketplaceItems); ?></span> premium assets shown this week.</p>
 </div>
-<a class="text-sm font-bold border-b border-primary pb-1" href="#">View All Trending</a>
 </div>
 <div class="mb-8 rounded-3xl border border-outline-variant/20 bg-gradient-to-r from-neutral-950 to-neutral-800 p-8 md:p-10 text-white overflow-hidden relative">
 <div class="absolute inset-y-0 right-0 w-64 bg-white/5 blur-3xl"></div>
@@ -297,20 +286,6 @@ if (!function_exists('whois_render_marketplace_row_card')) {
 </div>
 <div class="hidden rounded-xl border border-dashed border-outline-variant/40 bg-surface-container-lowest p-6 text-center text-sm text-secondary" id="marketplace-empty-state">
 No listings match the current filters. Try a different extension or raise the price ceiling.
-</div>
-<div class="mt-12 text-center">
-<button class="px-8 py-3 bg-surface-container-highest text-primary font-bold rounded-lg text-sm transition-all hover:bg-surface-container" type="button">Load More Listings</button>
-</div>
-</section>
-<!-- Bottom CTA -->
-<section class="max-w-7xl mx-auto">
-<div class="bg-neutral-900 rounded-3xl p-12 md:p-20 text-center text-white relative overflow-hidden">
-<div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
-<div class="relative z-10">
-<h2 class="text-3xl md:text-5xl font-bold font-headline mb-6 tracking-tight">Have a domain to sell?</h2>
-<p class="text-neutral-400 max-w-xl mx-auto mb-10 text-lg">List your premium asset on the world's most trusted boutique marketplace. Professional brokerage and secure escrow included.</p>
-<button class="px-12 py-5 bg-white text-black font-bold rounded-full text-sm uppercase tracking-widest hover:scale-105 transition-all">List it here</button>
-</div>
 </div>
 </section>
 </main>
