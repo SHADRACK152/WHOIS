@@ -141,12 +141,19 @@ function whois_ai_search_country_bundle_tlds(string $country): array
   $primaryCandidates = ['com'];
 
   if (preg_match('/^[A-Z]{2}$/', $country) === 1) {
+    $preferredSecondLevelByCountry = [
+      'KE' => 'co.ke',
+      'NG' => 'com.ng',
+      'GB' => 'co.uk',
+    ];
+
+    $preferredSecondLevel = $preferredSecondLevelByCountry[$country] ?? ('co.' . $cc);
+
+    $primaryCandidates[] = $preferredSecondLevel;
     $primaryCandidates[] = $cc;
-    $primaryCandidates[] = 'co.' . $cc;
 
     if ($country === 'GB') {
       $primaryCandidates[] = 'uk';
-      $primaryCandidates[] = 'co.uk';
     }
   }
 
@@ -173,13 +180,41 @@ function whois_ai_search_country_bundle_tlds(string $country): array
   return $bundle !== [] ? $bundle : ['com', 'net', 'org'];
 }
 
+function whois_ai_search_country_tld_exclusions(string $country): array
+{
+  $country = strtoupper(trim($country));
+
+  $pairsByCountry = [
+    'KE' => ['co.ke', 'ke'],
+    'NG' => ['com.ng', 'ng'],
+  ];
+
+  $pair = $pairsByCountry[$country] ?? null;
+
+  if (!is_array($pair) || count($pair) !== 2) {
+    return [];
+  }
+
+  $first = strtolower(trim((string) $pair[0]));
+  $second = strtolower(trim((string) $pair[1]));
+
+  if ($first === '' || $second === '') {
+    return [];
+  }
+
+  return [
+    $first => [$second],
+    $second => [$first],
+  ];
+}
+
 function whois_ai_search_bundle_tld_candidates(string $country): array
 {
   $primary = whois_ai_search_country_bundle_tlds($country);
   $supported = array_flip(whois_rdap_supported_tlds());
 
   $fallbacks = [
-    'net', 'org', 'io', 'ai', 'co', 'info', 'biz', 'app', 'dev', 'online', 'site', 'store',
+    'net', 'org', 'io', 'ai', 'co', 'shop', 'online', 'info', 'biz', 'app', 'dev', 'site', 'store',
   ];
 
   $ordered = [];
@@ -296,11 +331,20 @@ $bundlePricedItems = 0;
 $bundleExcludedCount = 0;
 $bundleMaxItems = 3;
 $useTruehostBundleLookup = $countryCode === 'KE';
+$bundleTldExclusions = whois_ai_search_country_tld_exclusions($countryCode);
+$bundleSelectedTlds = [];
 
 if ($hasSearch) {
   foreach ($bundleCandidateTlds as $bundleTld) {
     if (count($bundleItems) >= $bundleMaxItems) {
       break;
+    }
+
+    $normalizedBundleTld = strtolower(trim($bundleTld));
+    $conflictingTlds = $bundleTldExclusions[$normalizedBundleTld] ?? [];
+
+    if ($conflictingTlds !== [] && count(array_intersect($bundleSelectedTlds, $conflictingTlds)) > 0) {
+      continue;
     }
 
     $bundleDomain = whois_ai_search_bundle_domain($searchStem, $bundleTld);
@@ -339,6 +383,8 @@ if ($hasSearch) {
       'price' => $bundlePrice,
       'available' => true,
     ];
+
+    $bundleSelectedTlds[] = $normalizedBundleTld;
   }
 }
 
