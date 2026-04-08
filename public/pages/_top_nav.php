@@ -9,6 +9,7 @@ $navItems = [
   ['label' => 'Search', 'href' => 'whois_ai_domain_search.php', 'match' => ['whois_ai_domain_search.php', 'whois_premium_ai_domain_search.php', 'whois_domain_search_results.php', 'whois_domain_search_results_atom_inspired.php', 'whois_search_results_with_premium_logos.php', 'whois_optimized_premium_search_results.php', 'whois_comprehensive_search_results.php', 'whois_comprehensive_search_results_atom_inspired.php', 'whois_domain_search_atom_inspired.php']],
     ['label' => 'AI Assistants', 'href' => 'whois_ai_brand_assistant.php', 'match' => ['whois_ai_brand_assistant.php', 'whois_ai_business_idea_generator.php', 'whois_ai_domain_name_generator.php']],
     ['label' => 'Marketplace', 'href' => 'whois_premium_domain_marketplace.php', 'match' => ['whois_premium_domain_marketplace.php', 'whois_submit_domain_for_auction.php', 'whois_limited_time_domain_auctions.php']],
+    ['label' => 'DNS Checker', 'href' => 'whois_dns_checker.php', 'match' => ['whois_dns_checker.php']],
     ['label' => 'Tools', 'href' => 'whois_domain_tools_overview.php', 'match' => ['whois_domain_tools_overview.php', 'whois_domain_appraisal_tool.php']],
     ['label' => 'Insights', 'href' => 'whois_industry_insights_blog.php', 'match' => ['whois_industry_insights_blog.php']],
     ['label' => 'Partner', 'href' => 'whois_partner_with_us.php', 'match' => ['whois_partner_with_us.php']],
