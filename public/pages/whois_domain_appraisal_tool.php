@@ -377,6 +377,56 @@ header('Content-Type: text/html; charset=utf-8');
       </div>
     </div>
   </section>
+
+  <section class="mb-16 grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="xl:col-span-2 rounded-[2rem] border border-outline-variant/40 bg-white overflow-hidden">
+      <div class="p-8 border-b border-outline-variant/20">
+        <h3 class="text-xl font-black tracking-tight text-primary">Evaluate Key Value Factors</h3>
+        <p class="mt-2 text-sm text-on-surface-variant">Core elements used for valuation accuracy and pricing confidence.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-surface-container-low">
+              <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Factor</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">High Value Indicator</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Score</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant/20">
+            <?php foreach ((array) ($appraisal['valuationFactors'] ?? []) as $factor): ?>
+              <tr>
+                <td class="px-6 py-4 font-bold text-primary"><?php echo htmlspecialchars((string) ($factor['factor'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant">
+                  <p><?php echo htmlspecialchars((string) ($factor['indicator'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+                  <p class="mt-1 text-xs text-neutral-500"><?php echo htmlspecialchars((string) ($factor['note'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+                </td>
+                <td class="px-6 py-4 text-sm font-black text-primary"><?php echo (int) ($factor['score'] ?? 0); ?>/100</td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="appraisal-card rounded-[2rem] p-8">
+      <h3 class="text-xl font-black tracking-tight text-primary">Determine Pricing Tier</h3>
+      <div class="mt-6 space-y-4">
+        <?php foreach ((array) ($appraisal['pricingTiers'] ?? []) as $tier): ?>
+          <div class="rounded-2xl border border-outline-variant/20 bg-white p-4">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500"><?php echo htmlspecialchars((string) ($tier['label'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+            <p class="mt-2 text-sm font-black text-primary"><?php echo htmlspecialchars((string) ($tier['low'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars((string) ($tier['high'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+          </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="mt-6 rounded-2xl bg-surface-container-low p-4 border border-outline-variant/20">
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-500">Buy-it-now Strategy</p>
+        <p class="mt-2 text-sm font-bold text-primary"><?php echo htmlspecialchars((string) (($appraisal['pricingStrategy']['binLow'] ?? '') . ' - ' . ($appraisal['pricingStrategy']['binHigh'] ?? '')), ENT_QUOTES, 'UTF-8'); ?></p>
+        <p class="mt-2 text-xs text-on-surface-variant"><?php echo htmlspecialchars((string) ($appraisal['pricingStrategy']['auctionNote'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+      </div>
+      <p class="mt-4 text-xs text-on-surface-variant"><?php echo htmlspecialchars((string) ($appraisal['pricingStrategy']['tip'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+    </div>
+  </section>
 </main>
 
 <?php require __DIR__ . '/_footer.php'; ?>

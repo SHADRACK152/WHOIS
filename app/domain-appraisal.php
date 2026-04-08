@@ -192,6 +192,28 @@ function whois_domain_appraisal_normalize_target(string $value): string
     return whois_domain_normalize($value);
 }
 
+function whois_domain_appraisal_landmark_sale(string $domain): ?array
+{
+    $domain = strtolower(trim($domain));
+
+    $landmarks = [
+        'ai.com' => [
+            'soldPriceUsd' => 70000000,
+            'year' => 2025,
+            'source' => 'GetYourDomain.com',
+            'note' => 'Landmark sale with strategic global brand relevance.',
+        ],
+        'carinsurance.com' => [
+            'soldPriceUsd' => 49700000,
+            'year' => 2010,
+            'source' => 'Public record',
+            'note' => 'Historic benchmark for headline domain transactions.',
+        ],
+    ];
+
+    return $landmarks[$domain] ?? null;
+}
+
 function whois_domain_appraisal_strip_tld(string $domain): string
 {
     $root = preg_replace('/\.[^.]+$/', '', strtolower(trim($domain))) ?? strtolower(trim($domain));
@@ -368,6 +390,124 @@ function whois_domain_appraisal_value_range(float $medianUsd, float $score, stri
     ];
 }
 
+function whois_domain_appraisal_comparable_anchor(array $comparables, float $fallbackMedianUsd): float
+{
+    $weightedSum = 0.0;
+    $weightTotal = 0.0;
+
+    foreach ($comparables as $comparable) {
+        if (!is_array($comparable)) {
+            continue;
+        }
+
+        $soldPrice = (float) ($comparable['soldPrice'] ?? 0);
+
+        if ($soldPrice <= 0) {
+            continue;
+        }
+
+        $similarity = strtoupper(trim((string) ($comparable['similarity'] ?? 'MED')));
+        $year = (int) ($comparable['year'] ?? (int) date('Y'));
+        $ageYears = max(0, ((int) date('Y')) - $year);
+
+        $similarityWeight = match ($similarity) {
+            'HIGH' => 1.0,
+            'MED' => 0.7,
+            default => 0.45,
+        };
+        $recencyWeight = max(0.75, 1.0 - ($ageYears * 0.06));
+        $weight = $similarityWeight * $recencyWeight;
+
+        $weightedSum += $soldPrice * $weight;
+        $weightTotal += $weight;
+    }
+
+    if ($weightTotal <= 0.0) {
+        return max(350.0, $fallbackMedianUsd);
+    }
+
+    return max(350.0, $weightedSum / $weightTotal);
+}
+
+function whois_domain_appraisal_live_multiplier(float $score, int $liquidityPercent, string $lookupStatus): float
+{
+    $base = 0.34 + ($score * 0.055);
+    $liquidityAdjustment = ($liquidityPercent - 70) / 2000;
+    $status = strtolower(trim($lookupStatus));
+
+    $statusAdjustment = match ($status) {
+        'registered', 'unavailable' => 0.06,
+        'available' => -0.08,
+        default => 0.0,
+    };
+
+    return max(0.48, min(1.08, $base + $liquidityAdjustment + $statusAdjustment));
+}
+
+function whois_domain_appraisal_word_count(string $root): int
+{
+    $root = trim(strtolower($root));
+
+    if ($root === '') {
+        return 0;
+    }
+
+    if (str_contains($root, '-')) {
+        $parts = array_values(array_filter(array_map('trim', explode('-', $root))));
+        return max(1, count($parts));
+    }
+
+    $chunks = preg_split('/(?:labs|tech|cloud|data|pay|bank|shop|ai|io)+/i', $root) ?: [];
+    $nonEmpty = array_values(array_filter(array_map('trim', $chunks)));
+
+    return max(1, count($nonEmpty));
+}
+
+function whois_domain_appraisal_trademark_risk(string $root): array
+{
+    $rootLower = strtolower($root);
+    $watchlist = ['google', 'apple', 'microsoft', 'amazon', 'meta', 'tesla', 'openai', 'chatgpt', 'tiktok', 'netflix'];
+
+    foreach ($watchlist as $term) {
+        if (str_contains($rootLower, $term)) {
+            return [
+                'label' => 'High',
+                'score' => 25,
+                'note' => 'Potential conflict with well-known trademark patterns.',
+            ];
+        }
+    }
+
+    return [
+        'label' => 'Low',
+        'score' => 88,
+        'note' => 'No immediate high-profile trademark collision pattern detected.',
+    ];
+}
+
+function whois_domain_appraisal_pricing_tiers(float $retailUsd): array
+{
+    $retailUsd = max(100.0, $retailUsd);
+
+    return [
+        'retail' => [
+            'label' => 'Retail (End-user)',
+            'lowUsd' => $retailUsd * 0.95,
+            'highUsd' => $retailUsd * 1.15,
+        ],
+        'investor' => [
+            'label' => 'Investor',
+            'lowUsd' => $retailUsd * 0.40,
+            'highUsd' => $retailUsd * 0.60,
+        ],
+        'liquid' => [
+            'label' => 'Liquid (Fast sale)',
+            'lowUsd' => $retailUsd * 0.20,
+            'highUsd' => $retailUsd * 0.30,
+        ],
+    ];
+}
+
 function whois_domain_appraisal_ai_insight(array $analysis): array
 {
     $fallback = [
@@ -418,12 +558,14 @@ function whois_domain_appraisal_ai_insight(array $analysis): array
         $decoded = json_decode($content, true);
 
         if (is_array($decoded)) {
+            $confidence = (int) ($decoded['confidence'] ?? $fallback['confidence']);
+
             return [
                 'summary' => trim((string) ($decoded['summary'] ?? $fallback['summary'])),
                 'drivers' => array_values(array_filter(array_map('trim', (array) ($decoded['drivers'] ?? $fallback['drivers'])))),
                 'risks' => array_values(array_filter(array_map('trim', (array) ($decoded['risks'] ?? $fallback['risks'])))),
                 'recommendation' => trim((string) ($decoded['recommendation'] ?? $fallback['recommendation'])),
-                'confidence' => (int) ($decoded['confidence'] ?? $fallback['confidence']),
+                'confidence' => max(35, min(98, $confidence > 0 ? $confidence : $fallback['confidence'])),
             ];
         }
 
@@ -432,7 +574,7 @@ function whois_domain_appraisal_ai_insight(array $analysis): array
             'drivers' => $fallback['drivers'],
             'risks' => $fallback['risks'],
             'recommendation' => $fallback['recommendation'],
-            'confidence' => $fallback['confidence'],
+            'confidence' => max(35, min(98, (int) $fallback['confidence'])),
         ];
     } catch (Throwable $exception) {
         return $fallback;
@@ -450,6 +592,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $syllableCount = whois_domain_appraisal_count_syllables($root);
     $category = whois_domain_appraisal_keyword_matches($root);
     $lookup = whois_truehost_domain_lookup($domain);
+    $landmarkSale = whois_domain_appraisal_landmark_sale($domain);
     $tldPrice = whois_truehost_tld_price($tld);
     $tldPriceRaw = is_array($tldPrice) && isset($tldPrice['raw']) && is_numeric($tldPrice['raw']) ? (float) $tldPrice['raw'] : null;
 
@@ -474,14 +617,38 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         ($tldScore * 0.15)
     ), 1);
 
-    $valueRange = whois_domain_appraisal_value_range((float) ($category['medianUsd'] ?? 1800), $score, $tld);
-    $midUsd = $valueRange['midUsd'];
-    $estimatedValue = whois_currency_convert_amount($midUsd, 'USD', $displayCurrency);
+    $categoryMedianUsd = (float) ($category['medianUsd'] ?? 1800);
+    $comparableAnchorUsd = whois_domain_appraisal_comparable_anchor((array) ($category['comparables'] ?? []), $categoryMedianUsd);
+    $liquidityPercent = (int) whois_domain_appraisal_liquidity_score($score, $category, $tld);
+    $liveMultiplier = whois_domain_appraisal_live_multiplier($score, $liquidityPercent, (string) ($lookup['status'] ?? 'unknown'));
+    $tldMultiplier = whois_domain_appraisal_tld_multiplier($tld);
+
+    $anchorUsd = (($categoryMedianUsd * 0.6) + ($comparableAnchorUsd * 0.4));
+    $midUsd = max(250.0, $anchorUsd * $liveMultiplier * $tldMultiplier);
+    $spread = max(0.12, min(0.26, 0.24 - (($score - 6.0) * 0.02) - (($liquidityPercent - 70) * 0.0015)));
+
+    if (is_array($landmarkSale)) {
+        $landmarkUsd = (float) ($landmarkSale['soldPriceUsd'] ?? 0);
+
+        if ($landmarkUsd > 0) {
+            $score = max($score, 9.8);
+            $liquidityPercent = max($liquidityPercent, 98);
+            $midUsd = max($midUsd, $landmarkUsd);
+            $spread = 0.09;
+        }
+    }
+
+    $valueRange = [
+        'midUsd' => $midUsd,
+        'lowUsd' => max(150.0, $midUsd * (1 - $spread)),
+        'highUsd' => max(350.0, $midUsd * (1 + $spread)),
+    ];
+
+    $estimatedValue = whois_currency_convert_amount($valueRange['midUsd'], 'USD', $displayCurrency);
     $valueLow = whois_currency_convert_amount($valueRange['lowUsd'], 'USD', $displayCurrency);
     $valueHigh = whois_currency_convert_amount($valueRange['highUsd'], 'USD', $displayCurrency);
     $categoryName = (string) ($category['label'] ?? 'Brandable');
 
-    $liquidityPercent = (int) whois_domain_appraisal_liquidity_score($score, $category, $tld);
     $memorabilityPercent = (int) round(min(98, max(40, ($score * 8.2) + ((int) ($category['memorability'] ?? 78) * 0.25))));
     $brandabilityPercent = (int) round(min(98, max(35, ($score * 7.5) + ((int) ($category['brandability'] ?? 76) * 0.28))));
 
@@ -495,6 +662,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
 
     $rootWord = strtoupper(preg_replace('/[^a-z0-9]/', '', $root) ?: $root);
     $rootWord = $rootWord !== '' ? $rootWord : strtoupper($domain);
+    $wordCount = whois_domain_appraisal_word_count($root);
 
     $lookupStatus = strtolower((string) ($lookup['status'] ?? 'unknown'));
     $lookupBadge = (string) ($lookup['statusLabel'] ?? 'Unknown');
@@ -595,6 +763,17 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
 
     $comparableSales = [];
 
+    if (is_array($landmarkSale) && (float) ($landmarkSale['soldPriceUsd'] ?? 0) > 0) {
+        $landmarkPrice = (float) $landmarkSale['soldPriceUsd'];
+        $comparableSales[] = [
+            'domain' => strtoupper($domain),
+            'soldPrice' => whois_currency_format_amount(whois_currency_convert_amount($landmarkPrice, 'USD', $displayCurrency), $displayCurrency),
+            'year' => (string) ($landmarkSale['year'] ?? ''),
+            'similarity' => 'EXACT',
+            'source' => (string) ($landmarkSale['source'] ?? 'Public record'),
+        ];
+    }
+
     foreach ((array) ($category['comparables'] ?? []) as $comparable) {
         if (!is_array($comparable)) {
             continue;
@@ -609,6 +788,96 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
             'source' => (string) ($comparable['source'] ?? 'Reference'),
         ];
     }
+
+    $createdAt = (string) ($lookup['created'] ?? '');
+    $ageYears = 0;
+
+    if ($createdAt !== '') {
+        try {
+            $createdYear = (int) (new DateTimeImmutable($createdAt))->format('Y');
+            $ageYears = max(0, ((int) date('Y')) - $createdYear);
+        } catch (Throwable $exception) {
+            $ageYears = 0;
+        }
+    }
+
+    $keywordStrength = min(98, max(35, (int) round(((int) ($category['marketPopularity'] ?? 70) * 0.6) + ((int) ($category['investorInterest'] ?? 65) * 0.4))));
+    $trafficSeoScore = min(96, max(30, (int) round(($liquidityPercent * 0.45) + ($keywordStrength * 0.40) + ($score * 2.0))));
+    $trademarkRisk = whois_domain_appraisal_trademark_risk($root);
+
+    $tldRankText = match ($tld) {
+        'com' => '.com primary premium tier',
+        'net', 'org' => '.' . $tld . ' secondary trust tier',
+        'ai', 'io' => '.' . $tld . ' niche premium tier',
+        default => '.' . $tld . ' long-tail extension tier',
+    };
+
+    $valuationFactors = [
+        [
+            'factor' => 'TLD',
+            'indicator' => $tldRankText,
+            'score' => (int) round($tldScore * 10),
+            'note' => 'Extension quality strongly influences retail demand and liquidity.',
+        ],
+        [
+            'factor' => 'Length',
+            'indicator' => $letterCount <= 4 ? '1-4 chars premium band' : ($letterCount . ' characters'),
+            'score' => (int) round($lengthScore * 10),
+            'note' => 'Shorter names generally command higher valuations.',
+        ],
+        [
+            'factor' => 'Words',
+            'indicator' => $wordCount <= 2 ? $wordCount . ' words (strong)' : $wordCount . ' words (longer phrase)',
+            'score' => $wordCount <= 2 ? 86 : 58,
+            'note' => 'One to two words typically outperform longer constructions.',
+        ],
+        [
+            'factor' => 'Keywords',
+            'indicator' => $categoryName,
+            'score' => $keywordStrength,
+            'note' => 'Commercial-intent keyword categories lift buyer competition.',
+        ],
+        [
+            'factor' => 'Brandability',
+            'indicator' => $pattern,
+            'score' => $brandabilityPercent,
+            'note' => 'Spelling clarity and memorability influence end-user pricing.',
+        ],
+        [
+            'factor' => 'Age & History',
+            'indicator' => $ageYears > 0 ? ($ageYears . ' years old') : 'Recent or unknown history',
+            'score' => $ageYears > 0 ? min(95, 55 + ($ageYears * 2)) : 52,
+            'note' => 'Older clean domains generally carry stronger trust and SEO residuals.',
+        ],
+        [
+            'factor' => 'Traffic & SEO',
+            'indicator' => $lookupStatus === 'registered' ? 'Registered asset with resale profile' : 'No live traffic signal detected',
+            'score' => $trafficSeoScore,
+            'note' => 'Traffic/backlink proxies are estimated when live analytics are unavailable.',
+        ],
+        [
+            'factor' => 'Trademark Risk',
+            'indicator' => $trademarkRisk['label'] . ' risk',
+            'score' => (int) $trademarkRisk['score'],
+            'note' => (string) $trademarkRisk['note'],
+        ],
+    ];
+
+    $pricingTiersUsd = whois_domain_appraisal_pricing_tiers($valueRange['midUsd']);
+    $pricingTiers = [];
+
+    foreach ($pricingTiersUsd as $key => $tier) {
+        $tierLow = whois_currency_convert_amount((float) ($tier['lowUsd'] ?? 0), 'USD', $displayCurrency);
+        $tierHigh = whois_currency_convert_amount((float) ($tier['highUsd'] ?? 0), 'USD', $displayCurrency);
+        $pricingTiers[$key] = [
+            'label' => (string) ($tier['label'] ?? ucfirst($key)),
+            'low' => whois_currency_format_amount($tierLow, $displayCurrency),
+            'high' => whois_currency_format_amount($tierHigh, $displayCurrency),
+        ];
+    }
+
+    $binTargetLow = whois_currency_convert_amount($valueRange['midUsd'] * 1.10, 'USD', $displayCurrency);
+    $binTargetHigh = whois_currency_convert_amount($valueRange['midUsd'] * 1.30, 'USD', $displayCurrency);
 
     return [
         'domain' => $domain,
@@ -634,13 +903,23 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         'investorInterest' => (int) ($category['investorInterest'] ?? 68),
         'memorability' => $memorabilityPercent,
         'brandability' => $brandabilityPercent,
-        'summary' => $category['summary'] ?? 'A balanced brandable domain with flexible positioning.',
+        'summary' => is_array($landmarkSale)
+            ? (($landmarkSale['note'] ?? 'Landmark sale detected for this exact domain.') . ' The model anchors this valuation to publicly known transaction history.')
+            : ($category['summary'] ?? 'A balanced brandable domain with flexible positioning.'),
         'statusSummary' => $statusSummary,
         'lookup' => $lookup,
         'referencePrice' => $referencePrice,
         'tldPrice' => $tldPrice,
         'signals' => $signals,
         'drivers' => $drivers,
+        'valuationFactors' => $valuationFactors,
+        'pricingTiers' => $pricingTiers,
+        'pricingStrategy' => [
+            'binLow' => whois_currency_format_amount($binTargetLow, $displayCurrency),
+            'binHigh' => whois_currency_format_amount($binTargetHigh, $displayCurrency),
+            'auctionNote' => 'Auction pricing should be demand-driven with reserve aligned to investor tier.',
+            'tip' => 'A domain is worth what a qualified buyer is willing to pay. List, test demand, and iterate.',
+        ],
         'comparableSales' => $comparableSales,
         'endUsers' => array_map(static function (array $item): array {
             return [
