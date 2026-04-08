@@ -225,6 +225,7 @@ tailwind.config = {
           <input id="dns-domain" class="w-full border-none bg-transparent text-sm font-semibold text-primary placeholder:text-neutral-400 focus:ring-0" value="<?php echo htmlspecialchars($domainValue, ENT_QUOTES, 'UTF-8'); ?>" type="text"/>
         </div>
         <button id="dns-check" class="rounded-full bg-black px-6 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-white hover:bg-neutral-800" type="button">DNS Check</button>
+        <button id="dns-refresh-btn" class="rounded-full bg-neutral-700 px-6 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-white hover:bg-neutral-800 ml-2" type="button">Refresh</button>
       </div>
 
       <div class="mt-4 flex flex-wrap items-center gap-3 text-xs">
@@ -249,15 +250,7 @@ tailwind.config = {
           <input id="dns-cd-flag" type="checkbox" class="h-4 w-4 rounded border-outline-variant"/>
           <span class="font-bold uppercase tracking-[0.14em] text-neutral-500">CD Flag</span>
         </label>
-        <label class="inline-flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-3 py-1.5">
-          <span class="font-bold uppercase tracking-[0.14em] text-neutral-500">Refresh</span>
-          <select id="dns-refresh" class="border-none bg-transparent p-0 text-sm font-bold text-primary focus:ring-0">
-            <option selected>20 sec.</option>
-            <option>30 sec.</option>
-            <option>60 sec.</option>
-            <option>Off</option>
-          </select>
-        </label>
+
         <label class="inline-flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-3 py-1.5">
           <span class="font-bold uppercase tracking-[0.14em] text-neutral-500">IP</span>
           <select id="dns-ip-family" class="border-none bg-transparent p-0 text-sm font-bold text-primary focus:ring-0">
@@ -809,38 +802,7 @@ tailwind.config = {
     }
   }
 
-  function refreshIntervalMs() {
-    const raw = String((refreshSelect && refreshSelect.value) || '').toLowerCase();
 
-    if (raw.indexOf('20') !== -1) {
-      return 20000;
-    }
-
-    if (raw.indexOf('30') !== -1) {
-      return 30000;
-    }
-
-    if (raw.indexOf('60') !== -1) {
-      return 60000;
-    }
-
-    return 0;
-  }
-
-  function restartTimer() {
-    if (refreshTimer) {
-      clearInterval(refreshTimer);
-      refreshTimer = null;
-    }
-
-    const interval = refreshIntervalMs();
-
-    if (interval > 0) {
-      refreshTimer = setInterval(function () {
-        runCheck();
-      }, interval);
-    }
-  }
 
   if (!input || !button) {
     return;
@@ -859,8 +821,12 @@ tailwind.config = {
     }
   });
 
-  if (refreshSelect) {
-    refreshSelect.addEventListener('change', restartTimer);
+
+  const refreshBtn = document.getElementById('dns-refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function () {
+      runCheck();
+    });
   }
 
   if (ipFamilySelect) {
@@ -910,7 +876,6 @@ tailwind.config = {
   initializeMarkerTooltips();
   bindMarkerInteractions();
   applyVisibility();
-  restartTimer();
   runCheck();
 }());
 </script>
