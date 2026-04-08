@@ -111,11 +111,11 @@ function whois_ai_search_supported_global_tlds(): array
 function whois_ai_search_detect_country(): string
 {
   $candidates = [
-    $_GET['country'] ?? null,
     $_SERVER['HTTP_CF_IPCOUNTRY'] ?? null,
     $_SERVER['GEOIP_COUNTRY_CODE'] ?? null,
     $_SERVER['HTTP_X_COUNTRY_CODE'] ?? null,
     $_SERVER['HTTP_X_APPENGINE_COUNTRY'] ?? null,
+    $_GET['country'] ?? null,
   ];
 
   foreach ($candidates as $candidate) {
@@ -691,29 +691,8 @@ Verified premium checks are unavailable right now. The page will still show live
 <!-- Footer -->
 <?php require __DIR__ . '/_footer.php'; ?>
 <script>
-(() => {
-  const url = new URL(window.location.href);
-
-  if (url.searchParams.has('country') || !url.searchParams.has('query')) {
-    return;
-  }
-
-  const locale = (navigator.language || '').trim();
-  const match = locale.match(/-([A-Za-z]{2})$/);
-
-  if (!match) {
-    return;
-  }
-
-  const countryCode = String(match[1] || '').toUpperCase();
-
-  if (!/^[A-Z]{2}$/.test(countryCode)) {
-    return;
-  }
-
-  url.searchParams.set('country', countryCode);
-  window.location.replace(url.toString());
-})();
+// Intentionally no client-side locale override for country.
+// Bundles should follow server geolocation headers first, then explicit query overrides.
 </script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
