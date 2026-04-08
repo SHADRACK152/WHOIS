@@ -666,6 +666,7 @@ function whois_db_upsert_marketplace_item_from_submission(array $submission): ?a
     $startingBid = (float) ($submission['starting_bid'] ?? 0);
     $price = $binPrice > 0 ? $binPrice : ($reservePrice > 0 ? $reservePrice : $startingBid);
     $appraisalPrice = $reservePrice > 0 ? $reservePrice : ($binPrice > 0 ? $binPrice : $startingBid);
+    $isPremium = $price >= 1500 || $appraisalPrice >= 1500;
     $categories = trim(implode(', ', array_filter([
         trim((string) ($submission['category'] ?? '')),
         trim((string) ($submission['keywords'] ?? '')),
@@ -690,6 +691,7 @@ function whois_db_upsert_marketplace_item_from_submission(array $submission): ?a
             search_text,
             sort_order,
             source_submission_id,
+            is_premium,
             status,
             created_at,
             updated_at
@@ -705,6 +707,7 @@ function whois_db_upsert_marketplace_item_from_submission(array $submission): ?a
             :search_text,
             :sort_order,
             :source_submission_id,
+            :is_premium,
             :status,
             NOW(),
             NOW()
@@ -720,6 +723,7 @@ function whois_db_upsert_marketplace_item_from_submission(array $submission): ?a
             search_text = EXCLUDED.search_text,
             sort_order = EXCLUDED.sort_order,
             source_submission_id = EXCLUDED.source_submission_id,
+            is_premium = EXCLUDED.is_premium,
             status = EXCLUDED.status,
             updated_at = NOW()
         RETURNING *
@@ -729,13 +733,151 @@ function whois_db_upsert_marketplace_item_from_submission(array $submission): ?a
         'price' => $price > 0 ? $price : 0,
         'appraisal_price' => $appraisalPrice > 0 ? $appraisalPrice : 0,
         'listing_type' => 'row',
-        'badge_text' => 'Approved',
+        'badge_text' => $isPremium ? 'Premium' : 'Approved',
         'categories' => $categories,
         'icon_name' => 'gavel',
-        'search_text' => $searchText,
+        'search_text' => trim($searchText . ($isPremium ? ' premium' : '')),
         'sort_order' => 85,
         'source_submission_id' => (int) ($submission['id'] ?? 0),
+        'is_premium' => $isPremium,
         'status' => 'live',
+    ]);
+}
+
+function whois_db_get_marketplace_item_by_domain(string $domainName): ?array
+{
+    $domainName = strtolower(trim($domainName));
+
+    if ($domainName === '') {
+        return null;
+    }
+
+    return whois_db_fetch_one('SELECT * FROM marketplace_items WHERE domain_name = :domain_name', [
+        'domain_name' => $domainName,
+    ]);
+}
+
+function whois_db_search_text_with_premium_flag(string $searchText, bool $isPremium): string
+{
+    $normalized = preg_replace('/\s+/', ' ', trim($searchText)) ?? '';
+    $withoutPremium = trim((string) preg_replace('/\bpremium\b/i', '', $normalized));
+    $withoutPremium = preg_replace('/\s+/', ' ', $withoutPremium) ?? '';
+
+    if (!$isPremium) {
+        return trim($withoutPremium);
+    }
+
+    return trim($withoutPremium . ' premium');
+}
+
+function whois_db_record_marketplace_bid(array $bid): ?array
+{
+    $domainName = strtolower(trim((string) ($bid['domain_name'] ?? '')));
+    $bidAmount = (float) ($bid['bid_amount'] ?? 0);
+
+    if ($domainName === '' || $bidAmount <= 0) {
+        return null;
+    }
+
+    $item = whois_db_get_marketplace_item_by_domain($domainName);
+
+    if (!$item || strtolower((string) ($item['status'] ?? 'live')) !== 'live') {
+        return null;
+    }
+
+    $bidRow = whois_db_fetch_one(<<<'SQL'
+        INSERT INTO marketplace_bids (
+            marketplace_item_id,
+            domain_name,
+            bidder_name,
+            bidder_email,
+            bid_amount,
+            note
+        ) VALUES (
+            :marketplace_item_id,
+            :domain_name,
+            :bidder_name,
+            :bidder_email,
+            :bid_amount,
+            :note
+        )
+        RETURNING *
+    SQL, [
+        'marketplace_item_id' => (int) ($item['id'] ?? 0),
+        'domain_name' => $domainName,
+        'bidder_name' => trim((string) ($bid['bidder_name'] ?? '')),
+        'bidder_email' => trim((string) ($bid['bidder_email'] ?? '')),
+        'bid_amount' => $bidAmount,
+        'note' => trim((string) ($bid['note'] ?? '')),
+    ]);
+
+    if (!$bidRow) {
+        return null;
+    }
+
+    $isPremium = $bidAmount >= 1500 || (bool) ($item['is_premium'] ?? false);
+    $badgeText = $isPremium ? 'Premium' : 'Available';
+    $searchText = whois_db_search_text_with_premium_flag((string) ($item['search_text'] ?? ''), $isPremium);
+
+    $updatedItem = whois_db_fetch_one(<<<'SQL'
+        UPDATE marketplace_items
+        SET price = :price,
+            appraisal_price = :appraisal_price,
+            badge_text = :badge_text,
+            is_premium = :is_premium,
+            search_text = :search_text,
+            updated_at = NOW()
+        WHERE id = :id
+        RETURNING *
+    SQL, [
+        'price' => $bidAmount,
+        'appraisal_price' => max((float) ($item['appraisal_price'] ?? 0), $bidAmount),
+        'badge_text' => $badgeText,
+        'is_premium' => $isPremium,
+        'search_text' => $searchText,
+        'id' => (int) ($item['id'] ?? 0),
+    ]);
+
+    return [
+        'bid' => $bidRow,
+        'item' => $updatedItem,
+    ];
+}
+
+function whois_db_mark_marketplace_item_sold(int $itemId, array $saleDetails = []): ?array
+{
+    if ($itemId <= 0) {
+        return null;
+    }
+
+    $soldPrice = (float) ($saleDetails['sold_price'] ?? 0);
+    $buyerName = trim((string) ($saleDetails['buyer_name'] ?? ''));
+    $buyerEmail = trim((string) ($saleDetails['buyer_email'] ?? ''));
+    $isPremium = $soldPrice > 1500;
+
+    return whois_db_fetch_one(<<<'SQL'
+        UPDATE marketplace_items
+        SET status = 'sold',
+            price = :price,
+            sold_price = :sold_price,
+            sold_buyer_name = :sold_buyer_name,
+            sold_buyer_email = :sold_buyer_email,
+            is_premium = :is_premium,
+            badge_text = :badge_text,
+            search_text = :search_text,
+            sold_at = NOW(),
+            updated_at = NOW()
+        WHERE id = :id
+        RETURNING *
+    SQL, [
+        'id' => $itemId,
+        'price' => $soldPrice,
+        'sold_price' => $soldPrice,
+        'sold_buyer_name' => $buyerName,
+        'sold_buyer_email' => $buyerEmail,
+        'is_premium' => $isPremium,
+        'badge_text' => $isPremium ? 'Premium' : 'Sold',
+        'search_text' => whois_db_search_text_with_premium_flag((string) ($saleDetails['search_text'] ?? ''), $isPremium),
     ]);
 }
 

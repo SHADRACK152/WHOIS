@@ -42,6 +42,7 @@ if (!function_exists('whois_render_marketplace_featured_card')) {
     ];
     $displayName = strtoupper($domainName);
     $badgeText = (string) ($item['badge_text'] ?? 'Available');
+    $isPremium = (bool) ($item['is_premium'] ?? false);
     $categories = (string) ($item['categories'] ?? 'Premium');
     $appraisalPrice = '$' . number_format((float) ($item['appraisal_price'] ?? 0));
     $price = '$' . number_format((float) ($item['price'] ?? 0));
@@ -54,7 +55,7 @@ if (!function_exists('whois_render_marketplace_featured_card')) {
     <div class="flex flex-col justify-between flex-1">
     <div>
     <div class="flex justify-between items-start">
-    <span class="text-sm font-bold text-primary font-headline tracking-tighter uppercase mb-2 block"><?php echo htmlspecialchars($badgeText, ENT_QUOTES, 'UTF-8'); ?></span>
+    <span class="text-sm font-bold text-primary font-headline tracking-tighter uppercase mb-2 block"><?php echo htmlspecialchars($isPremium ? 'Premium' : $badgeText, ENT_QUOTES, 'UTF-8'); ?></span>
     <span class="material-symbols-outlined text-neutral-300 hover:text-primary cursor-pointer" data-icon="star">star</span>
     </div>
     <h3 class="text-2xl font-bold tracking-tight mb-2"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></h3>
@@ -65,7 +66,7 @@ if (!function_exists('whois_render_marketplace_featured_card')) {
     </div>
     <div class="flex items-center justify-between mt-6">
     <span class="text-2xl font-bold font-headline"><?php echo htmlspecialchars($price, ENT_QUOTES, 'UTF-8'); ?></span>
-    <button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:scale-95 transition-all">Buy Now</button>
+    <button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:scale-95 transition-all" data-buy-now="true">Buy Now</button>
     </div>
     </div>
     </div>
@@ -81,6 +82,7 @@ if (!function_exists('whois_render_marketplace_row_card')) {
     $appraisalPrice = '$' . number_format((float) ($item['appraisal_price'] ?? 0));
     $price = '$' . number_format((float) ($item['price'] ?? 0));
     $iconName = (string) ($item['icon_name'] ?? 'circle');
+    $isPremium = (bool) ($item['is_premium'] ?? false);
     ?>
     <div class="flex items-center justify-between p-6 bg-surface-container-lowest hover:bg-surface-container-high transition-colors rounded-xl border border-outline-variant/10" data-marketplace-item="true" data-domain="<?php echo htmlspecialchars($domainName, ENT_QUOTES, 'UTF-8'); ?>" data-extension="<?php echo htmlspecialchars((string) ($item['extension'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" data-price="<?php echo htmlspecialchars((string) ($item['price'] ?? 0), ENT_QUOTES, 'UTF-8'); ?>" data-search-text="<?php echo htmlspecialchars((string) ($item['search_text'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
     <div class="flex items-center gap-8">
@@ -90,6 +92,9 @@ if (!function_exists('whois_render_marketplace_row_card')) {
     <div>
     <h4 class="text-lg font-bold"><?php echo htmlspecialchars($domainName, ENT_QUOTES, 'UTF-8'); ?></h4>
     <p class="text-xs text-neutral-400"><?php echo htmlspecialchars($categories, ENT_QUOTES, 'UTF-8'); ?></p>
+    <?php if ($isPremium): ?>
+      <span class="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-800">Premium</span>
+    <?php endif; ?>
     </div>
     </div>
     <div class="hidden md:flex gap-12 items-center">
@@ -101,7 +106,7 @@ if (!function_exists('whois_render_marketplace_row_card')) {
     <p class="text-[10px] uppercase font-bold text-neutral-400 tracking-widest">Price</p>
     <p class="text-sm font-bold"><?php echo htmlspecialchars($price, ENT_QUOTES, 'UTF-8'); ?></p>
     </div>
-    <button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">Buy Now</button>
+    <button class="px-5 py-2 border border-primary text-primary rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all" data-buy-now="true">Buy Now</button>
     </div>
     </div>
     <?php
@@ -353,6 +358,7 @@ No listings match the current filters. Try a different extension or raise the pr
   const visibleCount = document.getElementById('marketplace-visible-count');
   const extensionButtons = Array.from(document.querySelectorAll('[data-marketplace-extension-button="true"]'));
   const items = Array.from(document.querySelectorAll('[data-marketplace-item="true"]'));
+  const buyButtons = Array.from(document.querySelectorAll('[data-buy-now="true"]'));
 
   let selectedExtension = 'all';
 
@@ -431,6 +437,19 @@ No listings match the current filters. Try a different extension or raise the pr
   searchButton?.addEventListener('click', applyFilters);
   priceRange?.addEventListener('input', applyFilters);
   applyButton?.addEventListener('click', applyFilters);
+
+  buyButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const card = button.closest('[data-marketplace-item="true"]');
+      const domain = card?.dataset.domain || '';
+
+      if (!domain) {
+        return;
+      }
+
+      window.location.href = '/pages/whois_submit_bid.php?domain=' + encodeURIComponent(domain);
+    });
+  });
 
   updateExtensionButtons();
   applyFilters();

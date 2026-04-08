@@ -466,6 +466,33 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 </footer>
+<script>
+(() => {
+    const premiumSection = document.querySelector('section.lg\\:col-span-5');
+
+    if (!premiumSection) {
+        return;
+    }
+
+    premiumSection.querySelectorAll('button').forEach((button) => {
+        if ((button.textContent || '').trim().toLowerCase() !== 'buy now') {
+            return;
+        }
+
+        button.addEventListener('click', () => {
+            const card = button.closest('.group');
+            const title = card?.querySelector('h4');
+            const domain = (title?.textContent || '').trim().toLowerCase();
+
+            if (!domain) {
+                return;
+            }
+
+            window.location.href = '/pages/whois_submit_bid.php?domain=' + encodeURIComponent(domain);
+        });
+    });
+})();
+</script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

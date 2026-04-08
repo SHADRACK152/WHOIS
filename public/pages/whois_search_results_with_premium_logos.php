@@ -399,6 +399,35 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 </footer>
+<script>
+(() => {
+    const premiumSection = document.querySelector('section.lg\\:col-span-4');
+
+    if (!premiumSection) {
+        return;
+    }
+
+    premiumSection.querySelectorAll('span').forEach((element) => {
+        if ((element.textContent || '').trim().toLowerCase() !== 'buy now') {
+            return;
+        }
+
+        element.classList.add('cursor-pointer');
+
+        element.addEventListener('click', () => {
+            const card = element.closest('.group');
+            const title = card?.querySelector('h4');
+            const domain = (title?.textContent || '').trim().toLowerCase();
+
+            if (!domain) {
+                return;
+            }
+
+            window.location.href = '/pages/whois_submit_bid.php?domain=' + encodeURIComponent(domain);
+        });
+    });
+})();
+</script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 

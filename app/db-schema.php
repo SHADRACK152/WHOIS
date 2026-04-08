@@ -37,16 +37,40 @@ function whois_db_initialize($database): void
             search_text TEXT,
             sort_order INTEGER NOT NULL DEFAULT 0,
             source_submission_id BIGINT,
+            is_premium BOOLEAN NOT NULL DEFAULT FALSE,
             status TEXT NOT NULL DEFAULT 'live',
+            sold_price NUMERIC(12,2),
+            sold_buyer_name TEXT,
+            sold_buyer_email TEXT,
+            sold_at TIMESTAMPTZ,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
     SQL);
 
+    whois_db_execute(<<<'SQL'
+        CREATE TABLE IF NOT EXISTS marketplace_bids (
+            id BIGSERIAL PRIMARY KEY,
+            marketplace_item_id BIGINT NOT NULL,
+            domain_name TEXT NOT NULL,
+            bidder_name TEXT,
+            bidder_email TEXT,
+            bid_amount NUMERIC(12,2) NOT NULL,
+            note TEXT,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    SQL);
+
     whois_db_execute("ALTER TABLE marketplace_items ADD COLUMN IF NOT EXISTS source_submission_id BIGINT");
+    whois_db_execute("ALTER TABLE marketplace_items ADD COLUMN IF NOT EXISTS is_premium BOOLEAN NOT NULL DEFAULT FALSE");
+    whois_db_execute("ALTER TABLE marketplace_items ADD COLUMN IF NOT EXISTS sold_price NUMERIC(12,2)");
+    whois_db_execute("ALTER TABLE marketplace_items ADD COLUMN IF NOT EXISTS sold_buyer_name TEXT");
+    whois_db_execute("ALTER TABLE marketplace_items ADD COLUMN IF NOT EXISTS sold_buyer_email TEXT");
+    whois_db_execute("ALTER TABLE marketplace_items ADD COLUMN IF NOT EXISTS sold_at TIMESTAMPTZ");
     whois_db_execute("CREATE INDEX IF NOT EXISTS auction_submissions_status_created_idx ON auction_submissions (status, created_at DESC)");
     whois_db_execute("CREATE INDEX IF NOT EXISTS marketplace_items_status_sort_idx ON marketplace_items (status, sort_order DESC, created_at DESC)");
     whois_db_execute("CREATE UNIQUE INDEX IF NOT EXISTS marketplace_items_source_submission_id_idx ON marketplace_items (source_submission_id) WHERE source_submission_id IS NOT NULL");
+    whois_db_execute("CREATE INDEX IF NOT EXISTS marketplace_bids_item_created_idx ON marketplace_bids (marketplace_item_id, created_at DESC)");
 
     whois_db_seed_marketplace_items($database);
 }

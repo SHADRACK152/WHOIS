@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../../app/db-client.php';
+require_once __DIR__ . '/../../app/admin-auth.php';
 
 $rawInput = file_get_contents('php://input');
 $payload = [];
@@ -53,6 +54,12 @@ $action = strtolower(trim((string) ($data['action'] ?? 'submit')));
 
 try {
     if ($action === 'approve' || $action === 'reject') {
+        if (!whois_admin_is_authenticated()) {
+            whois_json([
+                'ok' => false,
+                'error' => 'Admin authentication required.',
+            ], 403);
+        }
         $submissionId = (int) ($data['submission_id'] ?? 0);
 
         if ($submissionId <= 0) {
