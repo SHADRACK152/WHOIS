@@ -123,9 +123,23 @@ tailwind.config = {
   }
 
   #dns-leaflet-map {
-    min-width: 920px;
-    height: 500px;
+    width: 100%;
+    min-width: 0;
+    height: 620px;
     border-radius: 18px;
+  }
+
+  .dns-split-layout {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dns-node-list {
+    max-height: 620px;
+    overflow-y: auto;
+    padding-right: 0.35rem;
   }
 
   .leaflet-dns-icon {
@@ -167,9 +181,18 @@ tailwind.config = {
     box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28), 0 0 0 6px rgba(211, 47, 47, 0.2);
   }
 
+  @media (max-width: 1024px) {
+    .dns-split-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .dns-node-list {
+      max-height: 340px;
+    }
+  }
+
   @media (max-width: 900px) {
     #dns-leaflet-map {
-      min-width: 760px;
       height: 460px;
     }
   }
@@ -265,28 +288,6 @@ tailwind.config = {
       </div>
     </div>
 
-    <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      <?php foreach ($nodes as $node): ?>
-        <article class="rounded-2xl border border-outline-variant/20 bg-white p-4 shadow-sm" data-node-card="<?php echo htmlspecialchars($node['markerId'], ENT_QUOTES, 'UTF-8'); ?>" data-country="<?php echo htmlspecialchars($node['country'], ENT_QUOTES, 'UTF-8'); ?>" data-continent="<?php echo htmlspecialchars($node['continent'], ENT_QUOTES, 'UTF-8'); ?>" data-ip-family="<?php echo strpos((string) $node['resolver'], ':') === false ? 'ipv4' : 'ipv6'; ?>">
-          <div class="flex items-start gap-3">
-            <span class="inline-flex h-6 min-w-[2.1rem] items-center justify-center rounded-full bg-surface-container-low px-2 text-[10px] font-black uppercase tracking-[0.18em] text-neutral-600"><?php echo htmlspecialchars($node['country'], ENT_QUOTES, 'UTF-8'); ?></span>
-            <div>
-              <p class="text-sm font-bold text-primary"><?php echo htmlspecialchars($node['location'], ENT_QUOTES, 'UTF-8'); ?></p>
-              <p class="mt-1 text-xs text-on-surface-variant"><?php echo htmlspecialchars($node['provider'], ENT_QUOTES, 'UTF-8'); ?> • <?php echo htmlspecialchars($node['resolver'], ENT_QUOTES, 'UTF-8'); ?></p>
-              <div class="mt-2">
-                <span class="status-pill status-pending" data-node-status="<?php echo htmlspecialchars($node['markerId'], ENT_QUOTES, 'UTF-8'); ?>">
-                  <span class="status-icon">&times;</span>
-                  No Response
-                </span>
-              </div>
-            </div>
-          </div>
-        </article>
-      <?php endforeach; ?>
-    </div>
-
-    <p class="mt-4 text-xs text-on-surface-variant">Note: Complete DNS resolution may take up to 48 hours.</p>
-
     <section class="mt-8 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
       <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Check DNS Propagation</p>
       <h2 class="mt-2 font-headline text-3xl font-black tracking-tight text-primary">Global DNS Propagation Overview</h2>
@@ -296,18 +297,45 @@ tailwind.config = {
     </section>
 
     <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-4 shadow-sm md:p-6">
-      <div class="mb-3 flex items-center justify-between">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h3 class="font-headline text-xl font-bold text-primary">DNS Propagation Map</h3>
-        <a href="https://www.mapchart.net/world.html" target="_blank" rel="noopener noreferrer" class="rounded-full border border-outline-variant/30 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-neutral-600 hover:text-black">Open World Map</a>
+        <div class="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-500">
+          <span class="status-pill status-resolved"><span class="status-icon">&#10003;</span>Resolved</span>
+          <span class="status-pill status-failed"><span class="status-icon">&times;</span>Not Resolved</span>
+          <span class="status-pill status-pending"><span class="status-icon">&times;</span>No Response</span>
+        </div>
       </div>
-      <div class="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-500">
-        <span class="status-pill status-resolved"><span class="status-icon">&#10003;</span>Resolved</span>
-        <span class="status-pill status-failed"><span class="status-icon">&times;</span>Not Resolved</span>
-        <span class="status-pill status-pending"><span class="status-icon">&times;</span>No Response</span>
+
+      <div class="dns-split-layout">
+        <aside class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3 md:p-4">
+          <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500">Resolvers</p>
+          <div class="dns-node-list space-y-3">
+            <?php foreach ($nodes as $node): ?>
+              <article class="rounded-xl border border-outline-variant/20 bg-white p-3 shadow-sm" data-node-card="<?php echo htmlspecialchars($node['markerId'], ENT_QUOTES, 'UTF-8'); ?>" data-country="<?php echo htmlspecialchars($node['country'], ENT_QUOTES, 'UTF-8'); ?>" data-continent="<?php echo htmlspecialchars($node['continent'], ENT_QUOTES, 'UTF-8'); ?>" data-ip-family="<?php echo strpos((string) $node['resolver'], ':') === false ? 'ipv4' : 'ipv6'; ?>">
+                <div class="flex items-start gap-3">
+                  <span class="inline-flex h-6 min-w-[2.1rem] items-center justify-center rounded-full bg-surface-container-low px-2 text-[10px] font-black uppercase tracking-[0.18em] text-neutral-600"><?php echo htmlspecialchars($node['country'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  <div>
+                    <p class="text-sm font-bold text-primary"><?php echo htmlspecialchars($node['location'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="mt-1 text-xs text-on-surface-variant"><?php echo htmlspecialchars($node['provider'], ENT_QUOTES, 'UTF-8'); ?> • <?php echo htmlspecialchars($node['resolver'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <div class="mt-2">
+                      <span class="status-pill status-pending" data-node-status="<?php echo htmlspecialchars($node['markerId'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <span class="status-icon">&times;</span>
+                        No Response
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            <?php endforeach; ?>
+          </div>
+        </aside>
+
+        <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
+          <div id="dns-leaflet-map"></div>
+        </div>
       </div>
-      <div id="dns-map-wrap" class="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
-        <div id="dns-leaflet-map"></div>
-      </div>
+
+      <p class="mt-4 text-xs text-on-surface-variant">Note: Complete DNS resolution may take up to 48 hours.</p>
     </section>
 
     <section class="mt-6 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
