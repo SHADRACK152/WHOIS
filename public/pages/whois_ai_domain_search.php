@@ -176,6 +176,38 @@ function whois_ai_search_country_bundle_tlds(string $country): array
   return $bundle !== [] ? $bundle : ['com', 'net', 'org'];
 }
 
+function whois_ai_search_bundle_tld_candidates(string $country): array
+{
+  $primary = whois_ai_search_country_bundle_tlds($country);
+  $supported = array_flip(whois_rdap_supported_tlds());
+
+  $fallbacks = [
+    'net', 'org', 'io', 'ai', 'co', 'info', 'biz', 'app', 'dev', 'online', 'site', 'store',
+  ];
+
+  $ordered = [];
+
+  foreach ($primary as $tld) {
+    if (isset($supported[$tld]) && !in_array($tld, $ordered, true)) {
+      $ordered[] = $tld;
+    }
+  }
+
+  foreach ($fallbacks as $tld) {
+    if (isset($supported[$tld]) && !in_array($tld, $ordered, true)) {
+      $ordered[] = $tld;
+    }
+  }
+
+  foreach (whois_ai_search_supported_global_tlds() as $tld) {
+    if (isset($supported[$tld]) && !in_array($tld, $ordered, true)) {
+      $ordered[] = $tld;
+    }
+  }
+
+  return $ordered;
+}
+
 function whois_ai_search_bundle_domain(string $root, string $tld): string
 {
   $normalizedRoot = trim(strtolower($root));
@@ -275,12 +307,19 @@ $premiumMarketData = $hasSearch
 
 $premiumListings = is_array($premiumMarketData['listings'] ?? null) ? $premiumMarketData['listings'] : [];
 $bundleTlds = whois_ai_search_country_bundle_tlds($countryCode);
+$bundleCandidateTlds = whois_ai_search_bundle_tld_candidates($countryCode);
 $bundleItems = [];
 $bundleSubtotal = 0.0;
 $bundlePricedItems = 0;
+$bundleExcludedCount = 0;
+$bundleMaxItems = 3;
 
 if ($hasSearch) {
-  foreach ($bundleTlds as $bundleTld) {
+  foreach ($bundleCandidateTlds as $bundleTld) {
+    if (count($bundleItems) >= $bundleMaxItems) {
+      break;
+    }
+
     $bundleDomain = whois_ai_search_bundle_domain($searchStem, $bundleTld);
 
     if ($bundleDomain === '') {
@@ -297,20 +336,30 @@ if ($hasSearch) {
       $bundlePriceRaw = whois_currency_convert_amount((float) $bundlePriceData['raw'], 'KES', $selectedCurrency);
     }
 
-    if (is_numeric($bundlePriceRaw) && (string) ($bundleLookup['status'] ?? '') === 'available') {
+    if ((string) ($bundleLookup['status'] ?? '') !== 'available') {
+      $bundleExcludedCount++;
+      continue;
+    }
+
+    if (is_numeric($bundlePriceRaw)) {
       $bundleSubtotal += (float) $bundlePriceRaw;
       $bundlePricedItems++;
     }
 
     $bundleItems[] = [
       'domain' => $bundleDomain,
+      'tld' => $bundleTld,
       'status' => $bundleMeta['label'],
       'statusClass' => $bundleMeta['class'],
       'price' => $bundlePrice,
-      'available' => (string) ($bundleLookup['status'] ?? '') === 'available',
+      'available' => true,
     ];
   }
 }
+
+$bundleDisplayedTlds = array_values(array_map(static function (array $item): string {
+  return (string) ($item['tld'] ?? '');
+}, $bundleItems));
 
 $bundleDiscountRate = 0.18;
 $bundleDiscountAmount = $bundlePricedItems > 1 ? $bundleSubtotal * $bundleDiscountRate : 0.0;
@@ -435,34 +484,43 @@ header('Content-Type: text/html; charset=utf-8');
 </form>
 </div>
 </section>
-<?php if ($hasSearch && $bundleItems !== []): ?>
+<?php if ($hasSearch): ?>
 <section class="py-4 px-6 max-w-6xl mx-auto">
   <div class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-2">Country bundle</p>
         <h3 class="text-3xl font-black text-primary">Localized starter bundle for <?php echo htmlspecialchars($countryCode, ENT_QUOTES, 'UTF-8'); ?></h3>
-        <p class="mt-2 text-sm text-on-surface-variant">Recommended mix for your market. Bundle includes <?php echo htmlspecialchars(implode(', ', array_map(static fn(string $tld): string => '.' . $tld, $bundleTlds)), ENT_QUOTES, 'UTF-8'); ?>.</p>
+        <p class="mt-2 text-sm text-on-surface-variant">Recommended mix for your market. Bundle includes <?php echo htmlspecialchars(implode(', ', array_map(static fn(string $tld): string => '.' . $tld, $bundleDisplayedTlds !== [] ? $bundleDisplayedTlds : $bundleTlds)), ENT_QUOTES, 'UTF-8'); ?>.</p>
+        <?php if ($bundleExcludedCount > 0): ?>
+          <p class="mt-2 text-xs text-on-surface-variant"><?php echo (int) $bundleExcludedCount; ?> registered domain(s) were excluded from this bundle.</p>
+        <?php endif; ?>
       </div>
       <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low px-5 py-4 text-right">
         <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Friendly bundle total</p>
-        <p class="mt-2 text-2xl font-black text-primary"><?php echo htmlspecialchars($bundlePricedItems > 1 ? whois_currency_format_amount($bundleTotal, $selectedCurrency) : 'Price unavailable', ENT_QUOTES, 'UTF-8'); ?></p>
+        <p class="mt-2 text-2xl font-black text-primary"><?php echo htmlspecialchars($bundlePricedItems > 0 ? whois_currency_format_amount($bundleTotal, $selectedCurrency) : 'Price unavailable', ENT_QUOTES, 'UTF-8'); ?></p>
         <p class="mt-1 text-xs text-on-surface-variant">Subtotal: <?php echo htmlspecialchars(whois_currency_format_amount($bundleSubtotal, $selectedCurrency), ENT_QUOTES, 'UTF-8'); ?><?php echo $bundlePricedItems > 1 ? ' | Discount: ' . htmlspecialchars(whois_currency_format_amount($bundleDiscountAmount, $selectedCurrency), ENT_QUOTES, 'UTF-8') : ''; ?></p>
       </div>
     </div>
 
-    <div class="mt-6 grid gap-4 md:grid-cols-3">
-      <?php foreach ($bundleItems as $bundleItem): ?>
-        <article class="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-5">
-          <div class="flex items-start justify-between gap-3">
-            <h4 class="text-lg font-black text-primary break-all"><?php echo htmlspecialchars((string) ($bundleItem['domain'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h4>
-            <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] <?php echo htmlspecialchars((string) ($bundleItem['statusClass'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string) ($bundleItem['status'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8'); ?></span>
-          </div>
-          <p class="mt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">Live price</p>
-          <p class="mt-1 text-lg font-bold text-primary"><?php echo htmlspecialchars((string) ($bundleItem['price'] ?? 'Price unavailable'), ENT_QUOTES, 'UTF-8'); ?></p>
-        </article>
-      <?php endforeach; ?>
-    </div>
+    <?php if ($bundleItems !== []): ?>
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <?php foreach ($bundleItems as $bundleItem): ?>
+          <article class="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-5">
+            <div class="flex items-start justify-between gap-3">
+              <h4 class="text-lg font-black text-primary break-all"><?php echo htmlspecialchars((string) ($bundleItem['domain'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h4>
+              <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] <?php echo htmlspecialchars((string) ($bundleItem['statusClass'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string) ($bundleItem['status'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
+            <p class="mt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">Live price</p>
+            <p class="mt-1 text-lg font-bold text-primary"><?php echo htmlspecialchars((string) ($bundleItem['price'] ?? 'Price unavailable'), ENT_QUOTES, 'UTF-8'); ?></p>
+          </article>
+        <?php endforeach; ?>
+      </div>
+    <?php else: ?>
+      <div class="mt-6 rounded-2xl border border-dashed border-outline-variant/30 bg-surface-container-lowest p-6 text-sm text-on-surface-variant">
+        No available domains in the localized bundle right now. Try another root or extension.
+      </div>
+    <?php endif; ?>
   </div>
 </section>
 <?php endif; ?>
