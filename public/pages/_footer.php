@@ -31,23 +31,20 @@
       <ul class="space-y-3 text-xs text-neutral-500">
         <li><a class="hover:text-black transition-colors" href="#">About Us</a></li>
         <li><a class="hover:text-black transition-colors" href="#">Contact</a></li>
-        <li><a class="hover:text-black transition-colors" href="#">Privacy Policy</a></li>
-        <li><a class="hover:text-black transition-colors" href="#">Terms of Service</a></li>
+        <li><a class="hover:text-black transition-colors" href="#">Cookie Policy</a></li>
+        <li><a class="hover:text-black transition-colors" href="#">Admin Login</a></li>
       </ul>
     </div>
     <div>
-      <span class="text-lg font-black text-black font-headline tracking-tighter">WHOIS</span>
+      <span class="text-lg font-black text-black font-headline tracking-tighter">Domain Intelligence</span>
       <p class="mt-3 text-neutral-500 text-xs leading-relaxed max-w-sm">Building the future of domain intelligence and brand security with AI-driven insights.</p>
       <div class="mt-5 text-xs text-neutral-500 space-y-2">
         <p>Privacy Policy</p>
         <p>Terms of Service</p>
-        <p>Cookie Policy</p>
         <p>API Documentation</p>
-        <p>Admin Login</p>
       </div>
       <div class="mt-6 flex gap-4 text-xs font-bold uppercase tracking-widest text-neutral-500">
         <span>public</span>
-        <span>share</span>
         <span>mail</span>
       </div>
     </div>
