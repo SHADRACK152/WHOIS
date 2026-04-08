@@ -844,6 +844,22 @@ function whois_db_record_marketplace_bid(array $bid): ?array
     ];
 }
 
+function whois_db_list_marketplace_bids(string $domainName, int $limit = 200): array
+{
+    $domainName = strtolower(trim($domainName));
+
+    if ($domainName === '') {
+        return [];
+    }
+
+    $safeLimit = max(1, min(500, $limit));
+
+    return whois_db_fetch_all(
+        'SELECT * FROM marketplace_bids WHERE domain_name = :domain_name ORDER BY created_at DESC LIMIT ' . $safeLimit,
+        ['domain_name' => $domainName]
+    );
+}
+
 function whois_db_mark_marketplace_item_sold(int $itemId, array $saleDetails = []): ?array
 {
     if ($itemId <= 0) {

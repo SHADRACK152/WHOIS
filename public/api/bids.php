@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../../app/db-client.php';
+require_once __DIR__ . '/../../app/admin-auth.php';
 
 $rawInput = file_get_contents('php://input');
 $payload = [];
@@ -16,6 +17,34 @@ if (is_string($rawInput) && trim($rawInput) !== '') {
 }
 
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+
+if ($method === 'GET') {
+    if (!whois_admin_is_authenticated()) {
+        whois_json([
+            'ok' => false,
+            'error' => 'Admin authentication required.',
+        ], 403);
+    }
+
+    $domainName = trim((string) ($_GET['domain_name'] ?? ''));
+    $limit = (int) ($_GET['limit'] ?? 200);
+
+    if ($domainName === '') {
+        whois_json([
+            'ok' => false,
+            'error' => 'domain_name is required.',
+        ], 400);
+    }
+
+    $bids = whois_db_list_marketplace_bids($domainName, $limit);
+
+    whois_json([
+        'ok' => true,
+        'domain_name' => strtolower($domainName),
+        'count' => count($bids),
+        'bids' => $bids,
+    ]);
+}
 
 if ($method !== 'POST') {
     whois_json([
