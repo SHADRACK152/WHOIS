@@ -108,6 +108,86 @@ function whois_ai_search_supported_global_tlds(): array
   return $cache;
 }
 
+function whois_ai_search_detect_country(): string
+{
+  $candidates = [
+    $_GET['country'] ?? null,
+    $_SERVER['HTTP_CF_IPCOUNTRY'] ?? null,
+    $_SERVER['GEOIP_COUNTRY_CODE'] ?? null,
+    $_SERVER['HTTP_X_COUNTRY_CODE'] ?? null,
+    $_SERVER['HTTP_X_APPENGINE_COUNTRY'] ?? null,
+  ];
+
+  foreach ($candidates as $candidate) {
+    if (!is_string($candidate)) {
+      continue;
+    }
+
+    $country = strtoupper(trim($candidate));
+
+    if (preg_match('/^[A-Z]{2}$/', $country) === 1) {
+      return $country;
+    }
+  }
+
+  return 'KE';
+}
+
+function whois_ai_search_country_bundle_tlds(string $country): array
+{
+  $country = strtoupper(trim($country));
+  $supported = array_flip(whois_rdap_supported_tlds());
+
+  $cc = strtolower($country);
+  $primaryCandidates = ['com'];
+
+  if (preg_match('/^[A-Z]{2}$/', $country) === 1) {
+    $primaryCandidates[] = $cc;
+    $primaryCandidates[] = 'co.' . $cc;
+
+    if ($country === 'GB') {
+      $primaryCandidates[] = 'uk';
+      $primaryCandidates[] = 'co.uk';
+    }
+  }
+
+  $bundle = [];
+
+  foreach ($primaryCandidates as $candidate) {
+    if (!isset($supported[$candidate])) {
+      continue;
+    }
+
+    if (!in_array($candidate, $bundle, true)) {
+      $bundle[] = $candidate;
+    }
+  }
+
+  foreach (['net', 'org', 'io', 'ai'] as $fallbackTld) {
+    if (count($bundle) >= 3) {
+      break;
+    }
+
+    if (isset($supported[$fallbackTld]) && !in_array($fallbackTld, $bundle, true)) {
+      $bundle[] = $fallbackTld;
+    }
+  }
+
+  return $bundle !== [] ? $bundle : ['com', 'net', 'org'];
+}
+
+function whois_ai_search_bundle_domain(string $root, string $tld): string
+{
+  $normalizedRoot = trim(strtolower($root));
+  $normalizedTld = ltrim(trim(strtolower($tld)), '.');
+
+  if ($normalizedRoot === '' || $normalizedTld === '') {
+    return '';
+  }
+
+  return $normalizedRoot . '.' . $normalizedTld;
+}
+
 $searchInput = trim((string) ($_GET['query'] ?? ''));
 $searchTld = trim((string) ($_GET['tld'] ?? ''));
 $selectedCurrency = whois_currency_normalize_code((string) ($_GET['currency'] ?? 'USD'), 'USD');
@@ -117,6 +197,7 @@ $searchRoot = $searchDomain !== ''
   ? (preg_replace('/\.[^.]+$/', '', $searchDomain) ?? $searchDomain)
   : '';
 $searchStem = preg_replace('/[^a-z0-9]/', '', strtolower($searchRoot)) ?? '';
+$countryCode = whois_ai_search_detect_country();
 
 if ($searchStem === '') {
   $searchStem = 'brand';
@@ -193,6 +274,47 @@ $premiumMarketData = $hasSearch
   ];
 
 $premiumListings = is_array($premiumMarketData['listings'] ?? null) ? $premiumMarketData['listings'] : [];
+$bundleTlds = whois_ai_search_country_bundle_tlds($countryCode);
+$bundleItems = [];
+$bundleSubtotal = 0.0;
+$bundlePricedItems = 0;
+
+if ($hasSearch) {
+  foreach ($bundleTlds as $bundleTld) {
+    $bundleDomain = whois_ai_search_bundle_domain($searchStem, $bundleTld);
+
+    if ($bundleDomain === '') {
+      continue;
+    }
+
+    $bundleLookup = whois_domain_lookup_cached($bundleDomain);
+    $bundleMeta = whois_ai_search_status_meta((string) ($bundleLookup['status'] ?? 'unknown'));
+    $bundlePriceData = whois_truehost_tld_price($bundleTld);
+    $bundlePrice = whois_ai_search_price_label($bundlePriceData, $selectedCurrency);
+
+    $bundlePriceRaw = null;
+    if (is_array($bundlePriceData) && isset($bundlePriceData['raw']) && is_numeric($bundlePriceData['raw'])) {
+      $bundlePriceRaw = whois_currency_convert_amount((float) $bundlePriceData['raw'], 'KES', $selectedCurrency);
+    }
+
+    if (is_numeric($bundlePriceRaw) && (string) ($bundleLookup['status'] ?? '') === 'available') {
+      $bundleSubtotal += (float) $bundlePriceRaw;
+      $bundlePricedItems++;
+    }
+
+    $bundleItems[] = [
+      'domain' => $bundleDomain,
+      'status' => $bundleMeta['label'],
+      'statusClass' => $bundleMeta['class'],
+      'price' => $bundlePrice,
+      'available' => (string) ($bundleLookup['status'] ?? '') === 'available',
+    ];
+  }
+}
+
+$bundleDiscountRate = 0.18;
+$bundleDiscountAmount = $bundlePricedItems > 1 ? $bundleSubtotal * $bundleDiscountRate : 0.0;
+$bundleTotal = max(0, $bundleSubtotal - $bundleDiscountAmount);
 $comprehensiveUrl = $hasSearch
   ? '/pages/whois_comprehensive_search_results.php?query=' . rawurlencode($searchDomain) . '&currency=' . rawurlencode($selectedCurrency)
   : '/pages/whois_comprehensive_search_results.php';
@@ -313,6 +435,37 @@ header('Content-Type: text/html; charset=utf-8');
 </form>
 </div>
 </section>
+<?php if ($hasSearch && $bundleItems !== []): ?>
+<section class="py-4 px-6 max-w-6xl mx-auto">
+  <div class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-2">Country bundle</p>
+        <h3 class="text-3xl font-black text-primary">Localized starter bundle for <?php echo htmlspecialchars($countryCode, ENT_QUOTES, 'UTF-8'); ?></h3>
+        <p class="mt-2 text-sm text-on-surface-variant">Recommended mix for your market. Bundle includes <?php echo htmlspecialchars(implode(', ', array_map(static fn(string $tld): string => '.' . $tld, $bundleTlds)), ENT_QUOTES, 'UTF-8'); ?>.</p>
+      </div>
+      <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low px-5 py-4 text-right">
+        <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Friendly bundle total</p>
+        <p class="mt-2 text-2xl font-black text-primary"><?php echo htmlspecialchars($bundlePricedItems > 1 ? whois_currency_format_amount($bundleTotal, $selectedCurrency) : 'Price unavailable', ENT_QUOTES, 'UTF-8'); ?></p>
+        <p class="mt-1 text-xs text-on-surface-variant">Subtotal: <?php echo htmlspecialchars(whois_currency_format_amount($bundleSubtotal, $selectedCurrency), ENT_QUOTES, 'UTF-8'); ?><?php echo $bundlePricedItems > 1 ? ' | Discount: ' . htmlspecialchars(whois_currency_format_amount($bundleDiscountAmount, $selectedCurrency), ENT_QUOTES, 'UTF-8') : ''; ?></p>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-3">
+      <?php foreach ($bundleItems as $bundleItem): ?>
+        <article class="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-5">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="text-lg font-black text-primary break-all"><?php echo htmlspecialchars((string) ($bundleItem['domain'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h4>
+            <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] <?php echo htmlspecialchars((string) ($bundleItem['statusClass'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string) ($bundleItem['status'] ?? 'Unknown'), ENT_QUOTES, 'UTF-8'); ?></span>
+          </div>
+          <p class="mt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-400">Live price</p>
+          <p class="mt-1 text-lg font-bold text-primary"><?php echo htmlspecialchars((string) ($bundleItem['price'] ?? 'Price unavailable'), ENT_QUOTES, 'UTF-8'); ?></p>
+        </article>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
 <?php if ($hasSearch): ?>
 <section class="py-4 px-6 max-w-6xl mx-auto">
 <div class="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
@@ -479,6 +632,31 @@ Verified premium checks are unavailable right now. The page will still show live
 <?php endif; ?>
 <!-- Footer -->
 <?php require __DIR__ . '/_footer.php'; ?>
+<script>
+(() => {
+  const url = new URL(window.location.href);
+
+  if (url.searchParams.has('country') || !url.searchParams.has('query')) {
+    return;
+  }
+
+  const locale = (navigator.language || '').trim();
+  const match = locale.match(/-([A-Za-z]{2})$/);
+
+  if (!match) {
+    return;
+  }
+
+  const countryCode = String(match[1] || '').toUpperCase();
+
+  if (!/^[A-Z]{2}$/.test(countryCode)) {
+    return;
+  }
+
+  url.searchParams.set('country', countryCode);
+  window.location.replace(url.toString());
+})();
+</script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
 
