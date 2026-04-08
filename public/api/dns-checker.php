@@ -90,18 +90,30 @@ if ($country !== '' && $country !== 'all') {
     ));
 }
 
+
 if ($markerIdsRaw !== '') {
     $ids = array_values(array_filter(array_map('trim', explode(',', $markerIdsRaw)), static fn (string $id): bool => $id !== ''));
+    // Limit batch size to 32 for safety
+    if (count($ids) > 32) {
+        whois_json([
+            'ok' => false,
+            'error' => 'Too many markerIds in one batch (max 32).',
+        ], 400);
+    }
     $idLookup = [];
-
     foreach ($ids as $id) {
         $idLookup[$id] = true;
     }
-
     $nodes = array_values(array_filter(
         $nodes,
         static fn (array $node): bool => isset($idLookup[(string) ($node['markerId'] ?? '')])
     ));
+    if (count($nodes) === 0) {
+        whois_json([
+            'ok' => false,
+            'error' => 'No valid resolvers found for the given markerIds.',
+        ], 400);
+    }
 }
 
 $results = whois_dns_propagation_check($domain, $type, $nodes);
