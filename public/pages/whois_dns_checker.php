@@ -27,6 +27,7 @@ foreach ($mapSvgCandidates as $mapSvgPath) {
 }
 
 $nodes = whois_dns_checker_nodes();
+$nodesJson = json_encode($nodes, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 $continentLabels = [
   'africa' => 'Africa',
@@ -134,6 +135,21 @@ tailwind.config = {
 
   .status-failed .status-dot {
     background: #d32f2f;
+  }
+
+  .dns-map-stage > svg {
+    display: block;
+    max-width: none;
+    width: 108%;
+    margin-left: -4%;
+    height: auto;
+  }
+
+  @media (max-width: 900px) {
+    .dns-map-stage > svg {
+      width: 104%;
+      margin-left: -2%;
+    }
   }
 </style>
 </head>
@@ -264,7 +280,7 @@ tailwind.config = {
       </div>
       <?php if ($mapSvg !== ''): ?>
         <div class="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-3">
-          <div class="min-w-[760px] [&>svg]:h-auto [&>svg]:w-full">
+          <div class="dns-map-stage min-w-[820px]">
             <?php echo $mapSvg; ?>
           </div>
         </div>
@@ -323,6 +339,7 @@ tailwind.config = {
 <?php require __DIR__ . '/_footer.php'; ?>
 <script>
 (function () {
+  const nodeMeta = <?php echo is_string($nodesJson) ? $nodesJson : '[]'; ?>;
   const input = document.getElementById('dns-domain');
   const button = document.getElementById('dns-check');
   const typeSelect = document.getElementById('dns-type');
@@ -344,10 +361,84 @@ tailwind.config = {
 
   const statusByMarker = new Map();
 
+  function setMarkerTooltip(markerId, text) {
+    if (!svg || !markerId) {
+      return;
+    }
+
+    const marker = svg.querySelector('#' + markerId);
+
+    if (!marker) {
+      return;
+    }
+
+    marker.setAttribute('aria-label', text);
+
+    let titleNode = marker.querySelector('title');
+
+    if (!titleNode) {
+      titleNode = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      marker.appendChild(titleNode);
+    }
+
+    titleNode.textContent = text;
+  }
+
+  function initializeMarkerTooltips() {
+    if (!Array.isArray(nodeMeta)) {
+      return;
+    }
+
+    nodeMeta.forEach(function (node) {
+      const markerId = String((node && node.markerId) || '');
+      const location = String((node && node.location) || 'Unknown location');
+      const provider = String((node && node.provider) || 'Unknown resolver');
+      const resolver = String((node && node.resolver) || 'n/a');
+      const base = location + ' | ' + provider + ' | ' + resolver + ' | Pending';
+      setMarkerTooltip(markerId, base);
+    });
+  }
+
   function setSummary(text) {
     if (summary) {
       summary.textContent = text;
     }
+  }
+
+  function simplifyMapUi() {
+    if (!svg) {
+      return;
+    }
+
+    const selectors = [
+      'g.map-label',
+      'g.legend',
+      '#date-time'
+    ];
+
+    selectors.forEach(function (selector) {
+      svg.querySelectorAll(selector).forEach(function (el) {
+        if (el && el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      });
+    });
+
+    svg.querySelectorAll('text').forEach(function (node) {
+      const text = String((node.textContent || '')).trim();
+
+      if (
+        text === 'DNS Propagation Map by DNSChecker.org' ||
+        text === 'Server Location' ||
+        text === 'Resolved' ||
+        text === 'Not Resolved' ||
+        /\d{1,2}\/\d{1,2}\/\d{4}/.test(text)
+      ) {
+        if (node && node.parentNode) {
+          node.parentNode.removeChild(node);
+        }
+      }
+    });
   }
 
   function setMarkerStatus(markerId, status) {
@@ -448,6 +539,12 @@ tailwind.config = {
       statusByMarker.set(markerId, markerState);
       setMarkerStatus(markerId, markerState);
       setCardStatus(markerId, state, label);
+
+      const location = String(row.location || 'Unknown location');
+      const provider = String(row.provider || 'Unknown resolver');
+      const resolver = String(row.resolver || 'n/a');
+      const details = label + (row.answerCount ? ' (' + row.answerCount + ')' : '');
+      setMarkerTooltip(markerId, location + ' | ' + provider + ' | ' + resolver + ' | ' + details);
     });
 
     const total = rows.length;
@@ -602,6 +699,8 @@ tailwind.config = {
   });
 
   resetStatuses();
+  simplifyMapUi();
+  initializeMarkerTooltips();
   applyVisibility();
   restartTimer();
   runCheck();
