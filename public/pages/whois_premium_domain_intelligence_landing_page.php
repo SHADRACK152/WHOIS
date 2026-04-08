@@ -144,6 +144,11 @@ WHOIS Intelligence Suite
 <p class="text-on-surface-variant text-lg md:text-xl max-w-2xl mb-10">
           Instant WHOIS lookup, AI-powered domain insights, and premium recommendations in one search flow. Start with a name, then see ownership, availability, and acquisition paths immediately.
         </p>
+<div class="mb-4 flex flex-wrap items-center gap-2">
+<span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Mode</span>
+<button id="hero-mode-search" class="rounded-full bg-black px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white" data-hero-mode="search" type="button">Search domain</button>
+<button id="hero-mode-ai" class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary" data-hero-mode="ai" type="button">Generate name with AI</button>
+</div>
 <div class="relative max-w-2xl glass-panel p-1.5 rounded-full shadow-lg flex items-center border border-outline-variant/30 transition-all hover:shadow-primary/5">
 <div class="pl-6 text-outline">
 <span class="material-symbols-outlined">search</span>
@@ -153,7 +158,7 @@ WHOIS Intelligence Suite
             Search Domain
           </button>
 </div>
-<div class="mt-5 flex flex-wrap items-center gap-3">
+<div id="hero-quick-tlds" class="mt-5 flex flex-wrap items-center gap-3">
 <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Quick extensions</span>
 <button class="tld-chip px-4 py-2 rounded-full bg-white border border-outline-variant/30 text-sm font-semibold text-primary hover:bg-surface-container-high transition-colors" data-tld=".com" type="button">.com</button>
 <button class="tld-chip px-4 py-2 rounded-full bg-white border border-outline-variant/30 text-sm font-semibold text-primary hover:bg-surface-container-high transition-colors" data-tld=".ai" type="button">.ai</button>
@@ -161,6 +166,13 @@ WHOIS Intelligence Suite
 <button class="tld-chip px-4 py-2 rounded-full bg-white border border-outline-variant/30 text-sm font-semibold text-primary hover:bg-surface-container-high transition-colors" data-tld=".co" type="button">.co</button>
 <button class="tld-chip px-4 py-2 rounded-full bg-white border border-outline-variant/30 text-sm font-semibold text-primary hover:bg-surface-container-high transition-colors" data-tld=".app" type="button">.app</button>
 <button class="tld-chip px-4 py-2 rounded-full bg-white border border-outline-variant/30 text-sm font-semibold text-primary hover:bg-surface-container-high transition-colors" data-tld=".net" type="button">.net</button>
+</div>
+<div id="hero-ai-results" class="mt-5 hidden max-w-2xl rounded-3xl border border-outline-variant/20 bg-white/90 p-4 shadow-sm">
+<div class="mb-3 flex items-center justify-between">
+<p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">AI name results</p>
+<span id="hero-ai-status" class="text-xs font-medium text-on-surface-variant"></span>
+</div>
+<div id="hero-ai-cards" class="grid gap-3 sm:grid-cols-2"></div>
 </div>
 <div class="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
 <span class="px-4 py-2 rounded-full bg-surface-container-low">WHOIS lookup</span>
@@ -241,9 +253,120 @@ WHOIS Intelligence Suite
     const input = document.getElementById('hero-domain-input');
     const searchButton = document.getElementById('hero-search-button');
     const chips = document.querySelectorAll('.tld-chip');
+    const modeSearch = document.getElementById('hero-mode-search');
+    const modeAi = document.getElementById('hero-mode-ai');
+    const quickTlds = document.getElementById('hero-quick-tlds');
+    const aiResults = document.getElementById('hero-ai-results');
+    const aiCards = document.getElementById('hero-ai-cards');
+    const aiStatus = document.getElementById('hero-ai-status');
+    let mode = 'search';
 
     if (!input || !chips.length) {
       return;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderAiResults(items) {
+      if (!aiResults || !aiCards) {
+        return;
+      }
+
+      aiCards.innerHTML = '';
+
+      if (!Array.isArray(items) || !items.length) {
+        aiStatus.textContent = 'No names returned. Try a clearer business description.';
+        aiResults.classList.remove('hidden');
+        return;
+      }
+
+      aiStatus.textContent = items.length + ' short name ideas generated';
+
+      items.forEach((item) => {
+        const purchasable = item && item.purchasable === true;
+        const purchaseButton = purchasable
+          ? '<a class="inline-flex items-center justify-center rounded-full bg-black px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white hover:bg-neutral-800" href="' + escapeHtml(String(item.purchaseUrl || '#')) + '" target="_blank" rel="noopener">Purchase here</a>'
+          : '<span class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500">Unavailable</span>';
+
+        const card = document.createElement('article');
+        card.className = 'rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4';
+        card.innerHTML =
+          '<p class="text-sm font-black text-primary">' + escapeHtml(String(item.name || 'Name')) + '</p>' +
+          '<p class="mt-1 break-all text-xs text-on-surface-variant">' + escapeHtml(String(item.domain || '')) + '</p>' +
+          '<p class="mt-3 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-400">Price</p>' +
+          '<p class="text-sm font-bold text-primary">' + escapeHtml(String(item.price || 'Price unavailable')) + '</p>' +
+          '<div class="mt-3 flex items-center gap-2">' +
+            '<a class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-primary hover:border-black" href="/pages/whois_ai_domain_search.php?query=' + encodeURIComponent(String(item.domain || '')) + '">Check availability</a>' +
+            purchaseButton +
+          '</div>';
+        aiCards.appendChild(card);
+      });
+
+      aiResults.classList.remove('hidden');
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode === 'ai' ? 'ai' : 'search';
+
+      if (mode === 'ai') {
+        modeAi.className = 'rounded-full bg-black px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white';
+        modeSearch.className = 'rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary';
+        input.placeholder = 'Describe your business in one sentence';
+        searchButton.textContent = 'Generate Names';
+        quickTlds.classList.add('hidden');
+      } else {
+        modeSearch.className = 'rounded-full bg-black px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white';
+        modeAi.className = 'rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary';
+        input.placeholder = 'enter-your-dream-domain.com';
+        searchButton.textContent = 'Search Domain';
+        quickTlds.classList.remove('hidden');
+        aiResults.classList.add('hidden');
+      }
+    }
+
+    async function generateNamesWithAi(description) {
+      if (!description.trim()) {
+        input.focus();
+        return;
+      }
+
+      if (aiStatus) {
+        aiStatus.textContent = 'Generating ideas...';
+      }
+
+      aiResults.classList.remove('hidden');
+      aiCards.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/name-generator.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            description,
+            limit: 15,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Unable to generate names right now.');
+        }
+
+        renderAiResults(Array.isArray(data.items) ? data.items : []);
+      } catch (error) {
+        aiStatus.textContent = error instanceof Error ? error.message : 'Unable to generate names right now.';
+      }
     }
 
     function applyTld(nextTld) {
@@ -277,9 +400,30 @@ WHOIS Intelligence Suite
           return;
         }
 
+        if (mode === 'ai') {
+          generateNamesWithAi(query);
+          return;
+        }
+
         window.location.href = '/pages/whois_comprehensive_search_results.php?query=' + encodeURIComponent(query);
       });
     }
+
+    if (modeSearch && modeAi) {
+      modeSearch.addEventListener('click', () => setMode('search'));
+      modeAi.addEventListener('click', () => setMode('ai'));
+    }
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      searchButton.click();
+    });
+
+    setMode('search');
   })();
 </script>
 <!-- Key Features -->
