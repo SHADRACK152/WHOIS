@@ -281,7 +281,8 @@ function whois_admin_render_page(array $page, callable $contentRenderer): void
   <aside class="admin-sidebar sticky top-0 h-screen overflow-y-auto">
     <div class="sidebar-top p-5 border-b border-outline-variant/20">
       <div class="flex items-center justify-between gap-3 sidebar-brand">
-        <a class="flex items-baseline gap-3 text-black" href="overview.php">
+        <a class="flex items-center gap-3 text-black" href="overview.php">
+          <img src="../assets/img/whois-icon.png" alt="WHOIS logo" class="h-8 w-8 rounded-lg object-contain border border-outline-variant/30 bg-white"/>
           <span class="text-xl font-black tracking-tighter font-['Manrope']">WHOIS</span>
           <span class="sidebar-brand-text hidden xl:inline text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-400">Admin</span>
         </a>
@@ -322,7 +323,10 @@ function whois_admin_render_page(array $page, callable $contentRenderer): void
       <div class="flex items-center justify-between gap-4 px-6 lg:px-8 py-4">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-secondary mb-1"><?php echo htmlspecialchars($eyebrow, ENT_QUOTES, 'UTF-8'); ?></p>
-          <h1 class="text-xl md:text-2xl font-extrabold tracking-tight text-primary"><?php echo htmlspecialchars($headline, ENT_QUOTES, 'UTF-8'); ?></h1>
+          <div class="flex items-center gap-2">
+            <img src="../assets/img/whois-icon.png" alt="WHOIS logo" class="h-6 w-6 rounded-md object-contain border border-outline-variant/30 bg-white"/>
+            <h1 class="text-xl md:text-2xl font-extrabold tracking-tight text-primary"><?php echo htmlspecialchars($headline, ENT_QUOTES, 'UTF-8'); ?></h1>
+          </div>
           <?php if (trim((string) $description) !== ''): ?>
           <p class="text-sm text-on-surface-variant max-w-3xl mt-1"><?php echo htmlspecialchars($description, ENT_QUOTES, 'UTF-8'); ?></p>
           <?php endif; ?>

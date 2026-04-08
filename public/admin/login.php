@@ -45,6 +45,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <body class="min-h-screen flex items-center justify-center px-6">
   <div class="w-full max-w-md rounded-[1.75rem] border border-neutral-200 bg-white/90 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.08)] backdrop-blur-xl">
     <div class="mb-8">
+      <div class="mb-4 inline-flex items-center gap-3 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-2">
+        <img src="../assets/img/whois-icon.png" alt="WHOIS logo" class="h-7 w-7 rounded-md object-contain border border-neutral-200 bg-white"/>
+        <span class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-500">WHOIS Brand</span>
+      </div>
       <p class="text-[10px] font-bold uppercase tracking-[0.28em] text-neutral-500">Admin Access</p>
       <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-black">WHOIS Admin Login</h1>
       <p class="mt-3 text-sm leading-relaxed text-neutral-500">Sign in to review submissions and publish approved listings to the marketplace.</p>
