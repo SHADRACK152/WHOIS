@@ -108,8 +108,22 @@ try {
     $instruction = 'Generate 15 short and brandable business names for this idea: ' . $description
         . '. Return only the names, one per line, no numbering, no punctuation, no explanations.';
 
+
     $ai = whois_ai_request('domain_name_generator', $instruction, []);
+    // Debug: log raw AI output and extraction results
+    file_put_contents(__DIR__ . '/namegen-debug.log',
+        "==== RAW AI OUTPUT ====" . PHP_EOL .
+        print_r($ai, true) . PHP_EOL .
+        "==== END RAW ====" . PHP_EOL,
+        FILE_APPEND
+    );
     $rawNames = whois_ai_name_generator_extract_names((string) ($ai['output'] ?? ''));
+    file_put_contents(__DIR__ . '/namegen-debug.log',
+        "==== EXTRACTED NAMES ====" . PHP_EOL .
+        print_r($rawNames, true) . PHP_EOL .
+        "==== END NAMES ====" . PHP_EOL,
+        FILE_APPEND
+    );
 
     if ($rawNames === []) {
         throw new RuntimeException('No usable names were generated.');
