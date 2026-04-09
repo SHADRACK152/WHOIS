@@ -422,73 +422,183 @@ WHOIS Intelligence Suite
 <!-- Domain Insights AI Preview -->
 <section class="py-24 px-8 max-w-7xl mx-auto">
 <div class="bg-primary p-1 md:p-12 rounded-[2rem] overflow-hidden relative">
-<!-- Decorative background -->
 <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-[100px]"></div>
 <div class="relative z-10 flex flex-col lg:flex-row items-center gap-16">
 <div class="lg:w-1/2 text-on-primary">
-<span class="inline-block px-4 py-1 bg-white/10 rounded-full text-xs font-bold tracking-widest uppercase mb-6">Live AI Simulation</span>
-<h2 class="font-headline text-4xl font-bold mb-6">Experience Real-Time Domain Intelligence</h2>
-<p class="text-on-primary/70 text-lg leading-relaxed mb-8">Our proprietary "Pulse" AI provides dynamic scoring based on brandability, syllable count, and existing market trends.</p>
-<div class="space-y-4">
-<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
-<span class="material-symbols-outlined" data-weight="fill">verified</span>
-<div>
-<h5 class="font-bold">Liquidity Prediction</h5>
-<p class="text-sm text-on-primary/60">Estimated resell speed based on TLD demand.</p>
-</div>
-</div>
-<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
-<span class="material-symbols-outlined" data-weight="fill">token</span>
-<div>
-<h5 class="font-bold">Brand Affinity</h5>
-<p class="text-sm text-on-primary/60">Phonetic balance and memorability score.</p>
-</div>
-</div>
-</div>
+  <span class="inline-block px-4 py-1 bg-white/10 rounded-full text-xs font-bold tracking-widest uppercase mb-6">Live AI Simulation</span>
+  <h2 class="font-headline text-4xl font-bold mb-6">Experience Real-Time Domain Intelligence</h2>
+  <p class="text-on-primary/70 text-lg leading-relaxed mb-8">Our proprietary "Pulse" AI provides dynamic scoring based on brandability, syllable count, and existing market trends.</p>
+  <form id="ai-appraisal-form" class="flex items-center gap-2 mb-8" onsubmit="return false;">
+    <input id="ai-appraisal-domain" class="rounded-l-full px-6 py-4 w-full text-lg font-bold border-none focus:ring-2 focus:ring-black" type="text" placeholder="Enter your domain (e.g. example.com)" autocomplete="off" />
+    <button id="ai-appraisal-search" class="rounded-r-full px-8 py-4 bg-black text-white font-bold uppercase tracking-widest hover:bg-primary-container transition-all" type="submit">Appraise</button>
+  </form>
+  <div class="space-y-4">
+    <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
+      <span class="material-symbols-outlined" data-weight="fill">verified</span>
+      <div>
+        <h5 class="font-bold">Liquidity Prediction</h5>
+        <p class="text-sm text-on-primary/60">Estimated resell speed based on TLD demand.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
+      <span class="material-symbols-outlined" data-weight="fill">token</span>
+      <div>
+        <h5 class="font-bold">Brand Affinity</h5>
+        <p class="text-sm text-on-primary/60">Phonetic balance and memorability score.</p>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="lg:w-1/2 w-full">
-<!-- Mockup Card -->
-<div class="bg-white rounded-3xl p-8 shadow-2xl">
-<div class="flex justify-between items-start mb-8">
-<div>
-<span class="bg-surface-container-high px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter mb-2 inline-block">Analysis Complete</span>
-<h3 class="text-3xl font-black tracking-tight">example.com</h3>
-</div>
-<div class="bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1">
-<span class="w-2 h-2 bg-green-500 rounded-full"></span> Available
-                                </div>
-</div>
-<div class="grid grid-cols-2 gap-6 mb-8">
-<div class="bg-surface p-4 rounded-2xl border border-outline-variant/20 flex flex-col items-center">
-<div class="relative w-24 h-24 flex items-center justify-center">
-<svg class="w-full h-full -rotate-90">
-<circle cx="48" cy="48" fill="transparent" r="40" stroke="#f3f3f3" stroke-width="8"></circle>
-<circle cx="48" cy="48" fill="transparent" r="40" stroke="#000000" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-width="8"></circle>
-</svg>
-<span class="absolute text-2xl font-black">7.5</span>
-</div>
-<p class="mt-4 font-bold text-xs uppercase tracking-widest text-outline">Domain Score</p>
-</div>
-<div class="bg-surface p-4 rounded-2xl border border-outline-variant/20 flex flex-col items-center justify-center">
-<span class="text-sm text-outline font-medium mb-1">Estimated Value</span>
-<p class="text-3xl font-black">$2,500</p>
-<span class="text-[10px] font-bold text-outline mt-1 uppercase">USD / Annual</span>
-</div>
-</div>
-<div class="space-y-3">
-<p class="text-xs font-bold text-outline uppercase tracking-widest mb-4">Smart Alternatives</p>
-<div class="flex flex-wrap gap-2">
-<button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">example.ai</button>
-<button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">example.io</button>
-<button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">getexample.com</button>
-<button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">example.tech</button>
-</div>
-</div>
-</div>
+  <div id="ai-appraisal-card" class="bg-white rounded-3xl p-8 shadow-2xl min-h-[420px] flex flex-col justify-between">
+    <!-- Skeleton loader -->
+    <div id="ai-appraisal-skeleton" class="hidden animate-pulse space-y-6">
+      <div class="h-6 bg-surface-container-high rounded w-1/3"></div>
+      <div class="h-10 bg-surface-container-high rounded w-2/3"></div>
+      <div class="h-8 bg-surface-container-high rounded w-1/2"></div>
+      <div class="grid grid-cols-2 gap-6 mb-8 mt-6">
+        <div class="h-24 bg-surface-container-high rounded-2xl"></div>
+        <div class="h-24 bg-surface-container-high rounded-2xl"></div>
+      </div>
+      <div class="h-6 bg-surface-container-high rounded w-1/4"></div>
+      <div class="flex gap-2 mt-2">
+        <div class="h-8 w-24 bg-surface-container-high rounded-xl"></div>
+        <div class="h-8 w-24 bg-surface-container-high rounded-xl"></div>
+        <div class="h-8 w-32 bg-surface-container-high rounded-xl"></div>
+      </div>
+    </div>
+    <!-- Results -->
+    <div id="ai-appraisal-result">
+      <div class="flex justify-between items-start mb-8">
+        <div>
+          <span class="bg-surface-container-high px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter mb-2 inline-block" id="ai-appraisal-status">Analysis Complete</span>
+          <h3 class="text-3xl font-black tracking-tight" id="ai-appraisal-domain-label">example.com</h3>
+        </div>
+        <div class="bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1" id="ai-appraisal-availability">
+          <span class="w-2 h-2 bg-green-500 rounded-full"></span> Available
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-6 mb-8">
+        <div class="bg-surface p-4 rounded-2xl border border-outline-variant/20 flex flex-col items-center">
+          <div class="relative w-24 h-24 flex items-center justify-center">
+            <svg class="w-full h-full -rotate-90">
+              <circle cx="48" cy="48" fill="transparent" r="40" stroke="#f3f3f3" stroke-width="8"></circle>
+              <circle id="ai-appraisal-score-bar" cx="48" cy="48" fill="transparent" r="40" stroke="#000000" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-width="8"></circle>
+            </svg>
+            <span class="absolute text-2xl font-black" id="ai-appraisal-score">7.5</span>
+          </div>
+          <p class="mt-4 font-bold text-xs uppercase tracking-widest text-outline">Domain Score</p>
+        </div>
+        <div class="bg-surface p-4 rounded-2xl border border-outline-variant/20 flex flex-col items-center justify-center">
+          <span class="text-sm text-outline font-medium mb-1">Estimated Value</span>
+          <p class="text-3xl font-black" id="ai-appraisal-value">$2,500</p>
+          <span class="text-[10px] font-bold text-outline mt-1 uppercase" id="ai-appraisal-currency">USD / Annual</span>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <p class="text-xs font-bold text-outline uppercase tracking-widest mb-4">Smart Alternatives</p>
+        <div class="flex flex-wrap gap-2" id="ai-appraisal-alternatives">
+          <button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">example.ai</button>
+          <button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">example.io</button>
+          <button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">getexample.com</button>
+          <button class="px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors">example.tech</button>
+        </div>
+      </div>
+      <div class="mt-8">
+        <a id="ai-appraisal-details-btn" href="#" target="_blank" class="inline-block px-6 py-3 rounded-full bg-black text-white font-bold uppercase tracking-widest hover:bg-primary-container transition-all">View Full Appraisal</a>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
 </div>
 </section>
+<script>
+// --- AI Appraisal AJAX logic ---
+const form = document.getElementById('ai-appraisal-form');
+const domainInput = document.getElementById('ai-appraisal-domain');
+const card = document.getElementById('ai-appraisal-card');
+const skeleton = document.getElementById('ai-appraisal-skeleton');
+const result = document.getElementById('ai-appraisal-result');
+const domainLabel = document.getElementById('ai-appraisal-domain-label');
+const valueLabel = document.getElementById('ai-appraisal-value');
+const scoreLabel = document.getElementById('ai-appraisal-score');
+const scoreBar = document.getElementById('ai-appraisal-score-bar');
+const statusLabel = document.getElementById('ai-appraisal-status');
+const availabilityLabel = document.getElementById('ai-appraisal-availability');
+const alternativesDiv = document.getElementById('ai-appraisal-alternatives');
+const detailsBtn = document.getElementById('ai-appraisal-details-btn');
+const currencyLabel = document.getElementById('ai-appraisal-currency');
+
+function setSkeleton(loading) {
+  skeleton.classList.toggle('hidden', !loading);
+  result.classList.toggle('hidden', loading);
+}
+
+function updateAppraisalCard(data) {
+  domainLabel.textContent = data.domain;
+  valueLabel.textContent = data.estimatedValue;
+  scoreLabel.textContent = data.score;
+  currencyLabel.textContent = data.displayCurrency + ' / Annual';
+  statusLabel.textContent = 'Analysis Complete';
+  // Score bar
+  const percent = Math.max(0, Math.min(1, (data.score / 10)));
+  scoreBar.setAttribute('stroke-dashoffset', (251.2 * (1 - percent)).toFixed(1));
+  // Availability
+  if (data.lookup && data.lookup.status === 'available') {
+    availabilityLabel.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full"></span> Available';
+    availabilityLabel.className = 'bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1';
+  } else {
+    availabilityLabel.innerHTML = '<span class="w-2 h-2 bg-yellow-400 rounded-full"></span> Registered';
+    availabilityLabel.className = 'bg-yellow-50 text-yellow-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1';
+  }
+  // Alternatives
+  alternativesDiv.innerHTML = '';
+  if (data.root) {
+    const tlds = ['.ai', '.io', '.com', '.tech'];
+    tlds.forEach(tld => {
+      if (data.domain.endsWith(tld)) return;
+      const alt = data.root + tld;
+      const btn = document.createElement('button');
+      btn.className = 'px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors';
+      btn.textContent = alt;
+      alternativesDiv.appendChild(btn);
+    });
+    // Add get{root}.com
+    if (!data.domain.startsWith('get') && !data.domain.endsWith('.com')) {
+      const btn = document.createElement('button');
+      btn.className = 'px-4 py-2 bg-surface rounded-xl text-sm font-medium border border-outline-variant/30 hover:border-primary transition-colors';
+      btn.textContent = 'get' + data.root + '.com';
+      alternativesDiv.appendChild(btn);
+    }
+  }
+  // Details button
+  detailsBtn.href = '/pages/whois_domain_appraisal_tool.php?domain=' + encodeURIComponent(data.domain);
+}
+
+form.addEventListener('submit', function () {
+  const domain = domainInput.value.trim();
+  if (!domain) {
+    domainInput.focus();
+    return;
+  }
+  setSkeleton(true);
+  fetch('/api/appraise.php?domain=' + encodeURIComponent(domain))
+    .then(r => r.json())
+    .then(data => {
+      setSkeleton(false);
+      updateAppraisalCard(data);
+    })
+    .catch(() => {
+      setSkeleton(false);
+      domainLabel.textContent = 'Error';
+      valueLabel.textContent = '--';
+      scoreLabel.textContent = '--';
+      alternativesDiv.innerHTML = '';
+      detailsBtn.href = '#';
+    });
+});
+</script>
 <!-- Connected Suite -->
 <section class="py-24 px-6 max-w-7xl mx-auto">
   <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
