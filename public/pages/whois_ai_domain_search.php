@@ -592,40 +592,27 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </article>
 <aside class="space-y-6">
-<div class="rounded-[2rem] border border-outline-variant/20 bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.04)]">
-<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Snapshot</p>
-<div class="mt-6 space-y-4 text-sm">
-<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3">
-<span class="text-on-surface-variant">Status</span>
-<span class="font-bold text-primary"><?php echo htmlspecialchars($lookupMeta['label'], ENT_QUOTES, 'UTF-8'); ?></span>
-</div>
-<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3">
-<span class="text-on-surface-variant">Currency</span>
-<span class="font-bold text-primary"><?php echo htmlspecialchars($selectedCurrency, ENT_QUOTES, 'UTF-8'); ?></span>
-</div>
-<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3">
-<span class="text-on-surface-variant">Alternatives</span>
-<span class="font-bold text-primary"><?php echo count($alternativeCards); ?></span>
-</div>
-<div class="flex items-center justify-between gap-4">
-<span class="text-on-surface-variant">Premium signals</span>
-<span class="font-bold text-primary"><?php echo count($premiumListings); ?></span>
-</div>
-</div>
-</div>
-<div class="rounded-[2rem] border border-outline-variant/20 bg-surface-container-low p-6">
-<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400">Display</p>
-<div class="mt-4 space-y-3 text-sm">
-<div class="flex items-center justify-between gap-4 border-b border-outline-variant/20 pb-3">
-<span class="text-on-surface-variant">Registry source</span>
-<span class="font-bold text-primary">Global RDAP</span>
-</div>
-<div class="flex items-center justify-between gap-4">
-<span class="text-on-surface-variant">Currency</span>
-<span class="font-bold text-primary">USD</span>
-</div>
-</div>
-</div>
+  <div class="rounded-[2rem] border border-outline-variant/20 bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.04)]">
+    <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-4">Alternatives</p>
+    <?php if (!empty($alternativeCards)): ?>
+      <div class="space-y-4">
+        <?php foreach ($alternativeCards as $alt): ?>
+          <div class="border-b border-outline-variant/10 pb-4 mb-4 last:border-b-0 last:mb-0">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-primary break-all"><?php echo htmlspecialchars($alt['domain'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] <?php echo htmlspecialchars($alt['statusClass'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($alt['status'], ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs text-on-surface-variant">Price</span>
+              <span class="font-bold text-primary text-xs"><?php echo htmlspecialchars($alt['price'], ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php else: ?>
+      <div class="text-sm text-on-surface-variant">No available alternatives found.</div>
+    <?php endif; ?>
+  </div>
 </aside>
 </div>
 </section>
