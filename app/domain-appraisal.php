@@ -933,3 +933,5 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         'displayCurrency' => $displayCurrency,
     ];
 }
+
+// No closing PHP tag and no trailing whitespace
