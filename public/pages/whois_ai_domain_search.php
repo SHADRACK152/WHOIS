@@ -596,7 +596,7 @@ header('Content-Type: text/html; charset=utf-8');
     <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-4">Alternatives</p>
     <?php if (!empty($alternativeCards)): ?>
       <div class="space-y-4">
-        <?php foreach ($alternativeCards as $alt): ?>
+        <?php foreach (array_slice($alternativeCards, 0, 5) as $alt): ?>
           <div class="border-b border-outline-variant/10 pb-4 mb-4 last:border-b-0 last:mb-0">
             <div class="flex items-center justify-between">
               <span class="font-bold text-primary break-all"><?php echo htmlspecialchars($alt['domain'], ENT_QUOTES, 'UTF-8'); ?></span>
