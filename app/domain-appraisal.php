@@ -618,6 +618,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     ), 1);
 
     $categoryMedianUsd = (float) ($category['medianUsd'] ?? 1800);
+
     $comparableAnchorUsd = whois_domain_appraisal_comparable_anchor((array) ($category['comparables'] ?? []), $categoryMedianUsd);
     $liquidityPercent = (int) whois_domain_appraisal_liquidity_score($score, $category, $tld);
     $liveMultiplier = whois_domain_appraisal_live_multiplier($score, $liquidityPercent, (string) ($lookup['status'] ?? 'unknown'));
@@ -626,6 +627,60 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $anchorUsd = (($categoryMedianUsd * 0.6) + ($comparableAnchorUsd * 0.4));
     $midUsd = max(250.0, $anchorUsd * $liveMultiplier * $tldMultiplier);
     $spread = max(0.12, min(0.26, 0.24 - (($score - 6.0) * 0.02) - (($liquidityPercent - 70) * 0.0015)));
+
+    // --- ULTRA-PREMIUM ONE-WORD LOGIC (all TLDs) ---
+    $isUltraPremium = false;
+    $ultraPremiumFloor = 0;
+    $majorTlds = ['com', 'net', 'org', 'ai', 'io', 'co', 'app', 'dev'];
+    $isMajorTld = in_array($tld, $majorTlds, true);
+    $isShort = $letterCount <= 4;
+    $isSingleWord = whois_domain_appraisal_word_count($root) === 1;
+
+    // --- Robust dictionary word detection ---
+    $isDictionary = false;
+    if (function_exists('pspell_new')) {
+        $pspell = pspell_new('en');
+        if ($pspell && pspell_check($pspell, $root)) {
+            $isDictionary = true;
+        }
+    } else {
+        // Fallback: check against a local wordlist (words_alpha.txt, 370k+ English words)
+        static $wordlist = null;
+        if ($wordlist === null) {
+            $wordlist = [];
+            $dictPath = __DIR__ . '/words_alpha.txt';
+            if (is_readable($dictPath)) {
+                $lines = file($dictPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                foreach ($lines as $w) {
+                    $wordlist[strtolower(trim($w))] = true;
+                }
+            }
+        }
+        if ($wordlist && isset($wordlist[strtolower($root)])) {
+            $isDictionary = true;
+        }
+    }
+
+    // Heuristic: treat as ultra-premium if single, short, highly brandable, or dictionary word
+    if ($isMajorTld && $isSingleWord && ($isShort || $score >= 8.8 || $isDictionary)) {
+        $isUltraPremium = true;
+        // Set floor based on TLD and length
+        if ($tld === 'com') {
+            $ultraPremiumFloor = $isShort ? 1500000 : 500000;
+        } elseif ($tld === 'ai' || $tld === 'io') {
+            $ultraPremiumFloor = $isShort ? 350000 : 120000;
+        } elseif ($tld === 'net' || $tld === 'org') {
+            $ultraPremiumFloor = $isShort ? 90000 : 35000;
+        } else {
+            $ultraPremiumFloor = $isShort ? 25000 : 9000;
+        }
+        // If dictionary word, boost floor
+        if ($isDictionary) {
+            $ultraPremiumFloor *= 1.5;
+        }
+        $midUsd = max($midUsd, $ultraPremiumFloor);
+        $spread = min($spread, 0.13);
+    }
 
     if (is_array($landmarkSale)) {
         $landmarkUsd = (float) ($landmarkSale['soldPriceUsd'] ?? 0);
