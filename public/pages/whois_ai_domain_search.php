@@ -312,7 +312,11 @@ $alternativeCards = [];
 if ($hasSearch) {
   foreach (whois_domain_candidate_domains($searchStem, $globalTlds) as $candidateDomain) {
     $candidateLookup = whois_domain_lookup_cached($candidateDomain);
-    $candidateMeta = whois_ai_search_status_meta((string) ($candidateLookup['status'] ?? 'unknown'));
+    $candidateStatus = strtolower((string) ($candidateLookup['status'] ?? 'unknown'));
+    if ($candidateStatus !== 'available') {
+      continue; // Only show available domains
+    }
+    $candidateMeta = whois_ai_search_status_meta($candidateStatus);
     $candidateTld = substr($candidateDomain, (int) strrpos($candidateDomain, '.') + 1);
     $candidatePrice = whois_ai_search_price_label(whois_truehost_tld_price($candidateTld), $selectedCurrency);
 
