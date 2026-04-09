@@ -732,27 +732,6 @@ Verified premium checks are unavailable right now. The page will still show live
 <?php endif; ?>
 </div>
 </section>
-<?php else: ?>
-<section class="py-16 px-6 max-w-6xl mx-auto">
-<div class="grid gap-6 md:grid-cols-3">
-<article class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-3">1. Search exact domain</p>
-<h3 class="text-2xl font-black text-primary mb-3">Check live registration status</h3>
-<p class="text-sm leading-relaxed text-on-surface-variant">Enter a domain or brand name and the page will normalize it, look it up, and show the registry response.</p>
-</article>
-<article class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-3">2. Explore alternatives</p>
-<h3 class="text-2xl font-black text-primary mb-3">Review adjacent TLDs</h3>
-<p class="text-sm leading-relaxed text-on-surface-variant">The search engine generates nearby domain options and checks live availability for each one.</p>
-</article>
-<article class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-[0_18px_50px_rgba(0,0,0,0.04)]">
-<p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-3">3. Watch premium signals</p>
-<h3 class="text-2xl font-black text-primary mb-3">See verified premium offers</h3>
-<p class="text-sm leading-relaxed text-on-surface-variant">When the premium API is available, the page highlights priced premium names instead of inventing results.</p>
-</article>
-</div>
-</section>
-<?php endif; ?>
 <!-- Footer -->
 <?php require __DIR__ . '/_footer.php'; ?>
 <script>
