@@ -494,40 +494,40 @@ WHOIS Intelligence Suite
   <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
     <div>
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4 block">Connected Suite</span>
-      <h2 class="font-black text-4xl md:text-5xl tracking-tight text-primary">Start here, then move through the suite.</h2>
+      <h2 class="font-black text-4xl md:text-5xl tracking-tight text-primary">Your Domain Hub</h2>
     </div>
-    <p class="text-on-surface-variant max-w-xl text-lg">The landing page now acts as a hub, with every major page family linked below and in the shared header.</p>
+    <p class="text-on-surface-variant max-w-xl text-lg">Everything you need for domains is here—explore, create, buy, sell, and learn, all in one place.</p>
   </div>
   <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
     <a class="group rounded-3xl bg-surface-container-lowest p-8 shadow-sm transition-all hover:-translate-y-1 hover:bg-surface-container-low" href="whois_ai_domain_search.php">
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Search</span>
-      <h3 class="mt-3 text-2xl font-black text-primary">AI Domain Search</h3>
-      <p class="mt-3 text-on-surface-variant">Begin with discovery and move into premium or professional lookup flows.</p>
+      <h3 class="mt-3 text-2xl font-black text-primary">Find & Discover Domains</h3>
+      <p class="mt-3 text-on-surface-variant">Instantly search for available domains, including AI-powered suggestions. Find premium names or run a professional lookup—start your domain journey here.</p>
     </a>
     <a class="group rounded-3xl bg-surface-container-lowest p-8 shadow-sm transition-all hover:-translate-y-1 hover:bg-surface-container-low" href="whois_ai_brand_assistant.php">
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">AI Assistants</span>
-      <h3 class="mt-3 text-2xl font-black text-primary">Brand Assistant</h3>
-      <p class="mt-3 text-on-surface-variant">Move from naming help into generators and idea expansion tools.</p>
+      <h3 class="mt-3 text-2xl font-black text-primary">Get Naming Help</h3>
+      <p class="mt-3 text-on-surface-variant">Get help naming your brand or project. Use smart generators for business ideas, domain names, and more.</p>
     </a>
     <a class="group rounded-3xl bg-surface-container-lowest p-8 shadow-sm transition-all hover:-translate-y-1 hover:bg-surface-container-low" href="whois_premium_domain_marketplace.php">
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Marketplace</span>
-      <h3 class="mt-3 text-2xl font-black text-primary">Premium Marketplace</h3>
-      <p class="mt-3 text-on-surface-variant">Browse premium inventory, auctions, and submission flows.</p>
+      <h3 class="mt-3 text-2xl font-black text-primary">Buy & Sell Domains</h3>
+      <p class="mt-3 text-on-surface-variant">Browse top-quality premium domains and live auctions. Submit your own domains for sale or make offers on others.</p>
     </a>
     <a class="group rounded-3xl bg-surface-container-lowest p-8 shadow-sm transition-all hover:-translate-y-1 hover:bg-surface-container-low" href="whois_domain_tools_overview.php">
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Tools</span>
-      <h3 class="mt-3 text-2xl font-black text-primary">Domain Tools Overview</h3>
-      <p class="mt-3 text-on-surface-variant">Jump into appraisal and lookup utilities from one central tools page.</p>
+      <h3 class="mt-3 text-2xl font-black text-primary">All Domain Tools</h3>
+      <p class="mt-3 text-on-surface-variant">Access all domain utilities: appraisals, lookups, and research tools—fast and easy.</p>
     </a>
     <a class="group rounded-3xl bg-surface-container-lowest p-8 shadow-sm transition-all hover:-translate-y-1 hover:bg-surface-container-low" href="whois_industry_insights_blog.php">
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Insights</span>
-      <h3 class="mt-3 text-2xl font-black text-primary">Industry Insights</h3>
-      <p class="mt-3 text-on-surface-variant">Follow the editorial side of the suite and market context.</p>
+      <h3 class="mt-3 text-2xl font-black text-primary">Learn & Stay Updated</h3>
+      <p class="mt-3 text-on-surface-variant">Stay updated with expert articles, trends, and market news. Get actionable advice for your domain strategy.</p>
     </a>
     <a class="group rounded-3xl bg-surface-container-lowest p-8 shadow-sm transition-all hover:-translate-y-1 hover:bg-surface-container-low" href="whois_partner_with_us.php">
       <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Partner</span>
       <h3 class="mt-3 text-2xl font-black text-primary">Partner With Us</h3>
-      <p class="mt-3 text-on-surface-variant">Connect business inquiries and strategic collaborations.</p>
+      <p class="mt-3 text-on-surface-variant">Reach out for business partnerships or collaborations. Find out how we can work together to grow your domain business.</p>
     </a>
   </div>
 </section>
