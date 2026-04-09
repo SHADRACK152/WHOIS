@@ -1,3 +1,93 @@
+// --- Grok AI Integration for Domain Price Checking ---
+function getAIValuation(array $domainData): array {
+    $apiKey = whois_ai_config()['apiKey'];
+    $apiUrl = whois_ai_config()['baseUrl'] . '/chat/completions';
+    if (!$apiKey || !$apiUrl) return ['error' => 'AI unavailable'];
+
+    // Build master prompt
+    $prompt = <<<PROMPT
+You are a professional domain name valuation expert.
+A domain has already been evaluated using a rule-based scoring engine.
+Your job is to refine the valuation using human-like reasoning, not to ignore the base data.
+
+INPUT:
+Domain: {$domainData['domain']}
+Base Price Range: {$domainData['base_price']}
+Score: {$domainData['score']}/100
+
+Breakdown:
+Length Score: {$domainData['length_score']}
+Keyword Score: {$domainData['keyword_score']}
+Brandability Score: {$domainData['brand_score']}
+TLD Score: {$domainData['tld_score']}
+Comparable Sales Score: {$domainData['comp_score']}
+
+INSTRUCTIONS:
+Analyze the domain’s brandability, market appeal, and potential real-world use.
+Consider startup trends (AI, SaaS, fintech, etc.).
+Adjust the price range ONLY if justified.
+Do NOT give extreme or unrealistic prices.
+Keep adjustments within a reasonable range of the base price.
+
+OUTPUT FORMAT (STRICT JSON):
+{
+"adjusted_price_min": number,
+"adjusted_price_max": number,
+"confidence_score": number,
+"reasoning": "short explanation",
+"tags": ["brandable", "tech", "low_keyword", etc]
+}
+PROMPT;
+
+    $payload = [
+        'model' => whois_ai_config()['model'],
+        'messages' => [
+            ['role' => 'system', 'content' => $prompt],
+        ],
+        'temperature' => 0.35,
+        'max_tokens' => 400,
+    ];
+
+    $ch = curl_init($apiUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ],
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    if ($response === false || $err) return ['error' => 'AI request failed: ' . $err];
+
+    $json = json_decode($response, true);
+    $content = $json['choices'][0]['message']['content'] ?? '';
+    $ai = json_decode($content, true);
+    if (!is_array($ai) || !isset($ai['adjusted_price_min'], $ai['adjusted_price_max'])) {
+        return ['error' => 'Invalid AI response', 'raw' => $content];
+    }
+
+    // Clamp values
+    [$baseMin, $baseMax] = array_map('floatval', explode('-', str_replace(['$', ' '], '', $domainData['base_price'])));
+    $aiMin = max($baseMin * 0.5, (float)$ai['adjusted_price_min']);
+    $aiMax = min($baseMax * 2, (float)$ai['adjusted_price_max']);
+    $ai['adjusted_price_min'] = $aiMin;
+    $ai['adjusted_price_max'] = $aiMax;
+
+    return [
+        'ai_price' => '$' . number_format($aiMin) . ' - $' . number_format($aiMax),
+        'confidence' => (int)($ai['confidence_score'] ?? 0),
+        'insight' => (string)($ai['reasoning'] ?? ''),
+        'tags' => $ai['tags'] ?? [],
+        'raw' => $ai,
+    ];
+}
 <?php
 
 declare(strict_types=1);
@@ -934,6 +1024,18 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $binTargetLow = whois_currency_convert_amount($valueRange['midUsd'] * 1.10, 'USD', $displayCurrency);
     $binTargetHigh = whois_currency_convert_amount($valueRange['midUsd'] * 1.30, 'USD', $displayCurrency);
 
+    // --- AI Valuation Integration ---
+    $aiValuation = getAIValuation([
+        'domain' => $domain,
+        'base_price' => '$' . number_format($valueRange['lowUsd']) . ' - $' . number_format($valueRange['highUsd']),
+        'score' => $score,
+        'length_score' => $lengthScore,
+        'keyword_score' => $categoryScore,
+        'brand_score' => $brandScore,
+        'tld_score' => $tldScore,
+        'comp_score' => $categoryScore,
+    ]);
+
     return [
         'domain' => $domain,
         'root' => $root,
@@ -950,6 +1052,10 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
             'low' => $valueLow,
             'high' => $valueHigh,
         ],
+        'ai_price' => $aiValuation['ai_price'] ?? null,
+        'ai_confidence' => $aiValuation['confidence'] ?? null,
+        'ai_insight' => $aiValuation['insight'] ?? null,
+        'ai_tags' => $aiValuation['tags'] ?? [],
         'liquidityPercent' => $liquidityPercent,
         'liquiditySummary' => $liquidityPercent >= 90
             ? 'This domain sits in the top 15% of brandable assets within this niche.'

@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+header('Content-Type: text/html; charset=utf-8');
+
 require __DIR__ . '/../../app/bootstrap.php';
 require __DIR__ . '/../../app/domain-appraisal.php';
 
@@ -13,8 +15,6 @@ $submitUrl = '/pages/whois_submit_domain_for_auction.php?domain=' . rawurlencode
 $marketplaceUrl = '/pages/whois_premium_domain_marketplace.php?query=' . rawurlencode((string) ($appraisal['rootWord'] ?? $domain));
 $assistantUrl = '/pages/whois_ai_brand_assistant.php';
 $aiEnabled = whois_ai_config()['apiKey'] !== null;
-
-header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
 <html class="light" lang="en"><head>
