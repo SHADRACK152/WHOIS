@@ -481,8 +481,6 @@ $bundleTotal = max(0, $bundleSubtotal - $bundleDiscountAmount);
 $comprehensiveUrl = $hasSearch
   ? '/pages/whois_comprehensive_search_results.php?query=' . rawurlencode($searchDomain) . '&currency=' . rawurlencode($selectedCurrency)
   : '/pages/whois_comprehensive_search_results.php';
-
-header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
 
