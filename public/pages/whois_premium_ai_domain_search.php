@@ -119,70 +119,106 @@ header('Content-Type: text/html; charset=utf-8');
 <div class="pl-6 pr-4">
 <span class="material-symbols-outlined text-neutral-400">search</span>
 </div>
-<input data-ai-input="true" class="w-full bg-transparent border-none focus:ring-0 text-lg font-body placeholder:text-neutral-400" placeholder="Find your next digital identity..." type="text"/>
-<button data-ai-submit="true" class="bg-primary text-white rounded-full px-8 py-4 font-headline font-bold hover:bg-neutral-800 transition-colors">
-                            Search
-                        </button>
+<form id="ai-domain-search-form" class="flex-1 flex" action="#" method="get" autocomplete="off" onsubmit="return false;">
+  <input id="ai-domain-search-input" name="query" class="w-full bg-transparent border-none focus:ring-0 text-lg font-body placeholder:text-neutral-400" placeholder="Find your next digital identity..." type="text" autocomplete="off" />
+  <button id="ai-domain-search-btn" type="submit" class="bg-primary text-white rounded-full px-8 py-4 font-headline font-bold hover:bg-neutral-800 transition-colors">Search</button>
+</form>
 </div>
 </div>
 <!-- AI Pill Suggestions -->
-<div class="flex flex-wrap justify-center gap-3 items-center">
-<div class="flex items-center gap-2 mr-2">
-<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
-<span class="text-xs font-label uppercase tracking-widest font-medium text-neutral-500">AI Suggested</span>
+<div id="ai-suggestions-bar" class="flex flex-wrap justify-center gap-3 items-center">
+  <div class="flex items-center gap-2 mr-2">
+    <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+    <span class="text-xs font-label uppercase tracking-widest font-medium text-neutral-500">AI Suggested</span>
+  </div>
+  <!-- AI suggestions will be injected here -->
 </div>
-<button class="bg-surface-container-lowest border border-outline-variant/30 px-5 py-2 rounded-full text-sm font-medium hover:bg-surface-container-high transition-colors">quantum.io</button>
-<button class="bg-surface-container-lowest border border-outline-variant/30 px-5 py-2 rounded-full text-sm font-medium hover:bg-surface-container-high transition-colors">ethereal.cc</button>
-<button class="bg-surface-container-lowest border border-outline-variant/30 px-5 py-2 rounded-full text-sm font-medium hover:bg-surface-container-high transition-colors">monolith.ai</button>
-</div>
+<?php
+// --- Dynamic AI Suggestions (PHP or mock for now) ---
+$aiSuggestions = [
+  'quantum.io',
+  'ethereal.cc',
+  'monolith.ai',
+  'brandflow.app',
+  'pulse.ai',
+  'orbit.dev',
+];
+?>
 </div>
 </section>
 <script src="../assets/js/ai-workflows.js"></script>
 <script>
-  (function () {
-    const input = document.querySelector('[data-ai-input="true"]');
-    const params = new URLSearchParams(window.location.search);
+// --- Inject AI Suggestions dynamically ---
+document.addEventListener('DOMContentLoaded', function () {
+  const bar = document.getElementById('ai-suggestions-bar');
+  if (bar) {
+    const suggestions = <?php echo json_encode($aiSuggestions); ?>;
+    suggestions.forEach(function(domain) {
+      const btn = document.createElement('button');
+      btn.className = 'ai-suggestion bg-surface-container-lowest border border-outline-variant/30 px-5 py-2 rounded-full text-sm font-medium hover:bg-surface-container-high transition-colors';
+      btn.setAttribute('data-domain', domain);
+      btn.textContent = domain;
+      bar.appendChild(btn);
+    });
+  }
+});
+</script>
+<script>
+// --- AI Domain Search & Suggestions ---
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('ai-domain-search-form');
+  const input = document.getElementById('ai-domain-search-input');
+  const btn = document.getElementById('ai-domain-search-btn');
+  const aiSuggestions = document.querySelectorAll('.ai-suggestion');
+  const params = new URLSearchParams(window.location.search);
 
-    function goToResults() {
-      const query = input ? input.value.trim() : '';
+  function goToResults(query) {
+    if (!query) return;
+    window.location.href = '/pages/whois_comprehensive_search_results.php?query=' + encodeURIComponent(query);
+  }
 
+  if (form && input && btn) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const query = input.value.trim();
       if (!query) {
-        if (input) {
-          input.focus();
-        }
+        input.focus();
         return;
       }
-
-      if (window.WhoisAIHistory) {
-        window.WhoisAIHistory.record({
-          workflow: 'premium_search',
-          title: query,
-          prompt: query,
-          message: 'Premium search submitted.',
-          status: 'done',
-        });
+      goToResults(query);
+    });
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const query = input.value.trim();
+      if (!query) {
+        input.focus();
+        return;
       }
+      goToResults(query);
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+  }
 
-      window.location.href = '/pages/whois_comprehensive_search_results.php?query=' + encodeURIComponent(query);
-    }
+  aiSuggestions.forEach(function (el) {
+    el.addEventListener('click', function () {
+      const domain = el.getAttribute('data-domain');
+      if (domain) {
+        input.value = domain;
+        goToResults(domain);
+      }
+    });
+  });
 
-    const button = document.querySelector('[data-ai-submit="true"]');
-
-    if (button) {
-      button.addEventListener('click', function (event) {
-        event.preventDefault();
-        goToResults();
-      });
-    }
-
-    if (params.get('query') && input) {
-      input.value = params.get('query');
-    }
-
-    if (params.get('query')) {
-      goToResults();
-    }
-  })();
+  // Autofill from query param
+  if (params.get('query') && input) {
+    input.value = params.get('query');
+  }
+});
 </script>
 <!-- Search Results & Alternatives Section -->
 <section class="max-w-7xl mx-auto px-8 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -213,42 +249,88 @@ header('Content-Type: text/html; charset=utf-8');
 <h3 class="font-headline font-extrabold text-2xl">Available Extensions</h3>
 <div class="h-px flex-grow mx-6 bg-outline-variant/30"></div>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<!-- Card 1 -->
-<div class="bg-surface-container-low p-6 rounded-2xl border border-transparent hover:border-outline-variant/50 hover:bg-surface-container-lowest hover:shadow-xl transition-all duration-300 group">
-<div class="flex justify-between items-start mb-4">
-<span class="material-symbols-outlined text-neutral-400 group-hover:text-primary transition-colors">public</span>
-<div class="bg-green-100 text-green-700 p-1 rounded-full">
-<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check</span>
-</div>
-</div>
-<h4 class="font-headline font-bold text-xl mb-1">whois.ai</h4>
-<p class="text-neutral-500 text-sm mb-6">Premium AI extension</p>
-<div class="flex items-center justify-between">
-<span class="font-headline font-extrabold text-lg">$69.00<span class="text-xs text-neutral-400 font-normal">/yr</span></span>
-<button class="bg-primary text-white p-3 rounded-xl hover:scale-105 active:scale-95 transition-all">
-<span class="material-symbols-outlined">add_shopping_cart</span>
-</button>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="bg-surface-container-low p-6 rounded-2xl border border-transparent hover:border-outline-variant/50 hover:bg-surface-container-lowest hover:shadow-xl transition-all duration-300 group">
-<div class="flex justify-between items-start mb-4">
-<span class="material-symbols-outlined text-neutral-400 group-hover:text-primary transition-colors">rocket_launch</span>
-<div class="bg-green-100 text-green-700 p-1 rounded-full">
-<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check</span>
-</div>
-</div>
-<h4 class="font-headline font-bold text-xl mb-1">whois.app</h4>
-<p class="text-neutral-500 text-sm mb-6">Perfect for startups</p>
-<div class="flex items-center justify-between">
-<span class="font-headline font-extrabold text-lg">$24.00<span class="text-xs text-neutral-400 font-normal">/yr</span></span>
-<button class="bg-primary text-white p-3 rounded-xl hover:scale-105 active:scale-95 transition-all">
-<span class="material-symbols-outlined">add_shopping_cart</span>
-</button>
-</div>
-</div>
-</div>
+<div id="available-extensions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+<?php
+// --- Extension candidates for dynamic lookup ---
+$extensionCandidates = ['ai', 'app', 'io', 'co', 'dev'];
+?>
+<script>
+// --- Dynamic Available Extensions Section ---
+function renderExtensionCard(ext) {
+  const statusIcon = ext.available ? 'check' : 'close';
+  const statusBg = ext.available ? 'bg-green-100 text-green-700' : 'bg-error-container text-on-error-container';
+  const price = ext.price ? ext.price : '--';
+  const desc = ext.desc || '';
+  return `
+    <div class="bg-surface-container-low p-6 rounded-2xl border border-transparent hover:border-outline-variant/50 hover:bg-surface-container-lowest hover:shadow-xl transition-all duration-300 group">
+      <div class="flex justify-between items-start mb-4">
+        <span class="material-symbols-outlined text-neutral-400 group-hover:text-primary transition-colors">${ext.icon}</span>
+        <div class="${statusBg} p-1 rounded-full">
+          <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">${statusIcon}</span>
+        </div>
+      </div>
+      <h4 class="font-headline font-bold text-xl mb-1">${ext.domain}</h4>
+      <p class="text-neutral-500 text-sm mb-6">${desc}</p>
+      <div class="flex items-center justify-between">
+        <span class="font-headline font-extrabold text-lg">${price}<span class="text-xs text-neutral-400 font-normal">/yr</span></span>
+        <button class="bg-primary text-white p-3 rounded-xl hover:scale-105 active:scale-95 transition-all">
+          <span class="material-symbols-outlined">add_shopping_cart</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function fetchAndRenderExtensions(domainRoot) {
+  const container = document.getElementById('available-extensions');
+  if (!container) return;
+  container.innerHTML = '';
+  const tlds = <?php echo json_encode($extensionCandidates); ?>;
+  // For demo: fetch from backend or use mock
+  Promise.all(tlds.map(tld => {
+    const domain = domainRoot + '.' + tld;
+    return fetch(`/api/appraise.php?domain=${encodeURIComponent(domain)}`)
+      .then(r => r.json())
+      .then(data => ({
+        domain,
+        available: data.lookup && data.lookup.status === 'available',
+        price: data.estimatedValue ? ('$' + data.estimatedValue) : '--',
+        desc: tld === 'ai' ? 'Premium AI extension' : (tld === 'app' ? 'Perfect for startups' : ''),
+        icon: tld === 'ai' ? 'public' : (tld === 'app' ? 'rocket_launch' : 'language'),
+      }))
+      .catch(() => ({
+        domain,
+        available: false,
+        price: '--',
+        desc: '',
+        icon: 'language',
+      }));
+  })).then(results => {
+    results.forEach(ext => {
+      container.innerHTML += renderExtensionCard(ext);
+    });
+  });
+}
+
+// On search or page load with query, render extensions
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.getElementById('ai-domain-search-input');
+  const params = new URLSearchParams(window.location.search);
+  let root = '';
+  if (params.get('query')) {
+    root = params.get('query').split('.')[0];
+    fetchAndRenderExtensions(root);
+  }
+  if (input) {
+    input.addEventListener('change', function () {
+      const val = input.value.trim();
+      if (val) {
+        fetchAndRenderExtensions(val.split('.')[0]);
+      }
+    });
+  }
+});
+</script>
 </div>
 <!-- Premium Domains Sidebar -->
 <div class="lg:col-span-4">
@@ -260,33 +342,64 @@ header('Content-Type: text/html; charset=utf-8');
 <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
 <h3 class="font-headline font-extrabold text-xl">Curated Assets</h3>
 </div>
-<div class="space-y-6 relative z-10">
-<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors cursor-pointer">
-<div>
-<div class="font-headline font-bold text-sm">W.CO</div>
-<div class="text-[10px] uppercase tracking-widest text-neutral-400 mt-1">One Character</div>
-</div>
-<div class="text-right">
-<div class="font-headline font-extrabold">$14,500</div>
-<div class="text-[10px] text-green-600 font-bold">BIDDING</div>
+<div id="curated-assets-list" class="space-y-6 relative z-10"></div>
+<button class="w-full mt-8 py-4 border-2 border-primary rounded-2xl font-headline font-extrabold text-sm hover:bg-primary hover:text-white transition-all" onclick="window.location.href='whois_premium_domain_marketplace.php'">
+  View Marketplace
+</button>
 </div>
 </div>
-<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors cursor-pointer">
-<div>
-<div class="font-headline font-bold text-sm">IDENTITY.ETH</div>
-<div class="text-[10px] uppercase tracking-widest text-neutral-400 mt-1">Web3 Native</div>
-</div>
-<div class="text-right">
-<div class="font-headline font-extrabold">$2,400</div>
-<div class="text-[10px] text-primary font-bold">BUY NOW</div>
-</div>
-</div>
-</div>
-<button class="w-full mt-8 py-4 border-2 border-primary rounded-2xl font-headline font-extrabold text-sm hover:bg-primary hover:text-white transition-all">
-                        View Marketplace
-                    </button>
-</div>
-</div>
+<?php
+// --- Curated premium assets (mock or backend) ---
+$curatedAssets = [
+  [
+    'domain' => 'W.CO',
+    'label' => 'One Character',
+    'price' => '14,500',
+    'currency' => '$',
+    'action' => 'BIDDING',
+    'actionClass' => 'text-green-600',
+  ],
+  [
+    'domain' => 'IDENTITY.ETH',
+    'label' => 'Web3 Native',
+    'price' => '2,400',
+    'currency' => '$',
+    'action' => 'BUY NOW',
+    'actionClass' => 'text-primary',
+  ],
+  [
+    'domain' => 'BRAND.AI',
+    'label' => 'AI Brand',
+    'price' => '7,900',
+    'currency' => '$',
+    'action' => 'BUY NOW',
+    'actionClass' => 'text-primary',
+  ],
+];
+?>
+<script>
+// --- Render curated premium assets dynamically ---
+document.addEventListener('DOMContentLoaded', function () {
+  const curated = <?php echo json_encode($curatedAssets); ?>;
+  const list = document.getElementById('curated-assets-list');
+  if (list) {
+    curated.forEach(function(asset) {
+      list.innerHTML += `
+        <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors cursor-pointer">
+          <div>
+            <div class="font-headline font-bold text-sm">${asset.domain}</div>
+            <div class="text-[10px] uppercase tracking-widest text-neutral-400 mt-1">${asset.label}</div>
+          </div>
+          <div class="text-right">
+            <div class="font-headline font-extrabold">${asset.currency}${asset.price}</div>
+            <div class="text-[10px] ${asset.actionClass} font-bold">${asset.action}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+});
+</script>
 </section>
 <!-- Brand Preview Section (Bento Inspired) -->
 <section class="max-w-7xl mx-auto px-8 py-20">
@@ -331,7 +444,7 @@ header('Content-Type: text/html; charset=utf-8');
                         Our AI generates instant mockups of your chosen domain on landing pages, mobile apps, and brand assets. See the vision, then claim it.
                     </p>
 <div class="flex gap-4">
-<button class="bg-primary text-white px-8 py-4 rounded-full font-headline font-bold">Try Brand AI</button>
+<a href="whois_brand_preview.php" class="bg-primary text-white px-8 py-4 rounded-full font-headline font-bold flex items-center justify-center">Try Brand AI</a>
 </div>
 </div>
 </div>
