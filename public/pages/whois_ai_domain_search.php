@@ -85,9 +85,10 @@ function whois_ai_search_supported_global_tlds(): array
   }
 
   $preferredTlds = [
-    'music', 'grey', 'shop', 'dev', 'app', 'xyz', 'online', 'site', 'store', 'cloud',
+    'com', 'net', 'org', 'co', 'io', 'ai', 'app', 'dev', 'xyz', 'shop', 'online', 'site', 'store', 'cloud',
     'tech', 'design', 'bio', 'health', 'art', 'news', 'blog', 'digital', 'media', 'studio',
     'agency', 'network', 'world', 'global', 'group', 'solutions', 'systems', 'expert', 'software', 'tools',
+    'music', 'grey', // niche and less popular TLDs at the end
   ];
 
   $supported = array_flip(whois_rdap_supported_tlds());
