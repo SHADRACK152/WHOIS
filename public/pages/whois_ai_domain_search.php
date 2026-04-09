@@ -333,7 +333,10 @@ if ($hasSearch) {
 // Fetch AI-generated related domains (unique, not just TLD swaps)
 $aiRelatedCards = [];
 if ($hasSearch && $searchRoot !== '') {
-  $aiApiUrl = '/api/name-generator.php';
+  // Use HTTP request to avoid header issues
+  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+  $aiApiUrl = $protocol . '://' . $host . '/api/name-generator.php';
   $aiPayload = [
     'description' => $searchRoot,
     'limit' => 10,
