@@ -308,18 +308,18 @@ if ($hasSearch && $lookupStatus === 'unknown' && is_string($rdapLookup['availabi
 $globalTlds = whois_ai_search_supported_global_tlds();
 
 $alternativeCards = [];
-
+$tldAlternatives = [];
 if ($hasSearch) {
   foreach (whois_domain_candidate_domains($searchStem, $globalTlds) as $candidateDomain) {
     $candidateLookup = whois_domain_lookup_cached($candidateDomain);
     $candidateStatus = strtolower((string) ($candidateLookup['status'] ?? 'unknown'));
     if ($candidateStatus !== 'available') {
-      continue; // Only show available domains
+      continue;
     }
     $candidateMeta = whois_ai_search_status_meta($candidateStatus);
     $candidateTld = substr($candidateDomain, (int) strrpos($candidateDomain, '.') + 1);
     $candidatePrice = whois_ai_search_price_label(whois_truehost_tld_price($candidateTld), $selectedCurrency);
-
+    $tldAlternatives[] = $candidateDomain;
     $alternativeCards[] = [
       'domain' => $candidateDomain,
       'status' => $candidateMeta['label'],
@@ -327,6 +327,49 @@ if ($hasSearch) {
       'price' => $candidatePrice,
       'note' => whois_domain_lookup_summary($candidateLookup),
     ];
+  }
+}
+
+// Fetch AI-generated related domains (unique, not just TLD swaps)
+$aiRelatedCards = [];
+if ($hasSearch && $searchRoot !== '') {
+  $aiApiUrl = '/api/name-generator.php';
+  $aiPayload = [
+    'description' => $searchRoot,
+    'limit' => 10,
+    'currency' => $selectedCurrency,
+  ];
+  $aiResult = null;
+  try {
+    $opts = [
+      'http' => [
+        'method' => 'POST',
+        'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+        'content' => json_encode($aiPayload),
+        'timeout' => 8,
+      ]
+    ];
+    $context = stream_context_create($opts);
+    $response = file_get_contents($aiApiUrl, false, $context);
+    if ($response !== false) {
+      $aiResult = json_decode($response, true);
+    }
+  } catch (Throwable $e) {
+    $aiResult = null;
+  }
+  if (is_array($aiResult) && ($aiResult['ok'] ?? false) && is_array($aiResult['items'] ?? null)) {
+    foreach ($aiResult['items'] as $item) {
+      if (($item['status'] ?? '') !== 'available') continue;
+      if (in_array($item['domain'], $tldAlternatives, true)) continue; // skip TLD variants
+      $aiRelatedCards[] = [
+        'domain' => $item['domain'],
+        'status' => 'Available',
+        'statusClass' => 'bg-emerald-100 text-emerald-700',
+        'price' => $item['price'] ?? 'Price unavailable',
+        'note' => '',
+      ];
+      if (count($aiRelatedCards) >= 5) break;
+    }
   }
 }
 
@@ -593,10 +636,10 @@ header('Content-Type: text/html; charset=utf-8');
 </article>
 <aside class="space-y-6">
   <div class="rounded-[2rem] border border-outline-variant/20 bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.04)]">
-    <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-4">Alternatives</p>
-    <?php if (!empty($alternativeCards)): ?>
+    <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-neutral-400 mb-4">AI Suggestions</p>
+    <?php if (!empty($aiRelatedCards)): ?>
       <div class="space-y-4">
-        <?php foreach (array_slice($alternativeCards, 0, 5) as $alt): ?>
+        <?php foreach ($aiRelatedCards as $alt): ?>
           <div class="border-b border-outline-variant/10 pb-4 mb-4 last:border-b-0 last:mb-0">
             <div class="flex items-center justify-between">
               <span class="font-bold text-primary break-all"><?php echo htmlspecialchars($alt['domain'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -610,7 +653,7 @@ header('Content-Type: text/html; charset=utf-8');
         <?php endforeach; ?>
       </div>
     <?php else: ?>
-      <div class="text-sm text-on-surface-variant">No available alternatives found.</div>
+      <div class="text-sm text-on-surface-variant">No available AI suggestions found.</div>
     <?php endif; ?>
   </div>
 </aside>
