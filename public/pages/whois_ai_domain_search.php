@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+header('Content-Type: text/html; charset=utf-8');
+
 require __DIR__ . '/../../app/bootstrap.php';
 require __DIR__ . '/../../app/domain-lookup.php';
 require __DIR__ . '/../../app/currency.php';
