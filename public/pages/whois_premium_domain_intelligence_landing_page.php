@@ -150,13 +150,20 @@ WHOIS Intelligence Suite
 <button id="hero-mode-ai" class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary" data-hero-mode="ai" type="button">Generate name with AI</button>
 </div>
 <div class="relative max-w-2xl glass-panel p-1.5 rounded-full shadow-lg flex items-center border border-outline-variant/30 transition-all hover:shadow-primary/5">
-<div class="pl-6 text-outline">
-<span class="material-symbols-outlined">search</span>
-</div>
-<input id="hero-domain-input" class="w-full bg-transparent border-none focus:ring-0 text-lg px-4 py-4 font-medium text-primary placeholder:text-neutral-400" placeholder="enter-your-dream-domain.com" type="text"/>
-<button id="hero-search-button" class="bg-primary text-on-primary px-8 py-4 rounded-full font-bold text-sm tracking-wide uppercase flex items-center gap-2 hover:bg-primary-container transition-all active:scale-95" type="button">
-            Search Domain
-          </button>
+<form action="/pages/whois_ai_domain_search.php" method="GET" class="w-full flex items-center">
+  <input type="hidden" name="currency" value="USD">
+  <span class="material-symbols-outlined pl-6 text-outline">search</span>
+  <input 
+    name="query" 
+    type="text" 
+    class="w-full bg-transparent border-none focus:ring-0 text-lg px-4 py-4 font-medium text-primary placeholder:text-neutral-400" 
+    placeholder="enter-your-dream-domain.com" 
+    required
+  />
+  <button type="submit" class="bg-primary text-on-primary px-8 py-4 rounded-full font-bold text-sm tracking-wide uppercase flex items-center gap-2 hover:bg-primary-container transition-all active:scale-95">
+    Search Domain
+  </button>
+</form>
 </div>
 <div id="hero-quick-tlds" class="mt-5 flex flex-wrap items-center gap-3">
 <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Quick extensions</span>
