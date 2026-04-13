@@ -1,0 +1,803 @@
+﻿{
+    "ok":  true,
+    "domain":  "truehost.email",
+    "summary":  "Registered through 1479.",
+    "availabilityHeadline":  "Taken",
+    "profile":  {
+                    "updatedRelative":  "Updated 6 days ago",
+                    "domainInformation":  {
+                                              "domain":  "truehost.email",
+                                              "registeredOn":  "2023-02-15",
+                                              "expiresOn":  "2027-02-15",
+                                              "updatedOn":  "2026-04-01",
+                                              "status":  "registered",
+                                              "statusLabel":  "Registered",
+                                              "statuses":  [
+                                                               "client transfer prohibited"
+                                                           ],
+                                              "nameServers":  [
+                                                                  "hugh.ns.cloudflare.com",
+                                                                  "serena.ns.cloudflare.com"
+                                                              ]
+                                          },
+                    "registrarInformation":  {
+                                                 "registrar":  "NameSilo, LLC",
+                                                 "ianaId":  "1479",
+                                                 "url":  "https://rdap.namesilo.com",
+                                                 "email":  "",
+                                                 "abuseEmail":  "abuse@namesilo.com",
+                                                 "abusePhone":  "+1.6024928198"
+                                             },
+                    "contacts":  {
+                                     "registrant":  {
+                                                        "label":  "Registrant Contact",
+                                                        "redacted":  true,
+                                                        "name":  "Redacted for privacy",
+                                                        "street":  "",
+                                                        "city":  "",
+                                                        "state":  "",
+                                                        "postalCode":  "",
+                                                        "country":  "",
+                                                        "phone":  "",
+                                                        "email":  ""
+                                                    },
+                                     "administrative":  {
+                                                            "label":  "Administrative Contact",
+                                                            "redacted":  true,
+                                                            "name":  "Redacted for privacy",
+                                                            "street":  "",
+                                                            "city":  "",
+                                                            "state":  "",
+                                                            "postalCode":  "",
+                                                            "country":  "",
+                                                            "phone":  "",
+                                                            "email":  ""
+                                                        },
+                                     "technical":  {
+                                                       "label":  "Technical Contact",
+                                                       "redacted":  true,
+                                                       "name":  "Redacted for privacy",
+                                                       "street":  "",
+                                                       "city":  "",
+                                                       "state":  "",
+                                                       "postalCode":  "",
+                                                       "country":  "",
+                                                       "phone":  "",
+                                                       "email":  ""
+                                                   }
+                                 }
+                },
+    "lookup":  {
+                   "domain":  "truehost.email",
+                   "status":  "registered",
+                   "statusLabel":  "Registered",
+                   "registrar":  "1479",
+                   "registrarIanaId":  "1479",
+                   "handle":  null,
+                   "objectClassName":  "domain",
+                   "port43":  null,
+                   "statuses":  [
+                                    "client transfer prohibited"
+                                ],
+                   "created":  "2023-02-15T10:15:28.25Z",
+                   "expiration":  "2027-02-15T10:15:28.25Z",
+                   "updated":  "2026-04-01T10:15:59.587Z",
+                   "nameservers":  [
+                                       "hugh.ns.cloudflare.com",
+                                       "serena.ns.cloudflare.com"
+                                   ],
+                   "secureDns":  {
+                                     "delegationSigned":  false,
+                                     "maxSigLife":  1
+                                 },
+                   "events":  [
+                                  {
+                                      "action":  "expiration",
+                                      "date":  "2027-02-15T10:15:28.25Z",
+                                      "actor":  ""
+                                  },
+                                  {
+                                      "action":  "registration",
+                                      "date":  "2023-02-15T10:15:28.25Z",
+                                      "actor":  ""
+                                  },
+                                  {
+                                      "action":  "last changed",
+                                      "date":  "2026-04-01T10:15:59.587Z",
+                                      "actor":  ""
+                                  },
+                                  {
+                                      "action":  "last update of RDAP database",
+                                      "date":  "2026-04-07T20:11:24.388Z",
+                                      "actor":  ""
+                                  }
+                              ],
+                   "entities":  [
+                                    {
+                                        "handle":  "1479",
+                                        "roles":  [
+                                                      "registrar"
+                                                  ],
+                                        "name":  "NameSilo, LLC",
+                                        "organization":  "",
+                                        "title":  "",
+                                        "email":  "",
+                                        "phone":  "",
+                                        "address":  "",
+                                        "street":  "",
+                                        "city":  "",
+                                        "state":  "",
+                                        "postalCode":  "",
+                                        "country":  "",
+                                        "url":  "https://rdap.namesilo.com",
+                                        "status":  [
+
+                                                   ],
+                                        "publicIds":  [
+                                                          {
+                                                              "type":  "IANA Registrar ID",
+                                                              "identifier":  "1479"
+                                                          }
+                                                      ],
+                                        "links":  [
+                                                      {
+                                                          "href":  "https://rdap.namesilo.com"
+                                                      }
+                                                  ],
+                                        "children":  [
+                                                         {
+                                                             "handle":  "",
+                                                             "roles":  [
+                                                                           "abuse"
+                                                                       ],
+                                                             "name":  "",
+                                                             "organization":  "",
+                                                             "title":  "",
+                                                             "email":  "abuse@namesilo.com",
+                                                             "phone":  "+1.6024928198",
+                                                             "address":  "",
+                                                             "street":  "",
+                                                             "city":  "",
+                                                             "state":  "",
+                                                             "postalCode":  "",
+                                                             "country":  "",
+                                                             "url":  "",
+                                                             "status":  [
+
+                                                                        ],
+                                                             "publicIds":  [
+
+                                                                           ],
+                                                             "links":  [
+
+                                                                       ],
+                                                             "children":  [
+
+                                                                          ]
+                                                         }
+                                                     ]
+                                    }
+                                ],
+                   "notices":  [
+                                   {
+                                       "title":  "Terms of Service",
+                                       "description":  [
+                                                           "Access to RDAP information is provided to assist persons in determining the contents of a domain name registration record in the registry database. The data in this record is provided by Identity Digital or, if the record pertains to a TLD not operated by Identity Digital, then the corresponding primary Registry Operator for informational purposes only, and neither Identity Digital nor the Registry Operator guarantee its accuracy. This service is intended only for query-based access. You agree that you will use this data only for lawful purposes and that, under no circumstances will you use this data to (a) allow, enable, or otherwise support the transmission by e-mail, telephone, or facsimile of mass unsolicited, commercial advertising or solicitations to entities other than the data recipient\u0027s own existing customers; or (b) enable high volume, automated, electronic processes that send queries or data to the systems of Identity Digital, a Registrar, or Registry Operator except as reasonably necessary to register domain names or modify existing registrations. When using the RDAP service, please consider the following: the RDAP service is not a replacement for standard EPP commands to the SRS service. RDAP is not considered authoritative for registered domain objects. The RDAP service may be scheduled for downtime during production or OT\u0026E maintenance periods. Queries to the RDAP services are throttled. If too many queries are received from a single IP address within a specified time, the service will begin to reject further queries for a period of time to prevent disruption of RDAP service access. Abuse of the RDAP system through data mining is mitigated by detecting and limiting bulk query access from single sources. Where applicable, the presence of a [Non-Public Data] tag indicates that such data is not made publicly available due to applicable data privacy laws or requirements. Should you wish to contact the registrant, please refer to the RDAP records available through the registrar URL listed above. Access to non-public data may be provided, upon request, where it can be reasonably confirmed that the requester holds a specific legitimate interest and a proper legal basis for accessing the withheld data. Access to the data provided by Identity Digital can be requested by submitting a request via the form found at https://www.identity.digital/about/policies/whois-layered-access/ Identity Digital Inc. and, if applicable, the primary Registry Operators reserve the right to modify these terms at any time. By submitting this query, you agree to abide by this policy.",
+                                                           "Terms of Service"
+                                                       ],
+                                       "links":  [
+                                                     {
+                                                         "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                         "rel":  "terms-of-service",
+                                                         "href":  "https://www.identity.digital/policies/rdds-access-policy",
+                                                         "type":  "text/html"
+                                                     }
+                                                 ]
+                                   },
+                                   {
+                                       "title":  "Status Codes",
+                                       "description":  [
+                                                           "For more information on domain status codes, please visit https://icann.org/epp",
+                                                           "Status Codes"
+                                                       ],
+                                       "links":  [
+                                                     {
+                                                         "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                         "rel":  "glossary",
+                                                         "href":  "https://icann.org/epp",
+                                                         "type":  "application/rdap+json"
+                                                     }
+                                                 ]
+                                   },
+                                   {
+                                       "title":  "RDDS Inaccuracy Complaint Form",
+                                       "description":  [
+                                                           "URL of the ICANN RDDS Inaccuracy Complaint Form: https://icann.org/wicf",
+                                                           "RDDS Inaccuracy Complaint Form"
+                                                       ],
+                                       "links":  [
+                                                     {
+                                                         "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                         "rel":  "help",
+                                                         "href":  "https://icann.org/wicf",
+                                                         "type":  "application/rdap+json"
+                                                     }
+                                                 ]
+                                   }
+                               ],
+                   "remarks":  [
+
+                               ],
+                   "links":  [
+                                 {
+                                     "href":  "https://rdap.namesilo.com/domain/truehost.email",
+                                     "rel":  "related",
+                                     "title":  "",
+                                     "type":  "application/rdap+json"
+                                 },
+                                 {
+                                     "href":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                     "rel":  "self",
+                                     "title":  "",
+                                     "type":  "application/rdap+json"
+                                 }
+                             ],
+                   "availabilityNote":  "RDAP reports an active registration record for this domain.",
+                   "rdapSource":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                   "rawRdap":  {
+                                   "rdapConformance":  [
+                                                           "rdap_level_0",
+                                                           "icann_rdap_response_profile_1",
+                                                           "icann_rdap_technical_implementation_guide_1",
+                                                           "redacted"
+                                                       ],
+                                   "notices":  [
+                                                   {
+                                                       "title":  "Terms of Service",
+                                                       "description":  [
+                                                                           "Access to RDAP information is provided to assist persons in determining the contents of a domain name registration record in the registry database. The data in this record is provided by Identity Digital or, if the record pertains to a TLD not operated by Identity Digital, then the corresponding primary Registry Operator for informational purposes only, and neither Identity Digital nor the Registry Operator guarantee its accuracy. This service is intended only for query-based access. You agree that you will use this data only for lawful purposes and that, under no circumstances will you use this data to (a) allow, enable, or otherwise support the transmission by e-mail, telephone, or facsimile of mass unsolicited, commercial advertising or solicitations to entities other than the data recipient\u0027s own existing customers; or (b) enable high volume, automated, electronic processes that send queries or data to the systems of Identity Digital, a Registrar, or Registry Operator except as reasonably necessary to register domain names or modify existing registrations. When using the RDAP service, please consider the following: the RDAP service is not a replacement for standard EPP commands to the SRS service. RDAP is not considered authoritative for registered domain objects. The RDAP service may be scheduled for downtime during production or OT\u0026E maintenance periods. Queries to the RDAP services are throttled. If too many queries are received from a single IP address within a specified time, the service will begin to reject further queries for a period of time to prevent disruption of RDAP service access. Abuse of the RDAP system through data mining is mitigated by detecting and limiting bulk query access from single sources. Where applicable, the presence of a [Non-Public Data] tag indicates that such data is not made publicly available due to applicable data privacy laws or requirements. Should you wish to contact the registrant, please refer to the RDAP records available through the registrar URL listed above. Access to non-public data may be provided, upon request, where it can be reasonably confirmed that the requester holds a specific legitimate interest and a proper legal basis for accessing the withheld data. Access to the data provided by Identity Digital can be requested by submitting a request via the form found at https://www.identity.digital/about/policies/whois-layered-access/ Identity Digital Inc. and, if applicable, the primary Registry Operators reserve the right to modify these terms at any time. By submitting this query, you agree to abide by this policy."
+                                                                       ],
+                                                       "links":  [
+                                                                     {
+                                                                         "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                                         "rel":  "terms-of-service",
+                                                                         "href":  "https://www.identity.digital/policies/rdds-access-policy",
+                                                                         "type":  "text/html"
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "title":  "Status Codes",
+                                                       "description":  [
+                                                                           "For more information on domain status codes, please visit https://icann.org/epp"
+                                                                       ],
+                                                       "links":  [
+                                                                     {
+                                                                         "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                                         "rel":  "glossary",
+                                                                         "href":  "https://icann.org/epp",
+                                                                         "type":  "application/rdap+json"
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "title":  "RDDS Inaccuracy Complaint Form",
+                                                       "description":  [
+                                                                           "URL of the ICANN RDDS Inaccuracy Complaint Form: https://icann.org/wicf"
+                                                                       ],
+                                                       "links":  [
+                                                                     {
+                                                                         "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                                         "rel":  "help",
+                                                                         "href":  "https://icann.org/wicf",
+                                                                         "type":  "application/rdap+json"
+                                                                     }
+                                                                 ]
+                                                   }
+                                               ],
+                                   "ldhName":  "truehost.email",
+                                   "unicodeName":  "truehost.email",
+                                   "nameservers":  [
+                                                       {
+                                                           "ldhName":  "hugh.ns.cloudflare.com",
+                                                           "unicodeName":  "hugh.ns.cloudflare.com",
+                                                           "objectClassName":  "nameserver",
+                                                           "handle":  "8f64d69e20fc4d19b608b162781fc15e-DONUTS",
+                                                           "status":  [
+                                                                          "associated"
+                                                                      ]
+                                                       },
+                                                       {
+                                                           "ldhName":  "serena.ns.cloudflare.com",
+                                                           "unicodeName":  "serena.ns.cloudflare.com",
+                                                           "objectClassName":  "nameserver",
+                                                           "handle":  "c42e3d8f18b0409baedf3940dd7be872-DONUTS",
+                                                           "status":  [
+                                                                          "associated"
+                                                                      ]
+                                                       }
+                                                   ],
+                                   "secureDNS":  {
+                                                     "delegationSigned":  false,
+                                                     "maxSigLife":  1
+                                                 },
+                                   "redacted":  [
+                                                    {
+                                                        "name":  {
+                                                                     "type":  "Registry Domain ID"
+                                                                 },
+                                                        "prePath":  "$.handle",
+                                                        "pathLang":  "jsonpath",
+                                                        "method":  "removal"
+                                                    }
+                                                ],
+                                   "objectClassName":  "domain",
+                                   "status":  [
+                                                  "client transfer prohibited"
+                                              ],
+                                   "events":  [
+                                                  {
+                                                      "eventAction":  "expiration",
+                                                      "eventDate":  "2027-02-15T10:15:28.25Z"
+                                                  },
+                                                  {
+                                                      "eventAction":  "registration",
+                                                      "eventDate":  "2023-02-15T10:15:28.25Z"
+                                                  },
+                                                  {
+                                                      "eventAction":  "last changed",
+                                                      "eventDate":  "2026-04-01T10:15:59.587Z"
+                                                  },
+                                                  {
+                                                      "eventAction":  "last update of RDAP database",
+                                                      "eventDate":  "2026-04-07T20:11:24.388Z"
+                                                  }
+                                              ],
+                                   "entities":  [
+                                                    {
+                                                        "vcardArray":  [
+                                                                           "vcard",
+                                                                           [
+                                                                               [
+                                                                                   "version",
+                                                                                   [
+
+                                                                                   ],
+                                                                                   "text",
+                                                                                   "4.0"
+                                                                               ],
+                                                                               [
+                                                                                   "fn",
+                                                                                   [
+
+                                                                                   ],
+                                                                                   "text",
+                                                                                   "NameSilo, LLC"
+                                                                               ]
+                                                                           ]
+                                                                       ],
+                                                        "roles":  [
+                                                                      "registrar"
+                                                                  ],
+                                                        "publicIds":  [
+                                                                          {
+                                                                              "type":  "IANA Registrar ID",
+                                                                              "identifier":  "1479"
+                                                                          }
+                                                                      ],
+                                                        "objectClassName":  "entity",
+                                                        "handle":  "1479",
+                                                        "entities":  [
+                                                                         {
+                                                                             "vcardArray":  [
+                                                                                                "vcard",
+                                                                                                [
+                                                                                                    "version System.Object[] text 4.0",
+                                                                                                    "fn System.Object[] text ",
+                                                                                                    "tel  uri tel:+1.6024928198",
+                                                                                                    "email System.Object[] text abuse@namesilo.com"
+                                                                                                ]
+                                                                                            ],
+                                                                             "roles":  [
+                                                                                           "abuse"
+                                                                                       ],
+                                                                             "objectClassName":  "entity"
+                                                                         }
+                                                                     ],
+                                                        "links":  [
+                                                                      {
+                                                                          "value":  "https://rdap.identitydigital.services/rdap/entity/1479",
+                                                                          "rel":  "self",
+                                                                          "href":  "https://rdap.identitydigital.services/rdap/entity/1479",
+                                                                          "type":  "application/rdap+json"
+                                                                      },
+                                                                      {
+                                                                          "value":  "https://rdap.namesilo.com",
+                                                                          "rel":  "about",
+                                                                          "href":  "https://rdap.namesilo.com",
+                                                                          "type":  "application/rdap+json"
+                                                                      }
+                                                                  ]
+                                                    }
+                                                ],
+                                   "links":  [
+                                                 {
+                                                     "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                     "rel":  "related",
+                                                     "href":  "https://rdap.namesilo.com/domain/truehost.email",
+                                                     "type":  "application/rdap+json"
+                                                 },
+                                                 {
+                                                     "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                     "rel":  "self",
+                                                     "href":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                     "type":  "application/rdap+json"
+                                                 }
+                                             ]
+                               }
+               },
+    "contacts":  {
+                     "registrant":  "REDACTED FOR PRIVACY",
+                     "administrative":  "REDACTED FOR PRIVACY",
+                     "technical":  "REDACTED FOR PRIVACY",
+                     "entities":  [
+                                      {
+                                          "handle":  "1479",
+                                          "roles":  [
+                                                        "registrar"
+                                                    ],
+                                          "name":  "NameSilo, LLC",
+                                          "organization":  "",
+                                          "title":  "",
+                                          "email":  "",
+                                          "phone":  "",
+                                          "address":  "",
+                                          "street":  "",
+                                          "city":  "",
+                                          "state":  "",
+                                          "postalCode":  "",
+                                          "country":  "",
+                                          "url":  "https://rdap.namesilo.com",
+                                          "status":  [
+
+                                                     ],
+                                          "publicIds":  [
+                                                            {
+                                                                "type":  "IANA Registrar ID",
+                                                                "identifier":  "1479"
+                                                            }
+                                                        ],
+                                          "links":  [
+                                                        {
+                                                            "href":  "https://rdap.namesilo.com"
+                                                        }
+                                                    ],
+                                          "children":  [
+                                                           {
+                                                               "handle":  "",
+                                                               "roles":  [
+                                                                             "abuse"
+                                                                         ],
+                                                               "name":  "",
+                                                               "organization":  "",
+                                                               "title":  "",
+                                                               "email":  "abuse@namesilo.com",
+                                                               "phone":  "+1.6024928198",
+                                                               "address":  "",
+                                                               "street":  "",
+                                                               "city":  "",
+                                                               "state":  "",
+                                                               "postalCode":  "",
+                                                               "country":  "",
+                                                               "url":  "",
+                                                               "status":  [
+
+                                                                          ],
+                                                               "publicIds":  [
+
+                                                                             ],
+                                                               "links":  [
+
+                                                                         ],
+                                                               "children":  [
+
+                                                                            ]
+                                                           }
+                                                       ]
+                                      }
+                                  ]
+                 },
+    "metrics":  {
+                    "supportedTlds":  1198,
+                    "checkedExtensions":  10,
+                    "availableAlternatives":  2,
+                    "statusCount":  1,
+                    "contactCount":  1,
+                    "eventCount":  4,
+                    "noticeCount":  3,
+                    "remarkCount":  0
+                },
+    "alternatives":  [
+                         {
+                             "domain":  "truehost.com",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through 146.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.net",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through 1479.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.ai",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through 1479.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.app",
+                             "status":  "available",
+                             "statusLabel":  "Available",
+                             "summary":  "Live RDAP lookup confirms this domain is available.",
+                             "available":  true
+                         },
+                         {
+                             "domain":  "truehost.dev",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through 1479.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.xyz",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through 1479.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.site",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through tel:+90.5327135505.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.online",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through tel:+1.4805240066.",
+                             "available":  false
+                         },
+                         {
+                             "domain":  "truehost.music",
+                             "status":  "available",
+                             "statusLabel":  "Available",
+                             "summary":  "Live RDAP lookup confirms this domain is available.",
+                             "available":  true
+                         },
+                         {
+                             "domain":  "truehost.shop",
+                             "status":  "registered",
+                             "statusLabel":  "Registered",
+                             "summary":  "Registered through 3862.",
+                             "available":  false
+                         }
+                     ],
+    "rawRdap":  {
+                    "rdapConformance":  [
+                                            "rdap_level_0",
+                                            "icann_rdap_response_profile_1",
+                                            "icann_rdap_technical_implementation_guide_1",
+                                            "redacted"
+                                        ],
+                    "notices":  [
+                                    {
+                                        "title":  "Terms of Service",
+                                        "description":  [
+                                                            "Access to RDAP information is provided to assist persons in determining the contents of a domain name registration record in the registry database. The data in this record is provided by Identity Digital or, if the record pertains to a TLD not operated by Identity Digital, then the corresponding primary Registry Operator for informational purposes only, and neither Identity Digital nor the Registry Operator guarantee its accuracy. This service is intended only for query-based access. You agree that you will use this data only for lawful purposes and that, under no circumstances will you use this data to (a) allow, enable, or otherwise support the transmission by e-mail, telephone, or facsimile of mass unsolicited, commercial advertising or solicitations to entities other than the data recipient\u0027s own existing customers; or (b) enable high volume, automated, electronic processes that send queries or data to the systems of Identity Digital, a Registrar, or Registry Operator except as reasonably necessary to register domain names or modify existing registrations. When using the RDAP service, please consider the following: the RDAP service is not a replacement for standard EPP commands to the SRS service. RDAP is not considered authoritative for registered domain objects. The RDAP service may be scheduled for downtime during production or OT\u0026E maintenance periods. Queries to the RDAP services are throttled. If too many queries are received from a single IP address within a specified time, the service will begin to reject further queries for a period of time to prevent disruption of RDAP service access. Abuse of the RDAP system through data mining is mitigated by detecting and limiting bulk query access from single sources. Where applicable, the presence of a [Non-Public Data] tag indicates that such data is not made publicly available due to applicable data privacy laws or requirements. Should you wish to contact the registrant, please refer to the RDAP records available through the registrar URL listed above. Access to non-public data may be provided, upon request, where it can be reasonably confirmed that the requester holds a specific legitimate interest and a proper legal basis for accessing the withheld data. Access to the data provided by Identity Digital can be requested by submitting a request via the form found at https://www.identity.digital/about/policies/whois-layered-access/ Identity Digital Inc. and, if applicable, the primary Registry Operators reserve the right to modify these terms at any time. By submitting this query, you agree to abide by this policy."
+                                                        ],
+                                        "links":  [
+                                                      {
+                                                          "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                          "rel":  "terms-of-service",
+                                                          "href":  "https://www.identity.digital/policies/rdds-access-policy",
+                                                          "type":  "text/html"
+                                                      }
+                                                  ]
+                                    },
+                                    {
+                                        "title":  "Status Codes",
+                                        "description":  [
+                                                            "For more information on domain status codes, please visit https://icann.org/epp"
+                                                        ],
+                                        "links":  [
+                                                      {
+                                                          "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                          "rel":  "glossary",
+                                                          "href":  "https://icann.org/epp",
+                                                          "type":  "application/rdap+json"
+                                                      }
+                                                  ]
+                                    },
+                                    {
+                                        "title":  "RDDS Inaccuracy Complaint Form",
+                                        "description":  [
+                                                            "URL of the ICANN RDDS Inaccuracy Complaint Form: https://icann.org/wicf"
+                                                        ],
+                                        "links":  [
+                                                      {
+                                                          "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                                          "rel":  "help",
+                                                          "href":  "https://icann.org/wicf",
+                                                          "type":  "application/rdap+json"
+                                                      }
+                                                  ]
+                                    }
+                                ],
+                    "ldhName":  "truehost.email",
+                    "unicodeName":  "truehost.email",
+                    "nameservers":  [
+                                        {
+                                            "ldhName":  "hugh.ns.cloudflare.com",
+                                            "unicodeName":  "hugh.ns.cloudflare.com",
+                                            "objectClassName":  "nameserver",
+                                            "handle":  "8f64d69e20fc4d19b608b162781fc15e-DONUTS",
+                                            "status":  [
+                                                           "associated"
+                                                       ]
+                                        },
+                                        {
+                                            "ldhName":  "serena.ns.cloudflare.com",
+                                            "unicodeName":  "serena.ns.cloudflare.com",
+                                            "objectClassName":  "nameserver",
+                                            "handle":  "c42e3d8f18b0409baedf3940dd7be872-DONUTS",
+                                            "status":  [
+                                                           "associated"
+                                                       ]
+                                        }
+                                    ],
+                    "secureDNS":  {
+                                      "delegationSigned":  false,
+                                      "maxSigLife":  1
+                                  },
+                    "redacted":  [
+                                     {
+                                         "name":  {
+                                                      "type":  "Registry Domain ID"
+                                                  },
+                                         "prePath":  "$.handle",
+                                         "pathLang":  "jsonpath",
+                                         "method":  "removal"
+                                     }
+                                 ],
+                    "objectClassName":  "domain",
+                    "status":  [
+                                   "client transfer prohibited"
+                               ],
+                    "events":  [
+                                   {
+                                       "eventAction":  "expiration",
+                                       "eventDate":  "2027-02-15T10:15:28.25Z"
+                                   },
+                                   {
+                                       "eventAction":  "registration",
+                                       "eventDate":  "2023-02-15T10:15:28.25Z"
+                                   },
+                                   {
+                                       "eventAction":  "last changed",
+                                       "eventDate":  "2026-04-01T10:15:59.587Z"
+                                   },
+                                   {
+                                       "eventAction":  "last update of RDAP database",
+                                       "eventDate":  "2026-04-07T20:11:24.388Z"
+                                   }
+                               ],
+                    "entities":  [
+                                     {
+                                         "vcardArray":  [
+                                                            "vcard",
+                                                            [
+                                                                [
+                                                                    "version",
+                                                                    [
+
+                                                                    ],
+                                                                    "text",
+                                                                    "4.0"
+                                                                ],
+                                                                [
+                                                                    "fn",
+                                                                    [
+
+                                                                    ],
+                                                                    "text",
+                                                                    "NameSilo, LLC"
+                                                                ]
+                                                            ]
+                                                        ],
+                                         "roles":  [
+                                                       "registrar"
+                                                   ],
+                                         "publicIds":  [
+                                                           {
+                                                               "type":  "IANA Registrar ID",
+                                                               "identifier":  "1479"
+                                                           }
+                                                       ],
+                                         "objectClassName":  "entity",
+                                         "handle":  "1479",
+                                         "entities":  [
+                                                          {
+                                                              "vcardArray":  [
+                                                                                 "vcard",
+                                                                                 [
+                                                                                     [
+                                                                                         "version",
+                                                                                         "",
+                                                                                         "text",
+                                                                                         "4.0"
+                                                                                     ],
+                                                                                     [
+                                                                                         "fn",
+                                                                                         "",
+                                                                                         "text",
+                                                                                         ""
+                                                                                     ],
+                                                                                     [
+                                                                                         "tel",
+                                                                                         "@{type=voice}",
+                                                                                         "uri",
+                                                                                         "tel:+1.6024928198"
+                                                                                     ],
+                                                                                     [
+                                                                                         "email",
+                                                                                         "",
+                                                                                         "text",
+                                                                                         "abuse@namesilo.com"
+                                                                                     ]
+                                                                                 ]
+                                                                             ],
+                                                              "roles":  [
+                                                                            "abuse"
+                                                                        ],
+                                                              "objectClassName":  "entity"
+                                                          }
+                                                      ],
+                                         "links":  [
+                                                       {
+                                                           "value":  "https://rdap.identitydigital.services/rdap/entity/1479",
+                                                           "rel":  "self",
+                                                           "href":  "https://rdap.identitydigital.services/rdap/entity/1479",
+                                                           "type":  "application/rdap+json"
+                                                       },
+                                                       {
+                                                           "value":  "https://rdap.namesilo.com",
+                                                           "rel":  "about",
+                                                           "href":  "https://rdap.namesilo.com",
+                                                           "type":  "application/rdap+json"
+                                                       }
+                                                   ]
+                                     }
+                                 ],
+                    "links":  [
+                                  {
+                                      "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                      "rel":  "related",
+                                      "href":  "https://rdap.namesilo.com/domain/truehost.email",
+                                      "type":  "application/rdap+json"
+                                  },
+                                  {
+                                      "value":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                      "rel":  "self",
+                                      "href":  "https://rdap.identitydigital.services/rdap/domain/truehost.email",
+                                      "type":  "application/rdap+json"
+                                  }
+                              ]
+                }
+}
