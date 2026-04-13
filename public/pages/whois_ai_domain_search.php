@@ -202,55 +202,13 @@ $tldAlternatives = [];
 $aiApiUrl = 'https://api.example.com/domain-ai'; 
 
 if ($hasSearch) {
-    
     $candidatePool = [];
 
-    // 1. Fetch AI Generated Names from API (If available)
-    $aiPayload = [
-        'description' => $searchRoot,
-        'limit' => 10,
-        'currency' => $selectedCurrency,
-    ];
-    $aiResult = null;
-    try {
-        $opts = [
-            'http' => [
-                'method' => 'POST',
-                'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
-                'content' => json_encode($aiPayload),
-                'timeout' => 4,
-            ]
-        ];
-        $context = stream_context_create($opts);
-        $response = @file_get_contents($aiApiUrl, false, $context);
-        if ($response !== false) {
-            $aiResult = json_decode($response, true);
-        }
-    } catch (Throwable $e) {
-        $aiResult = null;
-    }
-
-    if (is_array($aiResult) && ($aiResult['ok'] ?? false) && is_array($aiResult['items'] ?? null)) {
-        foreach ($aiResult['items'] as $item) {
-            if (isset($item['domain'])) {
-                $candidatePool[] = $item['domain'];
-            }
-        }
-    }
-
-    // 2. Gather Alternative TLDs
-    $altTlds = [];
-    foreach (whois_ai_search_supported_global_tlds() as $ext) {
-        if ($ext !== $targetTld) {
-            $altTlds[] = $searchStem . '.' . $ext;
-        }
-    }
-    shuffle($altTlds); // Randomize TLDs
-
-    // 3. Gather Smart Prefixes/Suffixes
-    $smartPrefixes = ['the', 'my', 'get', 'try', 'go', 'weare'];
+    // 1. Generate Smart Prefixes and Suffixes
+    $smartPrefixes = ['my', 'get', 'the', 'try', 'hello', 'go'];
     $smartSuffixes = ['hq', 'hub', 'app', 'online', 'yangu', 'yetu', 'kenya', 'africa'];
     $smartNames = [];
+    
     foreach ($smartPrefixes as $prefix) {
         $smartNames[] = $prefix . $searchStem . '.' . $targetTld;
     }
@@ -260,12 +218,18 @@ if ($hasSearch) {
     foreach (array_slice(whois_ai_search_domain_suffixes(), 0, 10) as $suffix) {
         $smartNames[] = $searchStem . $suffix . '.' . $targetTld;
     }
-    shuffle($smartNames); // Randomize Smart Names
+    shuffle($smartNames); 
 
-    // 4. Interleave them to create a beautifully mixed list
+    // 2. Generate Alternative TLD combinations for the base stem
+    $altTlds = whois_ai_search_supported_global_tlds();
+    $altDomains = array_map(function($t) use ($searchStem) {
+        return $searchStem . '.' . $t;
+    }, $altTlds);
+
+    // 3. Interleave them to create a beautifully mixed list
     $candidatePool = array_merge(
         $candidatePool,
-        array_slice($altTlds, 0, 12),
+        array_slice($altDomains, 0, 12),
         array_slice($smartNames, 0, 12)
     );
     
@@ -362,6 +326,11 @@ $premiumListings = is_array($premiumMarketData['listings'] ?? null) ? $premiumMa
 
 $bundleTlds = whois_ai_search_country_bundle_tlds($countryCode);
 $bundleCandidateTlds = whois_ai_search_bundle_tld_candidates($countryCode);
+
+// --- Prioritized Fallback Queue ---
+$fallbackTlds = ['pro', 'shop', 'online', 'site', 'biz', 'info', 'xyz', 'tech'];
+$allBundleCandidates = array_values(array_unique(array_merge($bundleCandidateTlds, $fallbackTlds)));
+
 $bundleItems = [];
 $bundleSubtotal = 0.0;
 $bundlePricedItems = 0;
@@ -370,18 +339,31 @@ $useTruehostBundleLookup = $countryCode === 'KE';
 $bundleTldExclusions = whois_ai_search_country_tld_exclusions($countryCode);
 $bundleSelectedTlds = [];
 
+// --- Performance Safeguard ---
+$maxLookupsAttempted = 0;
+$maxLookupLimit = 12;
+
 if ($hasSearch) {
-    foreach ($bundleCandidateTlds as $bundleTld) {
+    foreach ($allBundleCandidates as $bundleTld) {
         if (count($bundleItems) >= $bundleMaxItems) break;
+        if ($maxLookupsAttempted >= $maxLookupLimit) break;
+
         $normalizedBundleTld = strtolower(trim($bundleTld));
         $conflictingTlds = $bundleTldExclusions[$normalizedBundleTld] ?? [];
         if ($conflictingTlds !== [] && count(array_intersect($bundleSelectedTlds, $conflictingTlds)) > 0) continue;
-        
+
         $bundleDomain = whois_ai_search_bundle_domain($searchStem, $bundleTld);
         if ($bundleDomain === '') continue;
 
+        $maxLookupsAttempted++;
         $bundleLookup = $useTruehostBundleLookup ? whois_truehost_domain_lookup($bundleDomain) : whois_domain_lookup_cached($bundleDomain);
-        $bundleMeta = whois_ai_search_status_meta((string)($bundleLookup['status'] ?? 'unknown'));
+        
+        $isAvailable = (string)($bundleLookup['status'] ?? '') === 'available';
+        
+        // If it is taken, immediately skip to the next candidate in the fallback list
+        if (!$isAvailable) continue;
+
+        $bundleMeta = whois_ai_search_status_meta('available');
         $bundlePriceData = whois_truehost_tld_price($bundleTld);
         $bundlePrice = whois_ai_search_price_label($bundlePriceData, $selectedCurrency);
         $bundlePriceRaw = null;
@@ -391,8 +373,6 @@ if ($hasSearch) {
                 ? whois_currency_convert_amount((float)$bundlePriceData['raw'], 'KES', $selectedCurrency)
                 : (float)$bundlePriceData['raw'];
         }
-
-        if ((string)($bundleLookup['status'] ?? '') !== 'available') continue;
 
         if (is_numeric($bundlePriceRaw)) {
             $bundleSubtotal += (float)$bundlePriceRaw;
@@ -519,9 +499,15 @@ $formattedBundleSubtotal = function_exists('whois_currency_format') ? whois_curr
                     </div>
                     
                     <div>
-                        <a href="https://truehost.com/cloud/cart.php?a=add&domain=register&query=<?php echo urlencode($searchDomain); ?>" target="_blank" rel="noopener" class="block w-full rounded-lg bg-black px-6 py-4 text-center text-lg font-bold text-white hover:bg-neutral-800 transition-colors active:scale-[0.98]">
-                            Make It Yours
-                        </a>
+                        <?php if ($lookupStatus === 'available'): ?>
+                            <a href="https://truehost.com/cloud/cart.php?a=add&domain=register&query=<?php echo urlencode($searchDomain); ?>" target="_blank" rel="noopener" class="block w-full rounded-lg bg-black px-6 py-4 text-center text-lg font-bold text-white hover:bg-neutral-800 transition-colors active:scale-[0.98]">
+                                Make It Yours
+                            </a>
+                        <?php else: ?>
+                            <a href="whois_broker.php?domain=<?php echo urlencode($searchDomain); ?>" class="block w-full rounded-lg bg-amber-400 px-6 py-4 text-center text-lg font-bold text-black hover:bg-amber-300 transition-colors active:scale-[0.98]">
+                                Hire a Broker
+                            </a>
+                        <?php endif; ?>
                         <div class="mt-4 rounded-lg bg-neutral-50 p-4">
                             <span class="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Why it's great</span>
                             <p class="text-sm text-neutral-700 leading-snug">
