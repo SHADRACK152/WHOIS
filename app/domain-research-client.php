@@ -122,7 +122,7 @@ function whois_domainr_status(string $domain): array
                 : [],
         ]);
 
-        $responseBody = file_get_contents($url, false, $context);
+        $responseBody = @file_get_contents($url, false, $context);
 
         if ($responseBody === false) {
             return [

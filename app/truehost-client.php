@@ -152,7 +152,7 @@ function whois_truehost_request(string $action, array $fields = []): array
                 : [],
         ]);
 
-        $responseBody = file_get_contents($endpoint, false, $context);
+        $responseBody = @file_get_contents($endpoint, false, $context);
 
         if ($responseBody !== false) {
             $statusCode = 0;
@@ -273,7 +273,7 @@ function whois_truehost_tld_pricing_from_page(): array
                     : [],
             ]);
 
-            $html = file_get_contents($pageUrl, false, $context);
+            $html = @file_get_contents($pageUrl, false, $context);
 
             if ($html === false) {
                 throw new RuntimeException('Truehost pricing page request failed.');

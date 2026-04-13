@@ -144,7 +144,7 @@ function whois_ai_http_post_json(string $url, array $payload, string $apiKey, in
                 : [],
         ]);
 
-        $responseBody = file_get_contents($url, false, $context);
+        $responseBody = @file_get_contents($url, false, $context);
 
         if ($responseBody === false) {
             throw new RuntimeException('Grok request failed.');

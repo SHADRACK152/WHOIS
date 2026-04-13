@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+ini_set('max_execution_time', 0);
+
 
 function whois_domain_normalize(string $value): string
 {
@@ -67,7 +69,24 @@ function whois_http_get_json(string $url): array
                 : [],
         ]);
 
-        $responseBody = file_get_contents($url, false, $context);
+
+        // Add a timeout to file_get_contents (10 seconds)
+        $timeout = 10;
+        $streamContext = stream_context_create(array_merge_recursive(
+            $options,
+            [
+                'http' => [
+                    'timeout' => $timeout,
+                ],
+                'ssl' => $insecureSsl
+                    ? [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ]
+                    : [],
+            ]
+        ));
+        $responseBody = @file_get_contents($url, false, $streamContext);
 
         if ($responseBody === false) {
             throw new RuntimeException('Lookup request failed.');
@@ -212,10 +231,19 @@ function whois_whois_query_server(string $server, string $query, int $timeout = 
     stream_set_timeout($stream, $timeout);
     fwrite($stream, $query . "\r\n");
 
+
     $response = '';
+    $startTime = microtime(true);
+    $maxReadTime = $timeout > 0 ? $timeout : 10;
 
     while (!feof($stream)) {
-        $chunk = fread($stream, 8192);
+        // Hard timeout: abort if total read time exceeds maxReadTime seconds
+        if ((microtime(true) - $startTime) > $maxReadTime) {
+            fclose($stream);
+            throw new RuntimeException('WHOIS server read timed out after ' . $maxReadTime . ' seconds.');
+        }
+
+        $chunk = @fread($stream, 8192);
 
         if ($chunk === false) {
             break;
@@ -223,11 +251,11 @@ function whois_whois_query_server(string $server, string $query, int $timeout = 
 
         if ($chunk === '') {
             $meta = stream_get_meta_data($stream);
-
             if (!empty($meta['timed_out'])) {
                 break;
             }
-
+            // Sleep briefly to avoid busy-waiting
+            usleep(100000); // 0.1s
             continue;
         }
 
@@ -235,6 +263,11 @@ function whois_whois_query_server(string $server, string $query, int $timeout = 
     }
 
     fclose($stream);
+
+    // If the total read time exceeded the max, throw an error (for Windows)
+    if ((microtime(true) - $startTime) > $maxReadTime) {
+        throw new RuntimeException('WHOIS server read timed out after ' . $maxReadTime . ' seconds (Windows fallback).');
+    }
 
     return $response;
 }

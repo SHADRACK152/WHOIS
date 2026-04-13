@@ -1,11 +1,26 @@
 <?php
 
 declare(strict_types=1);
+// Robust error and shutdown handling: always return JSON
+set_error_handler(function($errno, $errstr) { /* suppress output */ });
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== null) {
+        if (!headers_sent()) {
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        echo json_encode([
+            'ok' => false,
+            'error' => 'Fatal error: ' . $error['message'],
+        ]);
+        exit;
+    }
+});
 
-require __DIR__ . '/../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
 require __DIR__ . '/../../app/grok-client.php';
-require __DIR__ . '/../../app/truehost-client.php';
-require __DIR__ . '/../../app/currency.php';
+require_once __DIR__ . '/../../app/truehost-client.php';
+require_once __DIR__ . '/../../app/currency.php';
 
 $rawInput = file_get_contents('php://input');
 $payload = [];
@@ -105,9 +120,9 @@ function whois_ai_name_generator_slug(string $name): string
 }
 
 try {
+
     $instruction = 'Generate 15 short and brandable business names for this idea: ' . $description
         . '. Return only the names, one per line, no numbering, no punctuation, no explanations.';
-
 
     $ai = whois_ai_request('domain_name_generator', $instruction, []);
     // Debug: log raw AI output and extraction results
@@ -125,8 +140,13 @@ try {
         FILE_APPEND
     );
 
+    // Fallback: If extraction fails, return a valid JSON error with the raw AI output for debugging
     if ($rawNames === []) {
-        throw new RuntimeException('No usable names were generated.');
+        whois_json([
+            'ok' => false,
+            'error' => 'No usable names were generated. AI output was: ' . substr((string)($ai['output'] ?? ''), 0, 500),
+            'raw_output' => (string)($ai['output'] ?? ''),
+        ], 200);
     }
 
     $tldSequence = ['com', 'shop', 'online', 'co', 'net', 'ai'];
@@ -136,28 +156,21 @@ try {
         if (count($items) >= $limit) {
             break;
         }
-
         $slug = whois_ai_name_generator_slug($rawName);
-
         if ($slug === '') {
             continue;
         }
-
         $tld = $tldSequence[$index % count($tldSequence)];
         $domain = $slug . '.' . $tld;
         $lookup = whois_truehost_domain_lookup($domain);
         $status = strtolower((string) ($lookup['status'] ?? 'unknown'));
         $priceData = whois_truehost_tld_price($tld);
-
         $price = 'Price unavailable';
-
         if (is_array($priceData) && isset($priceData['raw']) && is_numeric($priceData['raw'])) {
             $converted = whois_currency_convert_amount((float) $priceData['raw'], 'KES', $currency);
             $price = whois_currency_format_amount($converted, $currency);
         }
-
         $purchasable = $status === 'available';
-
         $items[] = [
             'name' => $rawName,
             'domain' => $domain,

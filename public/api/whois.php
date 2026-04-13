@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
+ini_set('max_execution_time', 0);
 
-require __DIR__ . '/../../app/bootstrap.php';
-require __DIR__ . '/../../app/domain-lookup.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/domain-lookup.php';
 
 $input = trim((string) ($_GET['domain'] ?? $_GET['query'] ?? $_GET['q'] ?? ''));
 
@@ -13,7 +14,15 @@ if ($input === '') {
     ], 400);
 }
 
-$lookup = whois_domain_lookup_cached($input);
+$lookup = null;
+try {
+    $lookup = whois_domain_lookup_cached($input);
+} catch (Throwable $exception) {
+    whois_json([
+        'ok' => false,
+        'error' => 'Domain lookup failed: ' . $exception->getMessage(),
+    ], 500);
+}
 $domain = (string) ($lookup['domain'] ?? whois_domain_normalize($input));
 $root = $domain !== '' ? (preg_replace('/\.[^.]+$/', '', $domain) ?? $domain) : '';
 $stem = preg_replace('/[^a-z0-9]/', '', strtolower($root)) ?? '';

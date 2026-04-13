@@ -1,51 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/domain-lookup.php';
+require_once __DIR__ . '/currency.php';
+require_once __DIR__ . '/truehost-client.php';
+require_once __DIR__ . '/grok-client.php';
+
+// --- Safe Currency Fallbacks ---
+// These ensure the tool doesn't crash if currency.php is missing these functions
+
+if (!function_exists('whois_currency_normalize_code')) {
+    function whois_currency_normalize_code(string $code, string $fallback = 'USD'): string {
+        $code = strtoupper(trim($code));
+        return $code === '' ? $fallback : $code;
+    }
+}
+
+if (!function_exists('whois_currency_convert_amount')) {
+    function whois_currency_convert_amount(float $amount, string $from, string $to): float {
+        if ($from === $to) {
+            return $amount;
+        }
+        // Basic fallback conversions
+        if ($from === 'USD' && $to === 'KES') {
+            return $amount * 130.0;
+        }
+        if ($from === 'KES' && $to === 'USD') {
+            return $amount / 130.0;
+        }
+        return $amount;
+    }
+}
+
+if (!function_exists('whois_currency_format_amount')) {
+    function whois_currency_format_amount(float $amount, string $currency): string {
+        if ($currency === 'USD') {
+            return '$' . number_format($amount, 2);
+        }
+        if ($currency === 'KES') {
+            return 'Ksh' . number_format($amount, 2);
+        }
+        return $currency . ' ' . number_format($amount, 2);
+    }
+}
+
+
 // --- Grok AI Integration for Domain Price Checking ---
 function getAIValuation(array $domainData): array {
-    $apiKey = whois_ai_config()['apiKey'];
-    $apiUrl = whois_ai_config()['baseUrl'] . '/chat/completions';
+    $config = function_exists('whois_ai_config') ? whois_ai_config() : [];
+    $apiKey = $config['apiKey'] ?? null;
+    $apiUrl = isset($config['baseUrl']) ? rtrim($config['baseUrl'], '/') . '/chat/completions' : null;
+    
     if (!$apiKey || !$apiUrl) return ['error' => 'AI unavailable'];
 
-    // Build master prompt
-    $prompt = <<<PROMPT
-You are a professional domain name valuation expert.
-A domain has already been evaluated using a rule-based scoring engine.
-Your job is to refine the valuation using human-like reasoning, not to ignore the base data.
+    // Release session lock to prevent browser hanging on long AI requests
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
 
-INPUT:
+    // Define the strict system persona for Grok
+    $systemPrompt = <<<SYSTEM
+You are an elite, world-class domain name broker and valuation expert (equivalent to a senior broker at Sedo or GoDaddy).
+You possess an exhaustive memory of historical domain name sales from the past 50 years, including major 7-figure and 8-figure "category killer" transactions.
+You MUST output ONLY valid JSON. No conversational text, no markdown formatting, no explanations outside the JSON object.
+SYSTEM;
+
+    // Build the dynamic user prompt
+    $userPrompt = <<<USER
+We have generated a baseline algorithmic price for a domain, but algorithms often fail on ultra-premium, historic, or highly nuanced domains.
+YOUR MISSION: Act as the ultimate human-like expert check. If the algorithm is underpricing a historic or premium domain, OVERRIDE IT using your market knowledge.
+
+INPUT ASSET:
 Domain: {$domainData['domain']}
-Base Price Range: {$domainData['base_price']}
-Score: {$domainData['score']}/100
+Algorithmic Base Price Range: {$domainData['base_price']}
+Heuristic Score: {$domainData['score']}/100
 
-Breakdown:
-Length Score: {$domainData['length_score']}
-Keyword Score: {$domainData['keyword_score']}
-Brandability Score: {$domainData['brand_score']}
-TLD Score: {$domainData['tld_score']}
-Comparable Sales Score: {$domainData['comp_score']}
+EVALUATION INSTRUCTIONS:
+1. HISTORICAL CHECK: Query your knowledge base. Has this domain (or very similar ones) sold publicly in the past 50 years? (e.g., fund.com sold for $12M, sex.com for $13M). If so, anchor your valuation to real historical market data.
+2. CATEGORY KILLERS: If the domain is a massive global industry-defining word (car, hotel, crypto, health, fund, bank) on a .com, value it in the multi-millions (8-figures if necessary). Completely ignore the algorithmic baseline if it is too low.
+3. SHORT DOMAINS: For 2-letter, 3-letter, or 4-letter dictionary .com, .ai, or .io domains, price them using current high-end market data.
+4. STANDARD DOMAINS: For normal brandable or multi-word domains, you may stay closer to the baseline but adjust based on modern startup naming trends (AI, SaaS, fintech, etc.).
+5. Be brutally realistic. Do not over-value junk, and do not under-value world-class domains.
 
-INSTRUCTIONS:
-Analyze the domain’s brandability, market appeal, and potential real-world use.
-Consider startup trends (AI, SaaS, fintech, etc.).
-Adjust the price range ONLY if justified.
-Do NOT give extreme or unrealistic prices.
-Keep adjustments within a reasonable range of the base price.
-
-OUTPUT FORMAT (STRICT JSON):
+OUTPUT FORMAT (STRICT JSON ONLY):
 {
-"adjusted_price_min": number,
-"adjusted_price_max": number,
-"confidence_score": number,
-"reasoning": "short explanation",
-"tags": ["brandable", "tech", "low_keyword", etc]
+  "adjusted_price_min": number,
+  "adjusted_price_max": number,
+  "confidence_score": number,
+  "reasoning": "Explain your valuation. Explicitly mention historic sales (e.g., 'Fund.com sold for $12M in 2008') or market trends if applicable.",
+  "tags": ["category-killer", "ultra-premium", "finance"]
 }
-PROMPT;
+USER;
 
     $payload = [
-        'model' => whois_ai_config()['model'],
+        'model' => $config['model'] ?? 'grok-1',
         'messages' => [
-            ['role' => 'system', 'content' => $prompt],
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => $userPrompt],
         ],
-        'temperature' => 0.35,
-        'max_tokens' => 400,
+        'temperature' => 0.2, // Lower temperature makes Grok more analytical and factual
+        'max_tokens' => 500,
     ];
 
     $ch = curl_init($apiUrl);
@@ -58,27 +113,44 @@ PROMPT;
             'Content-Type: application/json',
             'Accept: application/json',
         ],
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_TIMEOUT => 15, // Reduced timeout so it fails faster instead of hanging forever
+        CURLOPT_SSL_VERIFYPEER => false, // Disabled for Localhost compatibility (WAMP/XAMPP)
+        CURLOPT_SSL_VERIFYHOST => 0,
     ]);
     $response = curl_exec($ch);
     $err = curl_error($ch);
     curl_close($ch);
+    
     if ($response === false || $err) return ['error' => 'AI request failed: ' . $err];
 
     $json = json_decode($response, true);
     $content = $json['choices'][0]['message']['content'] ?? '';
+    
+    // Strip markdown formatting if Grok wraps the JSON
+    $content = trim($content);
+    $content = preg_replace('/^[`]{3}(?:json)?\s*/i', '', $content) ?? $content;
+    $content = preg_replace('/\s*[`]{3}$/', '', $content) ?? $content;
+
     $ai = json_decode($content, true);
     if (!is_array($ai) || !isset($ai['adjusted_price_min'], $ai['adjusted_price_max'])) {
         return ['error' => 'Invalid AI response', 'raw' => $content];
     }
 
-    // Clamp values
-    [$baseMin, $baseMax] = array_map('floatval', explode('-', str_replace(['$', ' '], '', $domainData['base_price'])));
-    $aiMin = max($baseMin * 0.5, (float)$ai['adjusted_price_min']);
-    $aiMax = min($baseMax * 2, (float)$ai['adjusted_price_max']);
-    $ai['adjusted_price_min'] = $aiMin;
-    $ai['adjusted_price_max'] = $aiMax;
+    // Safely parse base price to provide a fallback
+    $cleanBase = str_replace(['$', ' ', ','], '', $domainData['base_price']);
+    $parts = explode('-', $cleanBase);
+    $baseMin = isset($parts[0]) ? floatval($parts[0]) : 0.0;
+    $baseMax = isset($parts[1]) ? floatval($parts[1]) : $baseMin;
+
+    // Trust the AI's valuation entirely, only enforcing an absolute minimum of $20
+    $aiMin = max(20.0, (float)$ai['adjusted_price_min']);
+    $aiMax = max($aiMin, (float)$ai['adjusted_price_max']);
+    
+    // Fallback just in case the AI bugs out and returns 0
+    if ($aiMin <= 20.0 && $baseMin > 50.0) {
+        $aiMin = $baseMin;
+        $aiMax = $baseMax;
+    }
 
     return [
         'ai_price' => '$' . number_format($aiMin) . ' - $' . number_format($aiMax),
@@ -88,14 +160,7 @@ PROMPT;
         'raw' => $ai,
     ];
 }
-<?php
 
-declare(strict_types=1);
-
-require_once __DIR__ . '/domain-lookup.php';
-require_once __DIR__ . '/currency.php';
-require_once __DIR__ . '/truehost-client.php';
-require_once __DIR__ . '/grok-client.php';
 
 function whois_appraisal_catalog(): array
 {
@@ -298,6 +363,30 @@ function whois_domain_appraisal_landmark_sale(string $domain): ?array
             'year' => 2010,
             'source' => 'Public record',
             'note' => 'Historic benchmark for headline domain transactions.',
+        ],
+        'insurance.com' => [
+            'soldPriceUsd' => 35600000,
+            'year' => 2010,
+            'source' => 'Public record',
+            'note' => 'Industry-defining category killer.',
+        ],
+        'voice.com' => [
+            'soldPriceUsd' => 30000000,
+            'year' => 2019,
+            'source' => 'Public record',
+            'note' => 'Major modern ultra-premium transaction.',
+        ],
+        'fund.com' => [
+            'soldPriceUsd' => 12000000,
+            'year' => 2008,
+            'source' => 'Public record',
+            'note' => 'Premium financial category killer.',
+        ],
+        'sex.com' => [
+            'soldPriceUsd' => 13000000,
+            'year' => 2010,
+            'source' => 'Public record',
+            'note' => 'Adult industry category killer.',
         ],
     ];
 
@@ -619,9 +708,9 @@ function whois_domain_appraisal_ai_insight(array $analysis): array
         'confidence' => 72,
     ];
 
-    $config = whois_ai_config();
+    $config = function_exists('whois_ai_config') ? whois_ai_config() : [];
 
-    if ($config['apiKey'] === null) {
+    if (($config['apiKey'] ?? null) === null) {
         return $fallback;
     }
 
@@ -639,11 +728,15 @@ function whois_domain_appraisal_ai_insight(array $analysis): array
     );
 
     try {
+        if (!function_exists('whois_ai_request')) {
+            return $fallback;
+        }
+
         $response = whois_ai_request('appraisal', $prompt, $analysis);
         $content = trim((string) ($response['output'] ?? ''));
 
-        $content = preg_replace('/^```(?:json)?\s*/i', '', $content) ?? $content;
-        $content = preg_replace('/\s*```$/', '', $content) ?? $content;
+        $content = preg_replace('/^[`]{3}(?:json)?\s*/i', '', $content) ?? $content;
+        $content = preg_replace('/\s*[`]{3}$/', '', $content) ?? $content;
 
         $decoded = json_decode($content, true);
 
@@ -681,9 +774,9 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $letterCount = strlen($letters);
     $syllableCount = whois_domain_appraisal_count_syllables($root);
     $category = whois_domain_appraisal_keyword_matches($root);
-    $lookup = whois_truehost_domain_lookup($domain);
+    $lookup = function_exists('whois_truehost_domain_lookup') ? whois_truehost_domain_lookup($domain) : [];
     $landmarkSale = whois_domain_appraisal_landmark_sale($domain);
-    $tldPrice = whois_truehost_tld_price($tld);
+    $tldPrice = function_exists('whois_truehost_tld_price') ? whois_truehost_tld_price($tld) : null;
     $tldPriceRaw = is_array($tldPrice) && isset($tldPrice['raw']) && is_numeric($tldPrice['raw']) ? (float) $tldPrice['raw'] : null;
 
     $lengthScore = whois_domain_appraisal_length_score($letterCount);
@@ -726,50 +819,95 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $isShort = $letterCount <= 4;
     $isSingleWord = whois_domain_appraisal_word_count($root) === 1;
 
-    // --- Robust dictionary word detection ---
+    // --- Robust, Memory-Safe Dictionary Check ---
     $isDictionary = false;
     if (function_exists('pspell_new')) {
-        $pspell = pspell_new('en');
-        if ($pspell && pspell_check($pspell, $root)) {
-            $isDictionary = true;
-        }
-    } else {
-        // Fallback: check against a local wordlist (words_alpha.txt, 370k+ English words)
-        static $wordlist = null;
-        if ($wordlist === null) {
-            $wordlist = [];
-            $dictPath = __DIR__ . '/words_alpha.txt';
-            if (is_readable($dictPath)) {
-                $lines = file($dictPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                foreach ($lines as $w) {
-                    $wordlist[strtolower(trim($w))] = true;
-                }
-            }
-        }
-        if ($wordlist && isset($wordlist[strtolower($root)])) {
+        $pspell = @pspell_new('en');
+        if ($pspell && @pspell_check($pspell, $root)) {
             $isDictionary = true;
         }
     }
+    
+    // If pspell isn't available, stream the file instead of loading 370k words into RAM
+    if (!$isDictionary) {
+        $dictPath = __DIR__ . '/words_alpha.txt';
+        if (is_readable($dictPath)) {
+            $handle = @fopen($dictPath, 'r');
+            if ($handle) {
+                $targetWord = strtolower($root);
+                while (($line = fgets($handle)) !== false) {
+                    if (trim($line) === $targetWord) {
+                        $isDictionary = true;
+                        break;
+                    }
+                }
+                fclose($handle);
+            }
+        }
+    }
 
-    // Heuristic: treat as ultra-premium if single, short, highly brandable, or dictionary word
     if ($isMajorTld && $isSingleWord && ($isShort || $score >= 8.8 || $isDictionary)) {
         $isUltraPremium = true;
-        // Set floor based on TLD and length
+        
+        // Category Killers: Expanded list to catch major industries even if local dictionary fails
+        $categoryKillers = [
+            'car', 'cars', 'auto', 'insurance', 'voice', 'crypto', 'hotel', 'hotels', 'flight', 'flights', 
+            'shop', 'pay', 'bank', 'health', 'law', 'bet', 'casino', 'sex', 'news', 'sports', 'job', 'jobs', 
+            'home', 'homes', 'fund', 'funds', 'capital', 'wealth', 'loan', 'loans', 'credit', 'money', 
+            'invest', 'stock', 'stocks', 'trade', 'app', 'web', 'cloud', 'host', 'tech', 'music', 'video', 
+            'tv', 'game', 'games', 'play', 'art', 'book', 'books', 'mail', 'email', 'chat', 'porn', 'drug', 
+            'drugs', 'med', 'meds', 'doctor', 'lawyer', 'attorney', 'tax', 'gold', 'oil', 'energy', 'solar', 
+            'power', 'water', 'food', 'wine', 'beer', 'drink', 'meat', 'pet', 'pets', 'dog', 'dogs', 'cat', 
+            'cats', 'baby', 'mom', 'dad', 'kids', 'toy', 'toys', 'travel', 'trip', 'tour', 'tours', 'ticket', 
+            'tickets', 'ship', 'boat', 'fly', 'fit', 'gym', 'run', 'golf', 'ski', 'poker', 'slots', 'gamble'
+        ];
+        $isCategoryKiller = in_array(strtolower($root), $categoryKillers, true);
+
         if ($tld === 'com') {
-            $ultraPremiumFloor = $isShort ? 1500000 : 500000;
-        } elseif ($tld === 'ai' || $tld === 'io') {
-            $ultraPremiumFloor = $isShort ? 350000 : 120000;
+            if ($letterCount <= 2) {
+                // 2-letter .coms are inherently 7-figures. If it's a word (e.g., "go.com"), it's 8-figures.
+                $ultraPremiumFloor = $isDictionary || $isCategoryKiller ? 10000000 : 2000000;
+            } elseif ($letterCount === 3) {
+                // 3-letter .coms
+                $ultraPremiumFloor = $isDictionary || $isCategoryKiller ? 5000000 : 500000;
+            } elseif ($letterCount === 4) {
+                // 4-letter .coms
+                $ultraPremiumFloor = $isDictionary || $isCategoryKiller ? 1500000 : 150000;
+            } else {
+                $ultraPremiumFloor = $isDictionary || $isCategoryKiller ? 500000 : 25000;
+            }
+            
+            // Category killer overrides all standard length logic
+            if ($isCategoryKiller) {
+                $ultraPremiumFloor = max($ultraPremiumFloor, 10000000); // Absolute floor of $10M for global industry keywords
+            }
+        } elseif ($tld === 'ai') {
+            if ($letterCount <= 2) {
+                $ultraPremiumFloor = $isDictionary ? 2000000 : 500000;
+            } elseif ($letterCount === 3) {
+                $ultraPremiumFloor = $isDictionary ? 800000 : 150000;
+            } else {
+                $ultraPremiumFloor = $isDictionary ? 250000 : 10000;
+            }
+            if ($isCategoryKiller) {
+                $ultraPremiumFloor = max($ultraPremiumFloor, 2000000);
+            }
+        } elseif ($tld === 'io' || $tld === 'co') {
+            $ultraPremiumFloor = $isShort ? ($isDictionary ? 500000 : 50000) : ($isDictionary ? 100000 : 5000);
+            if ($isCategoryKiller) {
+                $ultraPremiumFloor = max($ultraPremiumFloor, 800000);
+            }
         } elseif ($tld === 'net' || $tld === 'org') {
-            $ultraPremiumFloor = $isShort ? 90000 : 35000;
+            $ultraPremiumFloor = $isShort ? ($isDictionary ? 250000 : 40000) : ($isDictionary ? 80000 : 4000);
+            if ($isCategoryKiller) {
+                $ultraPremiumFloor = max($ultraPremiumFloor, 500000);
+            }
         } else {
             $ultraPremiumFloor = $isShort ? 25000 : 9000;
         }
-        // If dictionary word, boost floor
-        if ($isDictionary) {
-            $ultraPremiumFloor *= 1.5;
-        }
+        
         $midUsd = max($midUsd, $ultraPremiumFloor);
-        $spread = min($spread, 0.13);
+        $spread = min($spread, 0.15); // Ultra-premiums have slightly wider spreads due to subjective buyer value
     }
 
     if (is_array($landmarkSale)) {
@@ -821,6 +959,8 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         default => $lookupSummary,
     };
 
+    $config = function_exists('whois_ai_config') ? whois_ai_config() : [];
+
     $infrastructure = [
         [
             'label' => 'Registry lookup',
@@ -836,9 +976,9 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         ],
         [
             'label' => 'AI appraisal memo',
-            'status' => whois_ai_config()['apiKey'] !== null ? 'ACTIVE' : 'FALLBACK',
-            'tone' => whois_ai_config()['apiKey'] !== null ? 'success' : 'warning',
-            'details' => whois_ai_config()['apiKey'] !== null ? 'Groq can provide a narrative explanation alongside the score.' : 'AI commentary is using the local heuristic fallback.',
+            'status' => ($config['apiKey'] ?? null) !== null ? 'ACTIVE' : 'FALLBACK',
+            'tone' => ($config['apiKey'] ?? null) !== null ? 'success' : 'warning',
+            'details' => ($config['apiKey'] ?? null) !== null ? 'Groq can provide a narrative explanation alongside the score.' : 'AI commentary is using the local heuristic fallback.',
         ],
         [
             'label' => 'Marketplace path',
@@ -1094,5 +1234,3 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         'displayCurrency' => $displayCurrency,
     ];
 }
-
-// No closing PHP tag and no trailing whitespace
