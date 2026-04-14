@@ -210,9 +210,9 @@ $searchInput = trim((string)($_GET['query'] ?? ''));
 $tld = trim((string)($_GET['tld'] ?? ''));
 $selectedCurrency = whois_currency_normalize_code((string)($_GET['currency'] ?? 'USD'), 'USD');
 
-// SMART DETECTION: Is this a domain search or a business description?
-// If it contains spaces or has more than 1 word, treat it as a description for the AI.
-$isDescriptionSearch = (str_word_count($searchInput) > 1 || str_contains($searchInput, ' '));
+// SEARCH TYPE TOGGLE
+$searchType = $_GET['search_type'] ?? 'standard';
+$isDescriptionSearch = ($searchType === 'ai');
 $hasSearch = $searchInput !== '';
 
 $searchDomain = '';
@@ -444,21 +444,40 @@ $formattedBundleSubtotal = function_exists('whois_currency_format') ? whois_curr
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-primary tracking-tight mb-6">
                 Search. Discover.<br/>Own Your Brand.
             </h1>
-            <p class="text-on-surface-variant text-base md:text-lg mb-12 max-w-2xl mx-auto font-medium">
-                Enter a specific domain to check availability, <span class="font-bold text-black border-b-2 border-indigo-400">OR describe your business idea</span> and let our AI generate the perfect name for you.
+            <p class="text-on-surface-variant text-base md:text-lg mb-8 max-w-2xl mx-auto font-medium">
+                Search directly to check domain availability and alternatives, <span class="font-bold text-black border-b-2 border-indigo-400">OR use the AI mode</span> to brainstorm perfect ideas.
             </p>
             
             <form id="ai-domain-search-form" action="whois_ai_domain_search.php" method="GET" class="relative max-w-4xl mx-auto mb-6">
                 <input type="hidden" name="currency" value="<?php echo htmlspecialchars($selectedCurrency, ENT_QUOTES, 'UTF-8'); ?>"/>
+                
+                <!-- Explicit Toggle UI -->
+                <div class="flex justify-center mb-6">
+                    <div class="bg-surface-container-high p-1.5 rounded-full inline-flex items-center shadow-inner">
+                        <label class="cursor-pointer relative m-0">
+                            <input type="radio" name="search_type" value="standard" class="peer hidden" <?php echo $searchType !== 'ai' ? 'checked' : ''; ?> onchange="updateSearchMode()">
+                            <div class="px-6 py-2.5 rounded-full transition-all duration-300 peer-checked:bg-white peer-checked:text-primary peer-checked:shadow-sm flex items-center gap-2 text-on-surface-variant font-bold text-sm">
+                                <span class="material-symbols-outlined text-[18px]">search</span> Standard Search
+                            </div>
+                        </label>
+                        <label class="cursor-pointer relative m-0">
+                            <input type="radio" name="search_type" value="ai" class="peer hidden" <?php echo $searchType === 'ai' ? 'checked' : ''; ?> onchange="updateSearchMode()">
+                            <div class="px-6 py-2.5 rounded-full transition-all duration-300 peer-checked:bg-white peer-checked:text-indigo-700 peer-checked:shadow-sm flex items-center gap-2 text-on-surface-variant font-bold text-sm">
+                                <span class="material-symbols-outlined text-[18px]">auto_awesome</span> AI Generator
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="bg-surface-container-lowest border-2 border-outline-variant/40 p-2 rounded-full shadow-sm focus-within:ring-4 focus-within:ring-black/10 focus-within:border-black transition-all duration-300">
                     <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
                         <div class="flex items-center flex-1 min-w-0">
-                            <span class="material-symbols-outlined ml-4 text-outline">auto_awesome</span>
+                            <span id="search-icon" class="material-symbols-outlined ml-4 text-outline"><?php echo $searchType === 'ai' ? 'auto_awesome' : 'search'; ?></span>
                             <input 
                                 id="ai-domain-search-input" 
                                 name="query" 
                                 class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 text-lg font-medium text-primary placeholder:text-neutral-400" 
-                                placeholder="e.g., trovalabs.com OR 'I sell organic dog food'" 
+                                placeholder="<?php echo $searchType === 'ai' ? 'Describe your business... e.g., \'I sell organic dog food\'' : 'Enter domain or brand name, e.g., trovalabs.com'; ?>" 
                                 type="text" 
                                 value="<?php echo htmlspecialchars($searchInput, ENT_QUOTES, 'UTF-8'); ?>"
                                 required
@@ -777,6 +796,20 @@ $formattedBundleSubtotal = function_exists('whois_currency_format') ? whois_curr
     <?php require __DIR__ . '/_footer.php'; ?>
 
     <script>
+        function updateSearchMode() {
+            var searchType = document.querySelector('input[name="search_type"]:checked').value;
+            var input = document.getElementById('ai-domain-search-input');
+            var icon = document.getElementById('search-icon');
+            
+            if (searchType === 'ai') {
+                input.placeholder = "Describe your business... e.g., 'I sell organic dog food'";
+                icon.textContent = "auto_awesome";
+            } else {
+                input.placeholder = "Enter domain or brand name, e.g., trovalabs.com";
+                icon.textContent = "search";
+            }
+        }
+
         // Show spinner on Search
         document.getElementById('ai-domain-search-form').addEventListener('submit', function(e) {
             document.getElementById('ai-search-spinner').style.display = 'flex';
