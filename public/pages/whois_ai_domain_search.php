@@ -159,10 +159,6 @@ function whois_ai_search_bundle_domain(string $stem, string $tld): string
 
 // --- NEW: AI Generative Naming Function ---
 function whois_generate_ai_business_names(string $description): array {
-    // Use the correct HTTP endpoint for the API call
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $apiUrl = $scheme . '://' . $host . '/api/ai.php';
     $fallback = [
         ['domain' => 'brandhq.com', 'reason' => 'A strong, authoritative brandable name.'],
         ['domain' => 'getbrand.com', 'reason' => 'Action-oriented and easy to remember.'],
@@ -170,37 +166,21 @@ function whois_generate_ai_business_names(string $description): array {
         ['domain' => 'brandapp.com', 'reason' => 'Perfect if your business has a digital platform.']
     ];
 
-    if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
-
-    $payload = [
-        'workflow' => 'business_idea',
-        'input' => $description
-    ];
-
-    $opts = [
-        'http' => [
-            'method' => 'POST',
-            'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
-            'content' => json_encode($payload),
-            'timeout' => 25,
-            'ignore_errors' => true,
-        ]
-    ];
-    $context = stream_context_create($opts);
-    $response = @file_get_contents($apiUrl, false, $context);
-    if ($response === false) return $fallback;
-
-    $decoded = json_decode($response, true);
-    if (!is_array($decoded) || !($decoded['ok'] ?? false) || !isset($decoded['output'])) return $fallback;
-
-    // Try to extract JSON array of domain ideas from the output
-    $output = $decoded['output'];
-    $matches = [];
-    if (preg_match('/\[.*\]/s', $output, $matches)) {
-        $jsonBlock = $matches[0];
-        $ideas = json_decode($jsonBlock, true);
-        if (is_array($ideas)) return $ideas;
+    try {
+        require_once __DIR__ . '/../../app/grok-client.php';
+        $result = whois_ai_request('business_idea', $description);
+        $output = $result['output'] ?? '';
+        
+        $matches = [];
+        if (preg_match('/\[.*\]/s', $output, $matches)) {
+            $jsonBlock = $matches[0];
+            $ideas = json_decode($jsonBlock, true);
+            if (is_array($ideas)) return $ideas;
+        }
+    } catch (Throwable $e) {
+        error_log("AI Domain Search Error: " . $e->getMessage());
     }
+
     return $fallback;
 }
 

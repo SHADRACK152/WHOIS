@@ -52,9 +52,9 @@ function whois_ai_workflows(): array
         ],
         'business_idea' => [
             'label' => 'Business Idea',
-            'temperature' => 0.65,
-            'maxTokens' => 800,
-            'system' => 'You are a venture architect. Generate a clear concept summary, target audience, monetization path, and domain naming ideas for the user input. Keep the response concise but useful.',
+            'temperature' => 0.7,
+            'maxTokens' => 1200,
+            'system' => 'You are a naming strategist and venture architect. Based on the business description, brainstorm as many great, highly relevant, and sensible domain name ideas as possible (generate at least 15 to 20 suggestions). The options should make sense for the business described, be brandable, and use various TLDs (.com, .io, .ai, .co, .net, etc). You MUST output ONLY a valid JSON array of objects. Each object must have a "domain" string (the full domain) and a "reason" string (a 1 sentence compelling reason why it fits). Do not include any intro, outro, or markdown code blocks, just the raw JSON array starting with [ and ending with ].',
         ],
         'domain_name_generator' => [
             'label' => 'Domain Name Generator',
