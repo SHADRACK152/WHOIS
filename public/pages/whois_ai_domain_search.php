@@ -158,7 +158,7 @@ function whois_ai_search_bundle_domain(string $stem, string $tld): string
 }
 
 // --- NEW: AI Generative Naming Function ---
-function whois_generate_ai_business_names(string $description): array {
+function whois_generate_ai_business_names(string $description, string $countryCode = ''): array {
     $fallback = [
         ['domain' => 'brandhq.com', 'reason' => 'A strong, authoritative brandable name.'],
         ['domain' => 'getbrand.com', 'reason' => 'Action-oriented and easy to remember.'],
@@ -168,7 +168,8 @@ function whois_generate_ai_business_names(string $description): array {
 
     try {
         require_once __DIR__ . '/../../app/grok-client.php';
-        $result = whois_ai_request('business_idea', $description);
+        $context = $countryCode !== '' ? ['UserLocation_CountryCode' => $countryCode] : [];
+        $result = whois_ai_request('business_idea', $description, $context);
         $output = $result['output'] ?? '';
         
         $matches = [];
@@ -220,7 +221,7 @@ if ($hasSearch) {
         // ==========================================
         // FLOW 1: AI BUSINESS DESCRIPTION SEARCH 
         // ==========================================
-        $generatedIdeas = whois_generate_ai_business_names($searchInput);
+        $generatedIdeas = whois_generate_ai_business_names($searchInput, $countryCode);
         
         foreach ($generatedIdeas as $idea) {
             $candidateDomain = strtolower(trim((string)($idea['domain'] ?? '')));
