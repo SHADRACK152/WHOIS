@@ -234,8 +234,8 @@ if ($hasSearch) {
 
             $status = strtolower((string)($lookup['status'] ?? 'unknown'));
             
-            // Only suggest available domains
-            if ($status !== 'available') {
+            // Only suggest domains that are not explicitly registered or unavailable
+            if ($status === 'registered' || $status === 'unavailable') {
                 continue;
             }
 
