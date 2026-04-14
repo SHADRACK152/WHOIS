@@ -233,6 +233,12 @@ if ($hasSearch) {
             }
 
             $status = strtolower((string)($lookup['status'] ?? 'unknown'));
+            
+            // Only suggest available domains
+            if ($status !== 'available') {
+                continue;
+            }
+
             $meta = whois_ai_search_status_meta($status);
             $candidateTld = substr($candidateDomain, (int)strrpos($candidateDomain, '.') + 1);
             
