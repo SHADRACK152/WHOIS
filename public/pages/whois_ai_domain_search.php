@@ -355,7 +355,6 @@ if ($hasSearch) {
         $bundleDomain = whois_ai_search_bundle_domain($searchStem, $bundleTld);
         if ($bundleDomain === '') continue;
 
-<<<<<<< HEAD
         $maxLookupsAttempted++;
         $bundleLookup = $useTruehostBundleLookup ? whois_truehost_domain_lookup($bundleDomain) : whois_domain_lookup_cached($bundleDomain);
         
@@ -365,10 +364,6 @@ if ($hasSearch) {
         if (!$isAvailable) continue;
 
         $bundleMeta = whois_ai_search_status_meta('available');
-=======
-        $bundleLookup = whois_domain_lookup_cached($bundleDomain);
-        $bundleMeta = whois_ai_search_status_meta((string)($bundleLookup['status'] ?? 'unknown'));
->>>>>>> 99be3f4 (feat: integrate permanent AI domain intelligence and marketplace UX optimizations)
         $bundlePriceData = whois_truehost_tld_price($bundleTld);
         $bundlePrice = whois_ai_search_price_label($bundlePriceData, $selectedCurrency);
         $bundlePriceRaw = null;
