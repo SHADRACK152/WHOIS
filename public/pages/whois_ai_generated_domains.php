@@ -10,78 +10,7 @@ $idea = trim((string) ($_GET['idea'] ?? ''));
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>WHOIS | AI Generated Domain Ideas</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "tertiary": "#3a3c3c",
-                        "on-surface": "#1a1c1c",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#f3f3f3",
-                        "on-secondary-fixed": "#1b1c1c",
-                        "on-primary-fixed": "#ffffff",
-                        "on-background": "#1a1c1c",
-                        "primary-container": "#3b3b3b",
-                        "inverse-primary": "#c6c6c6",
-                        "inverse-on-surface": "#f1f1f1",
-                        "tertiary-fixed-dim": "#454747",
-                        "error": "#ba1a1a",
-                        "surface-tint": "#5e5e5e",
-                        "surface-container-highest": "#e2e2e2",
-                        "on-primary-container": "#ffffff",
-                        "surface-container-high": "#e8e8e8",
-                        "primary-fixed-dim": "#474747",
-                        "tertiary-fixed": "#5d5f5f",
-                        "on-tertiary-fixed-variant": "#e2e2e2",
-                        "on-tertiary": "#e2e2e2",
-                        "on-secondary": "#ffffff",
-                        "secondary-fixed-dim": "#acabab",
-                        "secondary-container": "#d5d4d4",
-                        "surface": "#f9f9f9",
-                        "primary-fixed": "#5e5e5e",
-                        "inverse-surface": "#2f3131",
-                        "on-tertiary-fixed": "#ffffff",
-                        "tertiary-container": "#737575",
-                        "on-error-container": "#410002",
-                        "error-container": "#ffdad6",
-                        "surface-variant": "#e2e2e2",
-                        "on-error": "#ffffff",
-                        "background": "#f9f9f9",
-                        "surface-dim": "#dadada",
-                        "outline-variant": "#c6c6c6",
-                        "on-secondary-container": "#1b1c1c",
-                        "on-surface-variant": "#474747",
-                        "surface-container": "#eeeeee",
-                        "primary": "#000000",
-                        "on-secondary-fixed-variant": "#3b3b3c",
-                        "on-tertiary-container": "#ffffff",
-                        "on-primary-fixed-variant": "#e2e2e2",
-                        "secondary": "#5e5e5e",
-                        "outline": "#777777",
-                        "on-primary": "#e2e2e2",
-                        "surface-bright": "#f9f9f9",
-                        "secondary-fixed": "#c7c6c6"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "1rem",
-                        "full": "9999px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    }
-                },
-            },
-        }
-    </script>
+<?php require __DIR__ . '/_head.php'; ?>
 <style>
   .hero-gradient {
     background:

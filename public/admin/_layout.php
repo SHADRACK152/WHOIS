@@ -10,6 +10,7 @@ function whois_admin_nav_items(): array
         ['key' => 'overview', 'label' => 'Overview', 'icon' => 'dashboard', 'href' => 'overview.php'],
         ['key' => 'submissions', 'label' => 'Submissions', 'icon' => 'inbox', 'href' => 'submissions.php'],
         ['key' => 'marketplace', 'label' => 'Marketplace', 'icon' => 'storefront', 'href' => 'marketplace.php'],
+        ['key' => 'articles', 'label' => 'Insights CMS', 'icon' => 'article', 'href' => 'articles.php'],
         ['key' => 'analytics', 'label' => 'Analytics', 'icon' => 'query_stats', 'href' => 'analytics.php'],
         ['key' => 'settings', 'label' => 'Settings', 'icon' => 'settings', 'href' => 'settings.php'],
     ];
@@ -34,72 +35,12 @@ function whois_admin_render_page(array $page, callable $contentRenderer): void
 <title><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></title>
 <link rel="icon" type="image/png" href="../assets/img/favicon.png"/>
 <link rel="apple-touch-icon" href="../assets/img/whois-icon.png"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-dim": "#dadada",
-                        "secondary-container": "#d5d4d4",
-                        "tertiary-fixed-dim": "#454747",
-                        "on-secondary-fixed": "#1b1c1c",
-                        "on-secondary-fixed-variant": "#3b3b3c",
-                        "on-surface-variant": "#474747",
-                        "surface-bright": "#f9f9f9",
-                        "on-tertiary-fixed": "#ffffff",
-                        "secondary": "#5e5e5e",
-                        "surface-container-lowest": "#ffffff",
-                        "inverse-primary": "#c6c6c6",
-                        "on-background": "#1a1c1c",
-                        "background": "#f9f9f9",
-                        "surface-container-high": "#e8e8e8",
-                        "on-primary": "#e2e2e2",
-                        "primary-container": "#3b3b3b",
-                        "primary-fixed": "#5e5e5e",
-                        "outline": "#777777",
-                        "on-secondary-container": "#1b1c1c",
-                        "on-primary-fixed-variant": "#e2e2e2",
-                        "surface-variant": "#e2e2e2",
-                        "on-primary-fixed": "#ffffff",
-                        "on-surface": "#1a1c1c",
-                        "inverse-on-surface": "#f1f1f1",
-                        "surface-container": "#eeeeee",
-                        "tertiary-fixed": "#5d5f5f",
-                        "error-container": "#ffdad6",
-                        "primary-fixed-dim": "#474747",
-                        "on-tertiary": "#e2e2e2",
-                        "surface-container-highest": "#e2e2e2",
-                        "surface": "#f9f9f9",
-                        "on-primary-container": "#ffffff",
-                        "inverse-surface": "#2f3131",
-                        "primary": "#000000",
-                        "tertiary-container": "#737575",
-                        "secondary-fixed-dim": "#acabab",
-                        "tertiary": "#3a3c3c",
-                        "error": "#ba1a1a"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "2xl": "1.25rem",
-                        "3xl": "1.5rem",
-                        "full": "9999px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    }
-                },
-            },
-        }
-    </script>
+<script src="/assets/js/tailwind.cdn.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet"/>
+<script src="/assets/js/tailwind-site-config.js"></script>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -302,10 +243,11 @@ function whois_admin_render_page(array $page, callable $contentRenderer): void
     <nav class="p-4 space-y-2">
       <?php foreach ($navItems as $item): ?>
         <?php $isActive = $active === $item['key']; ?>
-        <a class="sidebar-nav-link flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors <?php echo $isActive ? 'bg-surface-container-low text-black border border-outline-variant/30' : 'text-secondary hover:bg-surface-container-low'; ?>" href="<?php echo htmlspecialchars((string) $item['href'], ENT_QUOTES, 'UTF-8'); ?>">
-          <span class="material-symbols-outlined text-sm"><?php echo htmlspecialchars((string) $item['icon'], ENT_QUOTES, 'UTF-8'); ?></span>
-          <span class="sidebar-label"><?php echo htmlspecialchars((string) $item['label'], ENT_QUOTES, 'UTF-8'); ?></span>
+        <a class="sidebar-nav-link flex items-center gap-4 rounded-xl px-5 py-4 text-sm font-bold transition-all active:scale-[0.98] <?php echo $isActive ? 'bg-surface-container-low text-black border border-outline-variant/40 shadow-sm' : 'text-secondary hover:bg-surface-container-low hover:text-black'; ?>" href="<?php echo htmlspecialchars((string) $item['href'], ENT_QUOTES, 'UTF-8'); ?>">
+          <span class="material-symbols-outlined text-lg"><?php echo htmlspecialchars((string) $item['icon'], ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="sidebar-label uppercase tracking-widest text-[11px]"><?php echo htmlspecialchars((string) $item['label'], ENT_QUOTES, 'UTF-8'); ?></span>
         </a>
+
       <?php endforeach; ?>
     </nav>
 
@@ -334,13 +276,14 @@ function whois_admin_render_page(array $page, callable $contentRenderer): void
           <?php endif; ?>
         </div>
         <div class="flex items-center gap-3">
-          <a class="hidden sm:inline-flex rounded-full border border-outline-variant/40 bg-surface-container-lowest px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-surface-container-low transition-colors" href="logout.php">Logout</a>
-          <button class="inline-flex items-center gap-2 rounded-full border border-outline-variant/40 bg-surface-container-lowest px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-surface-container-low transition-colors" type="button" data-sidebar-toggle>
+          <a class="hidden sm:inline-flex rounded-full border border-outline-variant/40 bg-surface-container-lowest px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-black hover:bg-surface-container-low transition-all active:scale-95 shadow-sm" href="logout.php">Logout</a>
+          <button class="inline-flex items-center gap-2 rounded-full border border-outline-variant/40 bg-surface-container-lowest px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-black hover:bg-surface-container-low transition-all active:scale-95 shadow-sm" type="button" data-sidebar-toggle>
             <span class="material-symbols-outlined text-sm">collapse_content</span>
             <span class="sidebar-action-text">Collapse</span>
           </button>
-          <a class="hidden sm:inline-flex rounded-full bg-primary px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-on-primary hover:bg-primary-container transition-colors" href="overview.php">Overview</a>
+          <a class="hidden sm:inline-flex rounded-full bg-primary px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-on-primary hover:bg-primary-container transition-all active:scale-95 shadow-md" href="overview.php">Overview</a>
         </div>
+
       </div>
     </header>
 

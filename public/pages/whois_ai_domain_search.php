@@ -138,7 +138,7 @@ function whois_ai_search_status_meta(string $status): array
 
 function whois_ai_search_bundle_tld_candidates(string $country): array
 {
-    return ['com', 'net', 'org', 'co', 'io', 'ai'];
+    return ['com', 'net', 'org', 'co', 'io', 'ai', 'site', 'shop', 'xyz', 'store', 'online', 'africa', 'luxury', 'agency', 'club', 'biz', 'life'];
 }
 
 function whois_ai_search_country_tld_exclusions(string $country): array
@@ -238,7 +238,7 @@ if ($hasSearch) {
     shuffle($candidatePool);
     
     // Cap at 25 for synchronous performance
-    $candidatePool = array_slice($candidatePool, 0, 25);
+    $candidatePool = array_slice($candidatePool, 0, 16);
 
     foreach ($candidatePool as $candidateDomain) {
         if ($candidateDomain === $searchDomain) continue;
@@ -355,6 +355,7 @@ if ($hasSearch) {
         $bundleDomain = whois_ai_search_bundle_domain($searchStem, $bundleTld);
         if ($bundleDomain === '') continue;
 
+<<<<<<< HEAD
         $maxLookupsAttempted++;
         $bundleLookup = $useTruehostBundleLookup ? whois_truehost_domain_lookup($bundleDomain) : whois_domain_lookup_cached($bundleDomain);
         
@@ -364,6 +365,10 @@ if ($hasSearch) {
         if (!$isAvailable) continue;
 
         $bundleMeta = whois_ai_search_status_meta('available');
+=======
+        $bundleLookup = whois_domain_lookup_cached($bundleDomain);
+        $bundleMeta = whois_ai_search_status_meta((string)($bundleLookup['status'] ?? 'unknown'));
+>>>>>>> 99be3f4 (feat: integrate permanent AI domain intelligence and marketplace UX optimizations)
         $bundlePriceData = whois_truehost_tld_price($bundleTld);
         $bundlePrice = whois_ai_search_price_label($bundlePriceData, $selectedCurrency);
         $bundlePriceRaw = null;
@@ -412,33 +417,8 @@ $formattedBundleSubtotal = function_exists('whois_currency_format') ? whois_curr
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>WHOIS | AI-Powered Domain Search<?php echo $hasSearch ? ' - ' . htmlspecialchars($searchDomain, ENT_QUOTES, 'UTF-8') : ''; ?></title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#000000",
-                        "surface": "#f9f9f9",
-                        "on-surface": "#1a1c1c",
-                        "outline": "#777777",
-                        "outline-variant": "#c6c6c6",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#f3f3f3",
-                        "surface-container-high": "#e8e8e8",
-                        "on-surface-variant": "#474747"
-                    },
-                    fontFamily: {
-                        headline: ["Manrope"],
-                        body: ["Inter"]
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
+<?php require __DIR__ . '/_head.php'; ?>
+                <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }

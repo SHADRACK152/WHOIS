@@ -280,16 +280,10 @@ function whois_truehost_tld_pricing_from_page(): array
             }
         }
     } catch (Throwable $exception) {
-        $cache = [
-            'currency' => [],
-            'pricing' => [],
-            'source' => 'fallback-unavailable',
-        ];
-
-        return $cache;
+        $html = false;
     }
 
-    $text = html_entity_decode(strip_tags((string) $html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = $html !== false ? html_entity_decode(strip_tags((string) $html), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '';
     $currency = [
         'code' => 'KES',
         'prefix' => 'Ksh ',
@@ -297,25 +291,59 @@ function whois_truehost_tld_pricing_from_page(): array
     ];
     $pricing = [];
 
-    if (preg_match_all('/\.(co\.ke|com|ai|io|co|net|xyz|org|ke|shop|top)\s+Ksh\s+([0-9][0-9.,]*)/i', $text, $matches, PREG_SET_ORDER) > 0) {
+    if ($text !== '' && preg_match_all('/\.(co\.ke|com|ai|io|co|net|xyz|org|ke|shop|top|app|dev)\s+Ksh\s+([0-9][0-9.,]*)/i', $text, $matches, PREG_SET_ORDER) > 0) {
         foreach ($matches as $match) {
             $tld = strtolower($match[1]);
-
             $pricing[$tld] = [
-                'register' => [
-                    '1' => $match[2],
-                ],
-                'renew' => [
-                    '1' => $match[2],
-                ],
+                'register' => ['1' => str_replace(',', '', (string)$match[2])],
+                'renew' => ['1' => str_replace(',', '', (string)$match[2])],
             ];
         }
+    }
+
+    // Default rigid fallback pricing if API AND Scraper both fail completely
+    if (empty($pricing)) {
+        $pricing = [
+            'com' => ['register' => ['1' => '1300'], 'renew' => ['1' => '1500']],
+            'net' => ['register' => ['1' => '1400'], 'renew' => ['1' => '1600']],
+            'org' => ['register' => ['1' => '1450'], 'renew' => ['1' => '1600']],
+            'co.ke' => ['register' => ['1' => '599'], 'renew' => ['1' => '999']],
+            'ke' => ['register' => ['1' => '4999'], 'renew' => ['1' => '4999']],
+            'ai' => ['register' => ['1' => '10500'], 'renew' => ['1' => '11000']],
+            'io' => ['register' => ['1' => '4999'], 'renew' => ['1' => '5500']],
+            'co' => ['register' => ['1' => '3500'], 'renew' => ['1' => '4000']],
+            'xyz' => ['register' => ['1' => '250'], 'renew' => ['1' => '1500']],
+            'shop' => ['register' => ['1' => '300'], 'renew' => ['1' => '4000']],
+            'app' => ['register' => ['1' => '1900'], 'renew' => ['1' => '2500']],
+            'dev' => ['register' => ['1' => '1900'], 'renew' => ['1' => '2500']],
+            'online' => ['register' => ['1' => '150'], 'renew' => ['1' => '4500']],
+            'store' => ['register' => ['1' => '190'], 'renew' => ['1' => '5000']],
+            'site' => ['register' => ['1' => '150'], 'renew' => ['1' => '4000']],
+            'tech' => ['register' => ['1' => '600'], 'renew' => ['1' => '6500']],
+            'info' => ['register' => ['1' => '400'], 'renew' => ['1' => '3500']],
+            'club' => ['register' => ['1' => '1500'], 'renew' => ['1' => '1800']],
+            'live' => ['register' => ['1' => '350'], 'renew' => ['1' => '3500']],
+            'in' => ['register' => ['1' => '900'], 'renew' => ['1' => '1200']],
+            'wedding' => ['register' => ['1' => '4500'], 'renew' => ['1' => '5000']],
+            'art' => ['register' => ['1' => '1800'], 'renew' => ['1' => '2000']],
+            
+            
+            'africa' => ['register' => ['1' => '3500'], 'renew' => ['1' => '4000']],
+            'luxury' => ['register' => ['1' => '55000'], 'renew' => ['1' => '55000']],
+            'agency' => ['register' => ['1' => '2500'], 'renew' => ['1' => '2500']],
+            'blog' => ['register' => ['1' => '3000'], 'renew' => ['1' => '3000']],
+            'biz' => ['register' => ['1' => '1500'], 'renew' => ['1' => '2000']],
+            'website' => ['register' => ['1' => '199'], 'renew' => ['1' => '2500']],
+            'rocks' => ['register' => ['1' => '1200'], 'renew' => ['1' => '1500']],
+            'life' => ['register' => ['1' => '350'], 'renew' => ['1' => '3500']],
+            'me' => ['register' => ['1' => '2000'], 'renew' => ['1' => '2500']]
+        ];
     }
 
     $cache = [
         'currency' => $currency,
         'pricing' => $pricing,
-        'source' => 'page',
+        'source' => $html !== false ? 'page' : 'fallback-static',
     ];
 
     return $cache;
@@ -334,7 +362,10 @@ function whois_truehost_tld_price(string $tld, string $mode = 'register'): ?arra
     $pricingEntry = $pricing['pricing'][$tld] ?? null;
 
     if (!is_array($pricingEntry)) {
-        return null;
+        $rawValue = '2500';
+        $currency = ['code' => 'KES', 'prefix' => 'Ksh ', 'suffix' => ''];
+        $formatted = trim($currency['prefix'] . $rawValue . $currency['suffix']);
+        return ['tld' => $tld, 'raw' => $rawValue, 'formatted' => $formatted, 'currency' => $currency];
     }
 
     $values = $pricingEntry[$mode] ?? null;
@@ -351,11 +382,13 @@ function whois_truehost_tld_price(string $tld, string $mode = 'register'): ?arra
     } elseif (is_scalar($values)) {
         $rawValue = (string) $values;
     } else {
-        return null;
+        $rawValue = '2500';
+        $currency = ['code' => 'KES', 'prefix' => 'Ksh ', 'suffix' => ''];
     }
 
     if ($rawValue === '') {
-        return null;
+        $rawValue = '2500';
+        $currency = ['code' => 'KES', 'prefix' => 'Ksh ', 'suffix' => ''];
     }
 
     $prefix = trim((string) ($currency['prefix'] ?? ''));

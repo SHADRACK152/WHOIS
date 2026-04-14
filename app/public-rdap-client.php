@@ -48,9 +48,9 @@ function whois_public_rdap_lookup_domain(string $domain): array
     if ($statusCode === 404) {
         return whois_domain_lookup_empty_result(
             $domain,
-            'unknown',
-            'Lookup unavailable',
-            'The public RDAP proxy returned no registration record.',
+            'available',
+            'Available',
+            'The public RDAP proxy indicates this domain is available.',
             null,
             null
         );

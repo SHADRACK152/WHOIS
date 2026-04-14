@@ -38,35 +38,8 @@ $availabilityBadgeClass = $lookupStatus === 'available' ? 'bg-emerald-100 text-e
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Domain Appraisal | <?php echo htmlspecialchars($domain, ENT_QUOTES, 'UTF-8'); ?></title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#000000",
-                        surface: "#f9f9f9",
-                        "on-surface": "#1a1c1c",
-                        "on-surface-variant": "#474747",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#f3f3f3",
-                        "surface-container": "#eeeeee",
-                        outline: "#777777",
-                        "outline-variant": "#c6c6c6",
-                        secondary: "#5e5e5e"
-                    },
-                    fontFamily: {
-                        headline: ["Manrope"],
-                        body: ["Inter"]
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
+<?php require __DIR__ . '/_head.php'; ?>
+                    <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
         body { font-family: 'Inter', sans-serif; background-color: #f6f7f9; }
         h1, h2, h3, h4, .headline { font-family: 'Manrope', sans-serif; }

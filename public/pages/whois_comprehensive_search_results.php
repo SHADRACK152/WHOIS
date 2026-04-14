@@ -362,41 +362,13 @@ header('Content-Type: text/html; charset=utf-8');
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>WHOIS Comprehensive Results | <?php echo htmlspecialchars($searchDomain, ENT_QUOTES, 'UTF-8'); ?></title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Orbitron:wght@500;700;900&family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=Bebas+Neue&family=Space+Grotesk:wght@500;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <style>
+<?php require __DIR__ . '/_head.php'; ?>
+                <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         body { font-family: 'Inter', sans-serif; background-color: #f9f9f9; }
         h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
     </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#000000",
-                        surface: "#f9f9f9",
-                        "on-surface": "#1a1c1c",
-                        "on-surface-variant": "#474747",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#f3f3f3",
-                        "surface-container": "#eeeeee",
-                        "surface-container-high": "#e8e8e8",
-                        outline: "#777777",
-                        "outline-variant": "#c6c6c6",
-                        secondary: "#5e5e5e"
-                    },
-                    fontFamily: {
-                        headline: ["Manrope"],
-                        body: ["Inter"]
-                    }
-                }
-            }
-        }
-    </script>
-</head>
+    </head>
 <body class="bg-surface text-on-surface selection:bg-black selection:text-white pb-24">
     <?php require __DIR__ . '/_top_nav.php'; ?>
 

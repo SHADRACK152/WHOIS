@@ -8,78 +8,7 @@ header('Content-Type: text/html; charset=utf-8');
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AI Business Architect | ARCHITECT AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "tertiary": "#3a3c3c",
-                    "secondary-fixed": "#c7c6c6",
-                    "secondary": "#5e5e5e",
-                    "on-primary": "#e2e2e2",
-                    "on-error": "#ffffff",
-                    "surface-container-lowest": "#ffffff",
-                    "on-surface": "#1a1c1c",
-                    "on-secondary-fixed-variant": "#3b3b3c",
-                    "on-secondary-fixed": "#1b1c1c",
-                    "on-primary-fixed": "#ffffff",
-                    "on-tertiary": "#e2e2e2",
-                    "error-container": "#ffdad6",
-                    "surface-dim": "#dadada",
-                    "on-primary-fixed-variant": "#e2e2e2",
-                    "error": "#ba1a1a",
-                    "tertiary-fixed": "#5d5f5f",
-                    "surface-container-low": "#f3f3f3",
-                    "surface-bright": "#f9f9f9",
-                    "surface": "#f9f9f9",
-                    "primary": "#000000",
-                    "primary-container": "#3b3b3b",
-                    "on-secondary-container": "#1b1c1c",
-                    "secondary-fixed-dim": "#acabab",
-                    "inverse-on-surface": "#f1f1f1",
-                    "on-tertiary-fixed-variant": "#e2e2e2",
-                    "on-error-container": "#410002",
-                    "surface-container-high": "#e8e8e8",
-                    "background": "#f9f9f9",
-                    "tertiary-fixed-dim": "#454747",
-                    "outline": "#777777",
-                    "on-tertiary-fixed": "#ffffff",
-                    "outline-variant": "#c6c6c6",
-                    "tertiary-container": "#737575",
-                    "inverse-primary": "#c6c6c6",
-                    "surface-tint": "#5e5e5e",
-                    "on-background": "#1a1c1c",
-                    "on-secondary": "#ffffff",
-                    "secondary-container": "#d5d4d4",
-                    "surface-variant": "#e2e2e2",
-                    "on-surface-variant": "#474747",
-                    "inverse-surface": "#2f3131",
-                    "primary-fixed": "#5e5e5e",
-                    "on-tertiary-container": "#ffffff",
-                    "surface-container": "#eeeeee",
-                    "on-primary-container": "#ffffff",
-                    "surface-container-highest": "#e2e2e2",
-                    "primary-fixed-dim": "#474747"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "fontFamily": {
-                    "headline": ["Manrope"],
-                    "body": ["Inter"],
-                    "label": ["Inter"]
-            }
-          },
-        },
-      }
-    </script>
+<?php require __DIR__ . '/_head.php'; ?>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;

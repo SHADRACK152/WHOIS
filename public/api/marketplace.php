@@ -52,6 +52,35 @@ if (is_string($rawInput) && trim($rawInput) !== '') {
 $data = array_merge($_POST, $payload);
 $action = strtolower(trim((string) ($data['action'] ?? '')));
 
+if ($action === 'update_item') {
+    $itemId = (int) ($data['item_id'] ?? 0);
+    if ($itemId <= 0) {
+        whois_json(['ok' => false, 'error' => 'Item id is required.'], 400);
+    }
+    
+    $item = whois_db_update_marketplace_item($itemId, [
+        'listing_type' => $data['listing_type'] ?? null,
+        'background_image_url' => $data['background_image_url'] ?? null,
+        'price' => $data['price'] ?? null,
+        'appraisal_price' => $data['appraisal_price'] ?? null,
+        'badge_text' => $data['badge_text'] ?? null,
+        'categories' => $data['categories'] ?? null,
+        'icon_name' => $data['icon_name'] ?? null,
+        'ai_description' => $data['ai_description'] ?? null,
+        'ai_why_bullets' => $data['ai_why_bullets'] ?? null,
+        'ai_technical_log' => $data['ai_technical_log'] ?? null,
+        'ai_use_cases' => $data['ai_use_cases'] ?? null,
+    ]);
+
+
+
+    if (!$item) {
+        whois_json(['ok' => false, 'error' => 'Marketplace item not found.'], 404);
+    }
+
+    whois_json(['ok' => true, 'item' => $item]);
+}
+
 if ($action !== 'mark_sold') {
     whois_json([
         'ok' => false,

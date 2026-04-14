@@ -8,79 +8,7 @@ header('Content-Type: text/html; charset=utf-8');
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Partner With Us | WHOIS</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-primary": "#e2e2e2",
-                        "on-background": "#1a1c1c",
-                        "secondary": "#5e5e5e",
-                        "primary-fixed": "#5e5e5e",
-                        "on-secondary-fixed-variant": "#3b3b3c",
-                        "surface-container": "#eeeeee",
-                        "tertiary-container": "#737575",
-                        "on-tertiary-container": "#ffffff",
-                        "surface-bright": "#f9f9f9",
-                        "surface-container-high": "#e8e8e8",
-                        "surface": "#f9f9f9",
-                        "tertiary-fixed-dim": "#454747",
-                        "surface-variant": "#e2e2e2",
-                        "on-secondary": "#ffffff",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-fixed-dim": "#acabab",
-                        "primary-fixed-dim": "#474747",
-                        "outline-variant": "#c6c6c6",
-                        "error": "#ba1a1a",
-                        "on-primary-fixed-variant": "#e2e2e2",
-                        "secondary-container": "#d5d4d4",
-                        "on-primary-fixed": "#ffffff",
-                        "background": "#f9f9f9",
-                        "surface-dim": "#dadada",
-                        "on-tertiary": "#e2e2e2",
-                        "inverse-primary": "#c6c6c6",
-                        "on-primary-container": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "on-error-container": "#410002",
-                        "on-tertiary-fixed": "#ffffff",
-                        "surface-tint": "#5e5e5e",
-                        "on-error": "#ffffff",
-                        "primary": "#000000",
-                        "on-surface-variant": "#474747",
-                        "on-secondary-container": "#1b1c1c",
-                        "surface-container-highest": "#e2e2e2",
-                        "on-secondary-fixed": "#1b1c1c",
-                        "surface-container-low": "#f3f3f3",
-                        "inverse-surface": "#2f3131",
-                        "tertiary-fixed": "#5d5f5f",
-                        "inverse-on-surface": "#f1f1f1",
-                        "primary-container": "#3b3b3b",
-                        "outline": "#777777",
-                        "tertiary": "#3a3c3c",
-                        "secondary-fixed": "#c7c6c6",
-                        "on-tertiary-fixed-variant": "#e2e2e2",
-                        "on-surface": "#1a1c1c"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    }
-                },
-            },
-        }
-    </script>
+<?php require __DIR__ . '/_head.php'; ?>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
@@ -212,30 +140,105 @@ header('Content-Type: text/html; charset=utf-8');
 </div>
 </div>
 </section>
-<!-- CTA Section -->
+<!-- Contact / Partner Form -->
 <section class="max-w-7xl mx-auto px-6 lg:px-12">
-<div class="bg-black rounded-3xl p-12 lg:p-20 relative overflow-hidden text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-12">
-<div class="relative z-10 max-w-xl">
-<h2 class="font-headline text-4xl lg:text-5xl font-extrabold text-white tracking-tighter mb-6">Ready to scale your domain business?</h2>
-<p class="text-neutral-400 text-lg">Partner with WHOIS today and gain access to the tools used by industry leaders worldwide.</p>
-</div>
-<div class="relative z-10">
-<button class="bg-white text-black px-10 py-5 rounded-full font-headline font-black text-lg transition-transform hover:scale-105 active:scale-95 shadow-xl">Get Started Now</button>
-</div>
-<!-- Decorative Abstract Background -->
-<div class="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
-<svg class="w-full h-full" viewbox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-<path d="M45.7,-78.2C58.3,-71.4,67,-57.8,74.1,-43.8C81.2,-29.8,86.7,-15.4,85.2,-1.5C83.7,12.4,75.2,25.8,66.3,37.5C57.4,49.2,48.1,59.2,36.5,67.6C24.9,76,11,82.8,-3.4,88.7C-17.8,94.6,-32.7,99.6,-45.5,95.5C-58.3,91.4,-69.1,78.2,-77.3,64.2C-85.5,50.2,-91.1,35.4,-92.4,20.4C-93.7,5.4,-90.7,-9.8,-84.9,-23.7C-79.1,-37.6,-70.5,-50.2,-58.8,-57.8C-47.1,-65.4,-32.3,-68.1,-18.4,-74.6C-4.5,-81.1,8.5,-91.4,24.1,-90.5C39.7,-89.6,57.9,-77.5,45.7,-78.2Z" fill="#FFFFFF" transform="translate(200 200)"></path>
-</svg>
-</div>
-</div>
+  <div class="grid lg:grid-cols-2 gap-16 items-start">
+    <div class="bg-black rounded-3xl p-12 lg:p-16 relative overflow-hidden">
+      <div class="relative z-10">
+        <h2 class="font-headline text-4xl font-extrabold text-white tracking-tighter mb-6">Ready to build together?</h2>
+        <p class="text-neutral-400 text-lg mb-10">Partner with WHOIS today and gain access to the tools, data, and distribution network used by industry leaders worldwide.</p>
+        <div class="space-y-5">
+          <div class="flex items-center gap-4 text-neutral-300"><span class="material-symbols-outlined text-neutral-400">check_circle</span><span class="text-sm">Priority partner onboarding — dedicated manager</span></div>
+          <div class="flex items-center gap-4 text-neutral-300"><span class="material-symbols-outlined text-neutral-400">check_circle</span><span class="text-sm">API key + marketplace integration access</span></div>
+          <div class="flex items-center gap-4 text-neutral-300"><span class="material-symbols-outlined text-neutral-400">check_circle</span><span class="text-sm">White-label UI kit for branded deployments</span></div>
+          <div class="flex items-center gap-4 text-neutral-300"><span class="material-symbols-outlined text-neutral-400">check_circle</span><span class="text-sm">Revenue sharing agreement for referrals</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-3xl p-10 border border-outline-variant/20 shadow-sm">
+      <p class="text-[10px] font-bold uppercase tracking-[0.24em] text-outline mb-2">Inquire Now</p>
+      <h3 class="font-headline text-3xl font-bold text-primary mb-8">Send Us a Message</h3>
+      <div id="partner-success" class="hidden mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 flex items-start gap-3">
+        <span class="material-symbols-outlined text-emerald-600 shrink-0">check_circle</span>
+        <p id="partner-success-msg" class="text-sm font-medium text-emerald-800"></p>
+      </div>
+      <div id="partner-error" class="hidden mb-6 rounded-2xl bg-rose-50 border border-rose-200 p-4 flex items-start gap-3">
+        <span class="material-symbols-outlined text-rose-500 shrink-0">error</span>
+        <p id="partner-error-msg" class="text-sm font-medium text-rose-700"></p>
+      </div>
+      <form id="partner-form" class="space-y-5 text-sm" novalidate>
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-semibold mb-1.5" for="partner-name">Full Name <span class="text-rose-500">*</span></label>
+            <input id="partner-name" name="name" type="text" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all" placeholder="Jane Smith" required autocomplete="name"/>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1.5" for="partner-email">Email <span class="text-rose-500">*</span></label>
+            <input id="partner-email" name="email" type="email" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all" placeholder="jane@company.com" required autocomplete="email"/>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1.5" for="partner-type">Partnership Type</label>
+          <select id="partner-type" name="type" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 bg-white focus:ring-2 focus:ring-black outline-none transition-all">
+            <option value="partner">Partner Integration</option>
+            <option value="broker">Domain Broker Collaboration</option>
+            <option value="contact">General Inquiry</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1.5" for="partner-subject">Subject</label>
+          <input id="partner-subject" name="subject" type="text" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all" placeholder="Brief topic description"/>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1.5" for="partner-message">Message <span class="text-rose-500">*</span></label>
+          <textarea id="partner-message" name="message" rows="5" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all resize-none" placeholder="Describe your goals, company, and how you'd like to partner..." required></textarea>
+        </div>
+        <button id="partner-submit" type="submit" class="w-full rounded-full bg-black px-8 py-4 font-bold uppercase tracking-widest text-white hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
+          <span id="partner-btn-text">Send Message</span>
+          <span id="partner-btn-spinner" class="hidden material-symbols-outlined text-sm">progress_activity</span>
+        </button>
+      </form>
+    </div>
+  </div>
 </section>
 </main>
-<!-- Footer -->
 <?php require __DIR__ . '/_footer.php'; ?>
+<script>
+(function () {
+  var form = document.getElementById('partner-form');
+  var btnText = document.getElementById('partner-btn-text');
+  var spinner = document.getElementById('partner-btn-spinner');
+  var submitBtn = document.getElementById('partner-submit');
+  var successBanner = document.getElementById('partner-success');
+  var successMsg = document.getElementById('partner-success-msg');
+  var errorBanner = document.getElementById('partner-error');
+  var errorMsg = document.getElementById('partner-error-msg');
+  if (!form) return;
+  function showSuccess(msg) { errorBanner.classList.add('hidden'); successMsg.textContent = msg; successBanner.classList.remove('hidden'); form.reset(); }
+  function showError(msg) { successBanner.classList.add('hidden'); errorMsg.textContent = msg; errorBanner.classList.remove('hidden'); }
+  function setLoading(on) { submitBtn.disabled = on; btnText.textContent = on ? 'Sending...' : 'Send Message'; spinner.classList.toggle('hidden', !on); }
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    successBanner.classList.add('hidden'); errorBanner.classList.add('hidden');
+    var name    = document.getElementById('partner-name').value.trim();
+    var email   = document.getElementById('partner-email').value.trim();
+    var type    = document.getElementById('partner-type').value;
+    var subject = document.getElementById('partner-subject').value.trim();
+    var message = document.getElementById('partner-message').value.trim();
+    if (!name) { showError('Please enter your full name.'); return; }
+    if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
+    if (!message) { showError('Please write a message before submitting.'); return; }
+    setLoading(true);
+    try {
+      var res = await fetch('/api/contact.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, type, subject, message }) });
+      var data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Unable to send your message right now.');
+      showSuccess(data.message || "Message sent! We'll be in touch soon.");
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally { setLoading(false); }
+  });
+}());
+</script>
 <script src="../assets/js/nav-state.js"></script>
 </body></html>
-
-
-
-

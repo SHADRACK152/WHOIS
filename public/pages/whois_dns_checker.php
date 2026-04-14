@@ -37,33 +37,9 @@ asort($countries);
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>WHOIS | DNS Checker</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<?php require __DIR__ . '/_head.php'; ?>
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script id="tailwind-config">
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        primary: "#000000",
-        surface: "#f9f9f9",
-        "surface-container-low": "#f3f3f3",
-        "surface-container-lowest": "#ffffff",
-        "on-surface": "#1a1c1c",
-        "on-surface-variant": "#474747",
-        "outline-variant": "#c6c6c6"
-      },
-      fontFamily: {
-        headline: ["Manrope"],
-        body: ["Inter"]
-      }
-    }
-  }
-}
-</script>
 <style>
   .hero-bg {
     background:

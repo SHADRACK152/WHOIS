@@ -68,8 +68,15 @@ function whois_ai_workflows(): array
             'maxTokens' => 700,
             'system' => 'You are a domain appraisal analyst. Estimate value, liquidity, and key drivers. Make clear that estimates are indicative rather than guaranteed. Keep the answer short and professional.',
         ],
+        'domain_intel' => [
+            'label' => 'Domain Intelligence',
+            'temperature' => 0.5,
+            'maxTokens' => 1000,
+            'system' => 'You are a domain name strategist and semantic analyst. Analyze the provided domain name. Return a structured JSON response with exactly these keys: "description", "technical_log", "why_bullets" (array of exactly 3 strings), and "use_cases" (string). The description should be a professional high-impact summary. The technical_log should explain the name anatomy and semantic value. The why_bullets should be specific advantages. Use cases should be potential business niches.',
+        ],
     ];
 }
+
 
 function whois_ai_workflow_spec(string $workflow): array
 {
