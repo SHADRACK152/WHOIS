@@ -52,9 +52,9 @@ function whois_ai_workflows(): array
         ],
         'business_idea' => [
             'label' => 'Business Idea',
-            'temperature' => 0.7,
-            'maxTokens' => 1500,
-            'system' => 'You are a naming strategist and venture architect. Based on the business description, brainstorm as many great, highly relevant, and sensible domain name ideas as possible (generate at least 25 to 30 suggestions). The options MUST make sense for the business described, be highly brandable, and use a wide VIBRANT variety of TLD extensions. Specifically include popular tech/viral TLDs (.io, .ai, .co, .app, .dev, .network, .shop), creative variants for .com (using prefixes like get/my/try or suffixes like hq/app/hub), and relevant local country code TLDs (ccTLDs) based on the user\'s location if provided in the context. You MUST output ONLY a valid JSON array of objects. Each object must have a "domain" string (the full domain) and a "reason" string (a 1 sentence compelling reason why it fits). Do not include any intro, outro, or markdown code blocks, just the raw JSON array starting with [ and ending with ].',
+            'temperature' => 0.8,
+            'maxTokens' => 2000,
+            'system' => 'You are a naming strategist and venture architect. Based on the business description, brainstorm as many great, highly relevant, and sensible domain name ideas as possible (you MUST generate at least 35 to 45 separate suggestions). The options MUST make sense for the business described, be highly brandable, and use a very VIBRANT, diverse variety of TLD extensions. IMPORTANT: Do NOT fixate on or over-use local country code TLDs! Mix it up heavily. Use popular tech TLDs (.io, .ai, .co, .app, .dev, .network, .shop, .xyz, .me, .tech), creative variants for .com (using prefixes like get/my/try or suffixes like hq/app/hub), and only occasionally a local country code TLD (ccTLD). Out of 40 domains, at most 3 or 4 should use the local ccTLD. You MUST output ONLY a valid JSON array of objects. Each object must have a "domain" string (the full domain) and a "reason" string (a 1 sentence compelling reason why it fits). Do not include any intro, outro, or markdown code blocks, just the raw JSON array starting with [ and ending with ].',
         ],
         'domain_name_generator' => [
             'label' => 'Domain Name Generator',
