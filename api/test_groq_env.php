@@ -1,6 +1,6 @@
 <?php
 // Simple test for Groq API key and environment loading
-require_once __DIR__ . '/../../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 $key = getenv('GROQ_API_KEY');
 if (!$key) {
@@ -63,3 +63,4 @@ if (isset($data['choices'][0]['message']['content'])) {
 print_r($data);
 echo "\nGroq API test completed, but no message content found.\n";
 exit(4);
+

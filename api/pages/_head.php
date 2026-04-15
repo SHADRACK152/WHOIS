@@ -10,12 +10,11 @@ declare(strict_types=1);
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 $assetBase = '.';
 
-if (strpos($scriptName, '/api/pages/') !== false || strpos($scriptName, '/pages/') !== false) {
-    $assetBase = '../..';
-} elseif (strpos($scriptName, '/api/admin/') !== false || strpos($scriptName, '/admin/') !== false) {
-    $assetBase = '../..';
-} elseif (strpos($scriptName, '/api/') !== false) {
+if (strpos($scriptName, '/pages/') !== false || strpos($scriptName, '/admin/') !== false) {
     $assetBase = '..';
+} elseif (strpos($scriptName, '/api/') !== false) {
+    // API endpoints moved to depth 1, so they also need '.' or '..' relative to root
+    $assetBase = '.'; 
 }
 ?>
 <link rel="icon" type="image/png" href="<?=$assetBase?>/assets/img/favicon.png"/>

@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require_once __DIR__ . '/../../app/db-client.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../app/db-client.php';
 
 // Rate limiting: max 10 contact submissions per IP per hour
 function whois_contact_check_rate_limit(string $ip): bool
@@ -74,3 +74,4 @@ whois_json([
     'stored'  => $stored,
     'message' => 'Thank you ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '! We received your message and will get back to you soon.',
 ]);
+

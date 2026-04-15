@@ -2,8 +2,8 @@
 declare(strict_types=1);
 ini_set('max_execution_time', 0);
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require_once __DIR__ . '/../../app/domain-lookup.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../app/domain-lookup.php';
 
 $input = trim((string) ($_GET['domain'] ?? $_GET['query'] ?? $_GET['q'] ?? ''));
 

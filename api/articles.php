@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require_once __DIR__ . '/../../app/db-client.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../app/db-client.php';
 
 try {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -89,3 +89,4 @@ try {
 } catch (Throwable $e) {
     whois_json(['ok' => false, 'error' => $e->getMessage()]);
 }
+

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 $siteMap = whois_site_map();
 $groupFilter = strtolower(trim((string) ($_GET['group'] ?? '')));
@@ -34,3 +34,4 @@ whois_json([
     'count' => count($pages),
     'pages' => $pages,
 ]);
+

@@ -4,8 +4,8 @@
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require_once __DIR__ . '/../../app/domain-appraisal.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../app/domain-appraisal.php';
 
 $domain = trim((string) ($_GET['domain'] ?? ''));
 if ($domain === '') {
@@ -31,3 +31,4 @@ try {
     http_response_code(500);
     echo json_encode(['error' => 'Appraisal failed', 'details' => $e->getMessage()]);
 }
+

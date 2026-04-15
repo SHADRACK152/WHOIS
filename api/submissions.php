@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../../app/db-client.php';
-require_once __DIR__ . '/../../app/admin-auth.php';
+require __DIR__ . '/../app/db-client.php';
+require_once __DIR__ . '/../app/admin-auth.php';
 
 $rawInput = file_get_contents('php://input');
 $payload = [];

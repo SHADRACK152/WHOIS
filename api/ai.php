@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require __DIR__ . '/../../app/grok-client.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require __DIR__ . '/../app/grok-client.php';
 
 $rawInput = file_get_contents('php://input');
 $payload = [];

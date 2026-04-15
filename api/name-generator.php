@@ -17,10 +17,10 @@ register_shutdown_function(function() {
     }
 });
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require __DIR__ . '/../../app/grok-client.php';
-require_once __DIR__ . '/../../app/truehost-client.php';
-require_once __DIR__ . '/../../app/currency.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require __DIR__ . '/../app/grok-client.php';
+require_once __DIR__ . '/../app/truehost-client.php';
+require_once __DIR__ . '/../app/currency.php';
 
 $rawInput = file_get_contents('php://input');
 $payload = [];
@@ -192,3 +192,4 @@ try {
         'error' => $exception->getMessage(),
     ], 502);
 }
+

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../app/bootstrap.php';
-require __DIR__ . '/../../app/dns-checker-nodes.php';
-require __DIR__ . '/../../app/dns-propagation.php';
+require_once __DIR__ . '/../app/bootstrap.php';
+require __DIR__ . '/../app/dns-checker-nodes.php';
+require __DIR__ . '/../app/dns-propagation.php';
 
 $rawDomainInput = strtolower(trim((string) ($_GET['domain'] ?? '')));
 $domain = $rawDomainInput;
@@ -136,3 +136,4 @@ whois_json([
     ],
     'results' => $results,
 ]);
+
