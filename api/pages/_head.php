@@ -10,7 +10,11 @@ declare(strict_types=1);
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 $assetBase = '.';
 
-if (strpos($scriptName, '/pages/') !== false || strpos($scriptName, '/api/') !== false) {
+if (strpos($scriptName, '/api/pages/') !== false || strpos($scriptName, '/pages/') !== false) {
+    $assetBase = '../..';
+} elseif (strpos($scriptName, '/api/admin/') !== false || strpos($scriptName, '/admin/') !== false) {
+    $assetBase = '../..';
+} elseif (strpos($scriptName, '/api/') !== false) {
     $assetBase = '..';
 }
 ?>
