@@ -26,6 +26,10 @@ try {
         'estimatedValue' => $appraisal['estimatedValue'],
         'displayCurrency' => $appraisal['displayCurrency'],
         'lookup' => $appraisal['lookup'],
+        'ai_price' => $appraisal['ai_price'] ?? null,
+        'ai_insight' => !empty($appraisal['ai_insight']) ? $appraisal['ai_insight'] : ($appraisal['aiInsight']['summary'] ?? null),
+        'ai_confidence' => $appraisal['ai_confidence'] ?? null,
+        'ai_tags' => $appraisal['ai_tags'] ?? [],
     ]);
 } catch (Throwable $e) {
     http_response_code(500);

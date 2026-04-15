@@ -406,12 +406,26 @@ header('Content-Type: text/html; charset=utf-8');
 
   function updateCard(data) {
     domainLabel.textContent = data.domain || 'Unknown';
-    valueLabel.textContent = data.estimatedValue || '—';
+    
+    // Prioritize AI Price Range if available, otherwise use formatted single value
+    var displayPrice = data.ai_price || data.estimatedValue || '—';
+    valueLabel.textContent = displayPrice;
+    
     scoreLabel.textContent = data.score != null ? data.score : '—';
-    currencyLabel.textContent = (data.displayCurrency || 'USD') + ' / Annual';
-    statusLabel.textContent = 'Analysis Complete';
+    currencyLabel.textContent = (data.displayCurrency || 'USD') + (data.ai_price ? '' : ' / Annual');
+    
+    // Add AI Insight if available
+    if (data.ai_insight) {
+       statusLabel.textContent = 'AI Expert Appraisal';
+       statusLabel.className = 'bg-black text-white px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter mb-2 inline-block';
+    } else {
+       statusLabel.textContent = 'Analysis Complete';
+       statusLabel.className = 'bg-surface-container-high px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter mb-2 inline-block';
+    }
+
     var percent = Math.max(0, Math.min(1, (parseFloat(data.score) || 0) / 10));
     scoreBar.setAttribute('stroke-dashoffset', (238.76 * (1 - percent)).toFixed(1));
+    
     if (data.lookup && data.lookup.status === 'available') {
       availabilityLabel.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full"></span> Available';
       availabilityLabel.className = 'bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1';
@@ -419,29 +433,41 @@ header('Content-Type: text/html; charset=utf-8');
       availabilityLabel.innerHTML = '<span class="w-2 h-2 bg-amber-400 rounded-full"></span> Registered';
       availabilityLabel.className = 'bg-amber-50 text-amber-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1';
     }
+    
     alternativesDiv.innerHTML = '';
     if (data.root) {
       ['.ai', '.io', '.co', '.app'].forEach(function(tld) {
         if (data.domain && data.domain.endsWith(tld)) return;
+        var altDomain = data.root + tld;
         var btn = document.createElement('button');
         btn.className = 'px-3 py-1.5 bg-surface rounded-xl text-xs font-bold border border-outline-variant/30 hover:border-primary transition-colors';
-        btn.textContent = data.root + tld;
+        btn.textContent = altDomain;
+        btn.onclick = function() {
+            domainInput.value = altDomain;
+            form.dispatchEvent(new Event('submit'));
+        };
         alternativesDiv.appendChild(btn);
       });
     }
     detailsBtn.href = '<?=$assetBase?>/pages/whois_domain_appraisal_tool.php?domain=' + encodeURIComponent(data.domain || '');
   }
 
-  form.addEventListener('submit', function() {
+  form.addEventListener('submit', function(e) {
+    if (e) e.preventDefault();
     var domain = domainInput.value.trim();
     if (!domain) { domainInput.focus(); return; }
+    
+    // Get currency from main hero form if available, or default to USD
+    var currency = document.getElementById('hero-currency-field') ? document.getElementById('hero-currency-field').value : 'USD';
+    
     setSkeleton(true);
-    fetch('<?=$assetBase?>/api/appraise.php?domain=' + encodeURIComponent(domain))
+    fetch('<?=$assetBase?>/api/appraise.php?domain=' + encodeURIComponent(domain) + '&currency=' + encodeURIComponent(currency))
       .then(function(r) { return r.json(); })
       .then(function(data) { setSkeleton(false); updateCard(data); })
       .catch(function() {
         setSkeleton(false);
         domainLabel.textContent = 'Error'; valueLabel.textContent = '—'; scoreLabel.textContent = '—';
+        statusLabel.textContent = 'Service Unavailable';
         alternativesDiv.innerHTML = '';
       });
   });
