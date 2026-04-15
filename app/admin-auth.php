@@ -7,6 +7,16 @@ require_once __DIR__ . '/bootstrap.php';
 function whois_admin_session_start(): void
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
+        $cookieParams = session_get_cookie_params();
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+        session_set_cookie_params([
+            'lifetime' => $cookieParams['lifetime'],
+            'path' => $cookieParams['path'],
+            'domain' => $cookieParams['domain'],
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
         session_start();
     }
 }

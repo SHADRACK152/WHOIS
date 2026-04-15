@@ -6,9 +6,17 @@
  * Do NOT add those tags here — they exist in each individual page.
  */
 declare(strict_types=1);
+// Compute asset base path relative to this file's location
+$assetBase = dirname($_SERVER['SCRIPT_NAME']);
+if (substr($assetBase, -6) === '/pages') {
+    $assetBase = substr($assetBase, 0, -6);
+}
+if ($assetBase === '' || $assetBase === '/') {
+    $assetBase = '.';
+}
 ?>
-<link rel="icon" type="image/png" href="/assets/img/favicon.png"/>
-<link rel="apple-touch-icon" href="/assets/img/whois-icon.png"/>
+<link rel="icon" type="image/png" href="<?=$assetBase?>/assets/img/favicon.png"/>
+<link rel="apple-touch-icon" href="<?=$assetBase?>/assets/img/whois-icon.png"/>
 <!-- Preconnect for font performance -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -17,9 +25,9 @@ declare(strict_types=1);
 <!-- Material Symbols — single import, no duplicates -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet"/>
 <!-- Tailwind CSS — served locally, no CDN round-trip -->
-<script src="/assets/js/tailwind.cdn.js"></script>
+<script src="<?=$assetBase?>/assets/js/tailwind.cdn.js"></script>
 <!-- Shared Tailwind theme — single source of truth for all custom colors -->
-<script src="/assets/js/tailwind-site-config.js"></script>
+<script src="<?=$assetBase?>/assets/js/tailwind-site-config.js"></script>
 <style>
     .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -57,7 +65,7 @@ declare(strict_types=1);
     @media (max-width: 1024px) {
         .hero-grid { grid-template-columns: 1fr; }
     }
-    .hero-panel {
+    .hero-panel { 
         background: rgba(255, 255, 255, 0.9);
         border: 1px solid rgba(198, 198, 198, 0.55);
         box-shadow: 0 30px 80px rgba(0, 0, 0, 0.06);

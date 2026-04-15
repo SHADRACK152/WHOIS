@@ -38,12 +38,21 @@ if (whois_db_is_available()) {
 }
 
 whois_admin_render_page([
-    'title'       => 'WHOIS.ARCHITECT | Admin Overview',
-    'active'      => 'overview',
-    'eyebrow'     => 'Admin Dashboard',
-    'headline'    => 'Operations Overview',
-    'description' => 'Live stats from your Neon PostgreSQL database.',
+  'title'       => 'WHOIS.ARCHITECT | Admin Overview',
+  'active'      => 'overview',
+  'eyebrow'     => 'Admin Dashboard',
+  'headline'    => 'Operations Overview',
+  'description' => 'Live stats from your Neon PostgreSQL database.',
 ], function () use ($pendingSubmissions, $liveListings, $soldListings, $totalBids, $recentSubmissions): void {
+  // Session debug panel for troubleshooting
+  if (isset($_SESSION)) {
+    echo '<div style="background:#fffbe6;border:1px solid #ffe58f;padding:10px 18px;margin-bottom:18px;border-radius:10px;color:#ad8b00;font-size:13px;">';
+    echo '<b>Session Debug:</b> ';
+    echo 'Session ID: <code>' . session_id() . '</code> | ';
+    echo 'Authenticated: <code>' . (!empty($_SESSION['whois_admin_authenticated']) ? 'YES' : 'NO') . '</code> | ';
+    echo 'Username: <code>' . htmlspecialchars((string)($_SESSION['whois_admin_username'] ?? ''), ENT_QUOTES, 'UTF-8') . '</code>';
+    echo '</div>';
+  }
     ?>
     <!-- Live Stats -->
     <section class="grid gap-6 lg:grid-cols-4">

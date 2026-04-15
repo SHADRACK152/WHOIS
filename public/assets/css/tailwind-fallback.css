@@ -1,0 +1,92 @@
+/* Fallback Tailwind CSS for WHOIS Auctions Page */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #f9f9f9;
+  color: #222;
+}
+
+.text-primary { color: #2563eb !important; }
+.text-on-surface { color: #222 !important; }
+.text-on-surface-variant { color: #555 !important; }
+.text-outline { color: #bdbdbd !important; }
+.bg-primary { background: #2563eb !important; }
+.bg-surface { background: #fff !important; }
+.bg-surface-container { background: #f3f4f6 !important; }
+.bg-surface-container-low { background: #f9fafb !important; }
+.bg-surface-container-lowest { background: #f9f9f9 !important; }
+.bg-surface-container-high { background: #e5e7eb !important; }
+.bg-primary-container { background: #1e40af !important; }
+.bg-secondary { background: #fbbf24 !important; }
+
+.rounded-full { border-radius: 9999px !important; }
+.rounded-3xl { border-radius: 1.5rem !important; }
+.rounded-2xl { border-radius: 1rem !important; }
+.rounded-xl { border-radius: 0.75rem !important; }
+.rounded-[1.4rem] { border-radius: 1.4rem !important; }
+.rounded-[2rem] { border-radius: 2rem !important; }
+
+.font-bold { font-weight: 700 !important; }
+.font-extrabold { font-weight: 800 !important; }
+.font-black { font-weight: 900 !important; }
+.font-body { font-family: 'Inter', system-ui, sans-serif !important; }
+.font-headline { font-family: 'Inter', system-ui, sans-serif !important; }
+
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05) !important; }
+.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05) !important; }
+
+.border { border-width: 1px !important; border-style: solid !important; border-color: #e5e7eb !important; }
+.border-outline-variant { border-color: #bdbdbd !important; }
+.border-dashed { border-style: dashed !important; }
+
+.p-1 { padding: 0.25rem !important; }
+.p-3 { padding: 0.75rem !important; }
+.p-4 { padding: 1rem !important; }
+.p-6 { padding: 1.5rem !important; }
+.p-8 { padding: 2rem !important; }
+.p-10 { padding: 2.5rem !important; }
+.p-12 { padding: 3rem !important; }
+.p-16 { padding: 4rem !important; }
+
+.pt-32 { padding-top: 8rem !important; }
+.pb-20 { padding-bottom: 5rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-6 { margin-bottom: 1.5rem !important; }
+.mb-8 { margin-bottom: 2rem !important; }
+.mb-12 { margin-bottom: 3rem !important; }
+.mb-24 { margin-bottom: 6rem !important; }
+
+.max-w-2xl { max-width: 42rem !important; }
+.max-w-3xl { max-width: 48rem !important; }
+.max-w-screen-2xl { max-width: 1536px !important; }
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+
+.text-center { text-align: center !important; }
+.text-lg { font-size: 1.125rem !important; }
+.text-xl { font-size: 1.25rem !important; }
+.text-3xl { font-size: 1.875rem !important; }
+.text-4xl { font-size: 2.25rem !important; }
+.text-6xl { font-size: 3.75rem !important; }
+.text-7xl { font-size: 4.5rem !important; }
+
+.tracking-tight { letter-spacing: -0.015em !important; }
+.tracking-tighter { letter-spacing: -0.03em !important; }
+
+.transition-colors { transition: color 0.2s, background 0.2s !important; }
+.transition-transform { transition: transform 0.2s !important; }
+
+.hover\:bg-primary:hover { background: #2563eb !important; color: #fff !important; }
+.hover\:bg-surface-container:hover { background: #f3f4f6 !important; }
+.hover\:scale-105:hover { transform: scale(1.05) !important; }
+
+@media (min-width: 768px) {
+  .md\:text-7xl { font-size: 4.5rem !important; }
+  .md\:mb-0 { margin-bottom: 0 !important; }
+  .md\:flex-row { flex-direction: row !important; }
+  .md\:p-16 { padding: 4rem !important; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:px-20 { padding-left: 5rem !important; padding-right: 5rem !important; }
+}
