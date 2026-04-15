@@ -5,6 +5,10 @@
     "api/**/*.php": {
       "runtime": "vercel-php@0.9.0",
       "includeFiles": "{app,public}/**"
+    },
+    "public/**/*.php": {
+      "runtime": "vercel-php@0.9.0",
+      "includeFiles": "{app,public}/**"
     }
   },
   "routes": [
