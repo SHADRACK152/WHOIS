@@ -12,11 +12,15 @@ $selectedCurrency = whois_currency_normalize_code((string) ($_GET['currency'] ??
 // Run the full appraisal logic (which now includes Grok AI internally)
 $appraisal = whois_domain_appraisal_analyze($initialInput, $selectedCurrency);
 
+// Compute asset base path relative to this file's location (duplicated from _head.php to allow early use)
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+$assetBase = (strpos($scriptName, '/pages/') !== false || strpos($scriptName, '/admin/') !== false) ? '..' : '.';
+
 $domain = (string) ($appraisal['domain'] ?? 'trovalabs.com');
-$reportUrl = '<?=$assetBase?>/pages/whois_comprehensive_search_results.php?query=' . rawurlencode($domain) . '&currency=' . rawurlencode($selectedCurrency);
-$submitUrl = '<?=$assetBase?>/pages/whois_submit_domain_for_auction.php?domain=' . rawurlencode($domain);
-$marketplaceUrl = '<?=$assetBase?>/pages/whois_premium_domain_marketplace.php?query=' . rawurlencode((string) ($appraisal['rootWord'] ?? $domain));
-$assistantUrl = '<?=$assetBase?>/pages/whois_ai_brand_assistant.php';
+$reportUrl = $assetBase . '/pages/whois_comprehensive_search_results.php?query=' . rawurlencode($domain) . '&currency=' . rawurlencode($selectedCurrency);
+$submitUrl = $assetBase . '/pages/whois_submit_domain_for_auction.php?domain=' . rawurlencode($domain);
+$marketplaceUrl = $assetBase . '/pages/whois_premium_domain_marketplace.php?query=' . rawurlencode((string) ($appraisal['rootWord'] ?? $domain));
+$assistantUrl = $assetBase . '/pages/whois_ai_brand_assistant.php';
 
 $aiEnabled = function_exists('whois_ai_config') && whois_ai_config()['apiKey'] !== null;
 
