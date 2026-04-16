@@ -30,6 +30,8 @@ try {
         'ai_insight' => !empty($appraisal['ai_insight']) ? $appraisal['ai_insight'] : ($appraisal['aiInsight']['summary'] ?? null),
         'ai_confidence' => $appraisal['ai_confidence'] ?? null,
         'ai_tags' => $appraisal['ai_tags'] ?? [],
+        'comparableSales' => $appraisal['comparableSales'] ?? [],
+        'endUsers' => $appraisal['endUsers'] ?? [],
     ]);
 } catch (Throwable $e) {
     http_response_code(500);

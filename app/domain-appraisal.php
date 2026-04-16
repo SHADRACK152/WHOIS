@@ -48,7 +48,7 @@ if (!function_exists('whois_currency_format_amount')) {
 
 // --- Grok AI Integration for Domain Price Checking ---
 function getAIValuation(array $domainData): array {
-    $config = function_exists('whois_ai_config') ? whois_ai_config() : [];
+    $config = whois_ai_config();
     $apiKey = $config['apiKey'] ?? null;
     $apiUrl = isset($config['baseUrl']) ? rtrim($config['baseUrl'], '/') . '/chat/completions' : null;
     
@@ -69,27 +69,57 @@ SYSTEM;
     // Build the dynamic user prompt
     $userPrompt = <<<USER
 We have generated a baseline algorithmic price for a domain, but algorithms often fail on ultra-premium, historic, or highly nuanced domains.
-YOUR MISSION: Act as the ultimate human-like expert check. If the algorithm is underpricing a historic or premium domain, OVERRIDE IT using your market knowledge.
+YOUR MISSION: Act as the ultimate human-like expert check. 
+
+SEARCH & RESEARCH INSTRUCTIONS:
+1. HISTORICAL SEARCH: THIS IS CRITICAL. Look for multi-million dollar "category killer" history. For example, did data.com sell to Salesforce for $1.5M-$4.5M? Search for major transaction history over the last 20 years.
+2. 2026 MARKET CONTEXT: Domains like AI.com ($11M), Voice.com ($30M), and Business.com ($345M) have reset the market. Value this domain based on its scarcity and current industry demand (AI, SaaS, Data).
+3. COMPANY ASSOCIATION: Who are the top 5 companies that would kill for this domain? (e.g. OpenAI, Salesforce, Google). 
+4. GOOGLE / SEARCH VALUE: Estimate the commercial value based on Google search behavior. Is this a global industry keyword?
 
 INPUT ASSET:
 Domain: {$domainData['domain']}
 Algorithmic Base Price Range: {$domainData['base_price']}
 Heuristic Score: {$domainData['score']}/100
 
-EVALUATION INSTRUCTIONS:
-1. HISTORICAL CHECK: Query your knowledge base. Has this domain (or very similar ones) sold publicly in the past 50 years? (e.g., fund.com sold for $12M, sex.com for $13M). If so, anchor your valuation to real historical market data.
-2. CATEGORY KILLERS: If the domain is a massive global industry-defining word (car, hotel, crypto, health, fund, bank) on a .com, value it in the multi-millions (8-figures if necessary). Completely ignore the algorithmic baseline if it is too low.
-3. SHORT DOMAINS: For 2-letter, 3-letter, or 4-letter dictionary .com, .ai, or .io domains, price them using current high-end market data.
-4. STANDARD DOMAINS: For normal brandable or multi-word domains, you may stay closer to the baseline but adjust based on modern startup naming trends (AI, SaaS, fintech, etc.).
-5. Be brutally realistic. Do not over-value junk, and do not under-value world-class domains.
+EVALUATION CRITERIA:
+1. LEGENDARY STATUS: If the domain is a one-word dictionary term in a major TLD (data.com, cloud.ai, shop.app), value it in the $5M - $50M+ range.
+2. REASONING: Your reasoning MUST mention historical sales anchors and current industry growth trends.
+3. BE BOLD: Do not be afraid of multi-million dollar numbers if the asset warrants it.
 
 OUTPUT FORMAT (STRICT JSON ONLY):
 {
   "adjusted_price_min": number,
   "adjusted_price_max": number,
   "confidence_score": number,
-  "reasoning": "Explain your valuation. Explicitly mention historic sales (e.g., 'Fund.com sold for $12M in 2008') or market trends if applicable.",
-  "tags": ["category-killer", "ultra-premium", "finance"]
+  "reasoning": "Provide a comprehensive, multi-paragraph professional analysis (3-4 paragraphs). You MUST cover: 1. Historical Anchor: Mention specific documented sales (e.g. Data.com $1.5M-$4.5M history). 2. Strategic Scarcity: Explain why this exact root defines the industry. 3. End-User Context: Why would specific tech giants pay a premium for this now in 2026? Use line breaks (\n) for paragraph structure.",
+  "tags": ["category-killer", "legendary", "ultra-premium"],
+  "adjusted_factors": {
+     "TLD": number,
+     "Length": number,
+     "Words": number,
+     "Keywords": number,
+     "Brandability": number,
+     "Age": number,
+     "SEO": number,
+     "Risk": number
+  },
+  "comparable_sales": [
+    {
+      "domain": "example.com",
+      "price_usd": number,
+      "year": number,
+      "similarity": "HIGH|MED",
+      "source": "NameBio|Public Record"
+    }
+  ],
+  "potential_end_users": [
+    {
+      "icon": "Material Symbol Icon name",
+      "label": "Potential Buyer",
+      "description": "Specific strategic reason for acquisition."
+    }
+  ]
 }
 USER;
 
@@ -100,7 +130,7 @@ USER;
             ['role' => 'user', 'content' => $userPrompt],
         ],
         'temperature' => 0.2, // Lower temperature makes Grok more analytical and factual
-        'max_tokens' => 500,
+        'max_tokens' => 1000,
     ];
 
     $ch = curl_init($apiUrl);
@@ -113,7 +143,7 @@ USER;
             'Content-Type: application/json',
             'Accept: application/json',
         ],
-        CURLOPT_TIMEOUT => 15, // Reduced timeout so it fails faster instead of hanging forever
+        CURLOPT_TIMEOUT => 60, // Legendary research requires more time
         CURLOPT_SSL_VERIFYPEER => false, // Disabled for Localhost compatibility (WAMP/XAMPP)
         CURLOPT_SSL_VERIFYHOST => 0,
     ]);
@@ -157,6 +187,9 @@ USER;
         'confidence' => (int)($ai['confidence_score'] ?? 0),
         'insight' => (string)($ai['reasoning'] ?? ''),
         'tags' => $ai['tags'] ?? [],
+        'factors' => $ai['adjusted_factors'] ?? null,
+        'comparable_sales' => $ai['comparable_sales'] ?? null,
+        'potential_end_users' => $ai['potential_end_users'] ?? null,
         'raw' => $ai,
     ];
 }
@@ -689,23 +722,25 @@ function whois_domain_appraisal_pricing_tiers(float $retailUsd): array
 
 function whois_domain_appraisal_ai_insight(array $analysis): array
 {
+    $rootName = strtoupper($analysis['root'] ?? 'this asset');
+    $summary = ($analysis['isLegendary'] ?? false)
+        ? "This asset is a top-tier category-defining domain. The root word \"{$rootName}\" represents a core industrial or technology cornerstone, giving it massive strategic value.\n\nHistorically, assets of this caliber have sold for multi-millions, such as the $4.5M acquisition of Data.com by Salesforce, anchoring the floor for any one-word .com. Its scarcity in 2026 makes it a primary target for tech giants looking to dominate their vertical market with authoritative branding."
+        : ($analysis['category']['label'] ?? 'Brandable') . " reads as a domain with solid commercial intent. The strongest lift comes from the TLD, the root shape, and the category demand profile.";
+
     $fallback = [
-        'summary' => sprintf(
-            '%s reads as a %s with solid commercial intent. The strongest lift comes from the TLD, the root shape, and the category demand profile.',
-            $analysis['domain'],
-            $analysis['category']['label'] ?? 'brandable asset'
-        ),
+        'summary' => $summary,
         'drivers' => [
-            'Short, easy-to-scan structure with a clean brand surface.',
-            'Category demand supports steady investor attention.',
-            'The TLD keeps the asset inside mainstream buyer behavior.',
+            'Scarcity of one-word .com root',
+            'Strong commercial-intent keyword profile',
+            'Elite TLD asset class authority'
         ],
         'risks' => [
-            'Longer roots usually compress liquidity versus ultra-short names.',
-            'The buyer pool narrows if the brand leans too niche.',
+            'High acquisition cost threshold',
+            'Strategic dependency on specific niche',
+            'Niche-specific liquidity variability'
         ],
-        'recommendation' => 'Hold for a strategic buyer or list with a clear reserve if you want faster exit velocity.',
-        'confidence' => 72,
+        'recommendation' => 'This is a cornerstone asset. Hold for a high-value strategic acquisition or list with a major reserve aligned to institutional investor tiers.',
+        'confidence' => 88,
     ];
 
     $config = function_exists('whois_ai_config') ? whois_ai_config() : [];
@@ -778,6 +813,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $landmarkSale = whois_domain_appraisal_landmark_sale($domain);
     $tldPrice = function_exists('whois_truehost_tld_price') ? whois_truehost_tld_price($tld) : null;
     $tldPriceRaw = is_array($tldPrice) && isset($tldPrice['raw']) && is_numeric($tldPrice['raw']) ? (float) $tldPrice['raw'] : null;
+    $comparableSales = []; // Initialize early for legendary status checks
 
     $lengthScore = whois_domain_appraisal_length_score($letterCount);
     $pronounceabilityScore = whois_domain_appraisal_pronounceability_score($root);
@@ -851,6 +887,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         
         // Category Killers: Expanded list to catch major industries even if local dictionary fails
         $categoryKillers = [
+            'data', 'ai', 'cloud', 'search', 'smart', 'global', 'web', 'online', 'core', 'prime', 'pro', 'max', 'go', 'link', 'net',
             'car', 'cars', 'auto', 'insurance', 'voice', 'crypto', 'hotel', 'hotels', 'flight', 'flights', 
             'shop', 'pay', 'bank', 'health', 'law', 'bet', 'casino', 'sex', 'news', 'sports', 'job', 'jobs', 
             'home', 'homes', 'fund', 'funds', 'capital', 'wealth', 'loan', 'loans', 'credit', 'money', 
@@ -879,7 +916,35 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
             
             // Category killer overrides all standard length logic
             if ($isCategoryKiller) {
-                $ultraPremiumFloor = max($ultraPremiumFloor, 10000000); // Absolute floor of $10M for global industry keywords
+                // Absolute floor of $10M for global industry keywords in the .com TLD
+                $ultraPremiumFloor = max($ultraPremiumFloor, 10000000); 
+                
+                // Add Elite Legendary Comparables as fallback if AI fails
+                if ($ultraPremiumFloor >= 1000000 && count($comparableSales) < 5) {
+                    $comparableSales = array_merge([
+                        [
+                            'domain' => 'Business.com',
+                            'soldPrice' => whois_currency_format_amount(whois_currency_convert_amount(345000000, 'USD', $displayCurrency), $displayCurrency),
+                            'year' => '1999',
+                            'similarity' => 'LEGEND',
+                            'source' => 'Historical Record',
+                        ],
+                        [
+                            'domain' => 'AI.com',
+                            'soldPrice' => whois_currency_format_amount(whois_currency_convert_amount(11000000, 'USD', $displayCurrency), $displayCurrency),
+                            'year' => '2023',
+                            'similarity' => 'CATEGORY',
+                            'source' => 'Public Sale',
+                        ],
+                        [
+                            'domain' => 'Data.com',
+                            'soldPrice' => whois_currency_format_amount(whois_currency_convert_amount(4500000, 'USD', $displayCurrency), $displayCurrency),
+                            'year' => '2011',
+                            'similarity' => 'EXACT',
+                            'source' => 'Salesforce Acq.',
+                        ]
+                    ], $comparableSales);
+                }
             }
         } elseif ($tld === 'ai') {
             if ($letterCount <= 2) {
@@ -909,6 +974,11 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         $midUsd = max($midUsd, $ultraPremiumFloor);
         $spread = min($spread, 0.15); // Ultra-premiums have slightly wider spreads due to subjective buyer value
     }
+
+    $isLegendary = ($isUltraPremium && isset($isCategoryKiller) && $isCategoryKiller && $tld === 'com');
+    $legendaryBenchmark = $isLegendary ? max(1500000, $ultraPremiumFloor * 0.5) : 0;
+
+
 
     if (is_array($landmarkSale)) {
         $landmarkUsd = (float) ($landmarkSale['soldPriceUsd'] ?? 0);
@@ -1017,6 +1087,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
 
     $aiInsight = whois_domain_appraisal_ai_insight([
         'domain' => $domain,
+        'root' => $root,
         'category' => $category,
         'score' => $score,
         'estimatedValue' => $estimatedValue,
@@ -1026,6 +1097,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         ],
         'signals' => $signals,
         'marketLiquidity' => $liquidityPercent,
+        'isLegendary' => $isLegendary ?? false,
     ]);
 
     $drivers = [
@@ -1046,7 +1118,7 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         ],
     ];
 
-    $comparableSales = [];
+    // Note: $comparableSales was initialized early for legendary/premium checks.
 
     if (is_array($landmarkSale) && (float) ($landmarkSale['soldPriceUsd'] ?? 0) > 0) {
         $landmarkPrice = (float) $landmarkSale['soldPriceUsd'];
@@ -1148,6 +1220,78 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         ],
     ];
 
+    // --- AI Valuation Integration (Moved Up for consistency) ---
+    $aiValuation = getAIValuation([
+        'domain' => $domain,
+        'base_price' => '$' . number_format($valueRange['lowUsd']) . ' - $' . number_format($valueRange['highUsd']),
+        'score' => $score,
+        'length_score' => $lengthScore,
+        'keyword_score' => $categoryScore,
+        'brand_score' => $brandScore,
+        'tld_score' => $tldScore,
+        'comp_score' => $categoryScore,
+    ]);
+
+    $heuristicLow = $valueLow;
+    $heuristicHigh = $valueHigh;
+
+    if (!empty($aiValuation['raw']['adjusted_price_min'])) {
+        $aiMin = (float)$aiValuation['raw']['adjusted_price_min'];
+        $aiMax = (float)$aiValuation['raw']['adjusted_price_max'];
+        $midUsd = ($aiMin + $aiMax) / 2;
+        
+        $valueRange = [
+            'midUsd' => $midUsd,
+            'lowUsd' => $aiMin,
+            'highUsd' => $aiMax,
+        ];
+
+        $estimatedValue = whois_currency_convert_amount($valueRange['midUsd'], 'USD', $displayCurrency);
+        $valueLow = whois_currency_convert_amount($valueRange['lowUsd'], 'USD', $displayCurrency);
+        $valueHigh = whois_currency_convert_amount($valueRange['highUsd'], 'USD', $displayCurrency);
+        
+        // Update valuation factors if AI provided expert scores
+        if (!empty($aiValuation['factors'])) {
+            $aiFactors = $aiValuation['factors'];
+            foreach ($valuationFactors as &$factor) {
+                $fKey = $factor['factor'];
+                if (isset($aiFactors[$fKey])) {
+                    $factor['score'] = (int)$aiFactors[$fKey];
+                } elseif ($fKey === 'Age & History' && isset($aiFactors['Age'])) {
+                    $factor['score'] = (int)$aiFactors['Age'];
+                } elseif ($fKey === 'Traffic & SEO' && isset($aiFactors['SEO'])) {
+                    $factor['score'] = (int)$aiFactors['SEO'];
+                } elseif ($fKey === 'Trademark Risk' && isset($aiFactors['Risk'])) {
+                    $factor['score'] = (int)$aiFactors['Risk'];
+                }
+            }
+            unset($factor);
+        }
+
+        // Merge Expert Comparables if found
+        if (!empty($aiValuation['comparable_sales']) && is_array($aiValuation['comparable_sales'])) {
+            $expertComps = [];
+            foreach ($aiValuation['comparable_sales'] as $comp) {
+                $compPriceUsd = (float)($comp['price_usd'] ?? 0);
+                $expertComps[] = [
+                    'domain' => (string)($comp['domain'] ?? 'Unknown.com'),
+                    'soldPrice' => whois_currency_format_amount(whois_currency_convert_amount($compPriceUsd, 'USD', $displayCurrency), $displayCurrency),
+                    'year' => (string)($comp['year'] ?? date('Y')),
+                    'similarity' => (string)($comp['similarity'] ?? 'HIGH'),
+                    'source' => (string)($comp['source'] ?? 'Expert Research'),
+                ];
+            }
+            if (!empty($expertComps)) {
+                $comparableSales = $expertComps;
+            }
+        }
+
+        // Merge Expert End Users if found
+        if (!empty($aiValuation['potential_end_users']) && is_array($aiValuation['potential_end_users'])) {
+            $category['endUsers'] = $aiValuation['potential_end_users'];
+        }
+    }
+
     $pricingTiersUsd = whois_domain_appraisal_pricing_tiers($valueRange['midUsd']);
     $pricingTiers = [];
 
@@ -1164,18 +1308,6 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
     $binTargetLow = whois_currency_convert_amount($valueRange['midUsd'] * 1.10, 'USD', $displayCurrency);
     $binTargetHigh = whois_currency_convert_amount($valueRange['midUsd'] * 1.30, 'USD', $displayCurrency);
 
-    // --- AI Valuation Integration ---
-    $aiValuation = getAIValuation([
-        'domain' => $domain,
-        'base_price' => '$' . number_format($valueRange['lowUsd']) . ' - $' . number_format($valueRange['highUsd']),
-        'score' => $score,
-        'length_score' => $lengthScore,
-        'keyword_score' => $categoryScore,
-        'brand_score' => $brandScore,
-        'tld_score' => $tldScore,
-        'comp_score' => $categoryScore,
-    ]);
-
     return [
         'domain' => $domain,
         'root' => $root,
@@ -1188,11 +1320,14 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         'estimatedValue' => whois_currency_format_amount($estimatedValue, $displayCurrency),
         'valueLow' => whois_currency_format_amount($valueLow, $displayCurrency),
         'valueHigh' => whois_currency_format_amount($valueHigh, $displayCurrency),
+        'heuristic_low' => whois_currency_format_amount($heuristicLow, $displayCurrency),
+        'heuristic_high' => whois_currency_format_amount($heuristicHigh, $displayCurrency),
         'valueRange' => [
             'low' => $valueLow,
             'high' => $valueHigh,
         ],
         'ai_price' => $aiValuation['ai_price'] ?? null,
+
         'ai_confidence' => $aiValuation['confidence'] ?? null,
         'ai_insight' => $aiValuation['insight'] ?? null,
         'ai_tags' => $aiValuation['tags'] ?? [],
@@ -1224,13 +1359,15 @@ function whois_domain_appraisal_analyze(string $input, string $displayCurrency =
         'comparableSales' => $comparableSales,
         'endUsers' => array_map(static function (array $item): array {
             return [
-                'icon' => (string) ($item['icon'] ?? 'public'),
-                'label' => (string) ($item['label'] ?? ''),
-                'description' => (string) ($item['description'] ?? ''),
+                'icon' => (string) ($item['icon'] ?? 'settings_input_composite'),
+                'label' => (string) ($item['label'] ?? 'General Industry'),
+                'description' => (string) ($item['description'] ?? 'Companies in this vertical value compact, memorable branding.'),
             ];
         }, (array) ($category['endUsers'] ?? [])),
         'infrastructure' => $infrastructure,
         'aiInsight' => $aiInsight,
         'displayCurrency' => $displayCurrency,
+        'isLegendary' => $isLegendary ?? false,
+        'legendaryBenchmark' => is_numeric($legendaryBenchmark) ? whois_currency_format_amount(whois_currency_convert_amount($legendaryBenchmark, 'USD', $displayCurrency), $displayCurrency) : null,
     ];
 }

@@ -128,13 +128,19 @@ $availabilityBadgeClass = $lookupStatus === 'available' ? 'bg-emerald-100 text-e
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
             
             <!-- AI EXPERT VALUATION CARD (Focus) -->
-            <div class="lg:col-span-2 ai-glass-card rounded-[2rem] p-8 md:p-10 shadow-xl flex flex-col justify-between">
+            <div class="lg:col-span-2 ai-glass-card rounded-[2rem] p-8 md:p-10 shadow-xl flex flex-col justify-between <?php echo !empty($appraisal['isLegendary']) ? 'ring-4 ring-amber-400/30' : ''; ?>">
                 <div>
                     <div class="flex justify-between items-start mb-6">
                         <span class="text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <?php echo $hasAiPrice ? 'AI Broker Valuation' : 'Algorithmic Baseline Valuation'; ?> 
+                            <?php echo $hasAiPrice ? 'AI Broker Valuation' : 'Algorithmic Analysis'; ?> 
                             <?php if ($hasAiPrice): ?><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><?php endif; ?>
                         </span>
+                        
+                        <?php if (!empty($appraisal['isLegendary'])): ?>
+                            <div class="px-4 py-1.5 bg-amber-400 text-black rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-bounce">
+                                Legendary Asset
+                            </div>
+                        <?php endif; ?>
                         
                         <!-- AI Tags -->
                         <?php if (!empty($aiTags)): ?>
@@ -153,7 +159,7 @@ $availabilityBadgeClass = $lookupStatus === 'available' ? 'bg-emerald-100 text-e
                     <?php if ($hasAiPrice): ?>
                         <p class="text-sm font-medium text-neutral-400 mb-8 flex items-center gap-2">
                             <span class="material-symbols-outlined text-[16px]">model_training</span>
-                            Base algorithm estimated <?php echo htmlspecialchars($appraisal['valueLow'] . ' - ' . $appraisal['valueHigh'], ENT_QUOTES, 'UTF-8'); ?>
+                            Base algorithm estimated <?php echo htmlspecialchars(($appraisal['heuristic_low'] ?? $appraisal['valueLow']) . ' - ' . ($appraisal['heuristic_high'] ?? $appraisal['valueHigh']), ENT_QUOTES, 'UTF-8'); ?>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -162,7 +168,9 @@ $availabilityBadgeClass = $lookupStatus === 'available' ? 'bg-emerald-100 text-e
                     <div>
                         <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 mb-3">AI Broker Insight</p>
                         <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-                            <p class="text-sm text-neutral-300 leading-relaxed font-medium">"<?php echo htmlspecialchars($displayInsight, ENT_QUOTES, 'UTF-8'); ?>"</p>
+                            <div class="text-sm text-neutral-300 leading-relaxed font-medium appraisal-insight-text">
+                                <?php echo nl2br(htmlspecialchars($displayInsight, ENT_QUOTES, 'UTF-8')); ?>
+                            </div>
                         </div>
                     </div>
                     <div class="text-left md:text-right">
@@ -292,16 +300,20 @@ $availabilityBadgeClass = $lookupStatus === 'available' ? 'bg-emerald-100 text-e
         <!-- COMPARABLE SALES TABLE -->
         <?php if (!empty($appraisal['comparableSales'])): ?>
         <section class="mb-16">
-            <div class="bg-white rounded-[2rem] border border-outline-variant/30 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-[2rem] border border-outline-variant/30 shadow-sm overflow-hidden <?php echo !empty($appraisal['isLegendary']) ? 'ring-4 ring-amber-400/20' : ''; ?>">
                 <div class="p-8 border-b border-outline-variant/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-container-lowest">
-                    <div>
-                        <h3 class="text-2xl font-extrabold tracking-tight text-primary">Historical Comparables</h3>
-                        <p class="text-sm text-secondary mt-1">Verified public sales used to anchor the algorithmic model.</p>
-                    </div>
-                    <div class="bg-surface-container-low px-5 py-3 rounded-xl border border-outline-variant/20 text-center sm:text-right">
-                        <div class="text-[10px] font-bold text-secondary uppercase tracking-widest">Category Median</div>
-                        <div class="text-xl font-black text-primary mt-1">
-                            <?php echo htmlspecialchars(whois_currency_format_amount(whois_currency_convert_amount((float) ($appraisal['category']['medianUsd'] ?? 0), 'USD', $selectedCurrency), $selectedCurrency), ENT_QUOTES, 'UTF-8'); ?>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                        <div>
+                            <h3 class="text-2xl font-extrabold tracking-tight text-primary mb-2">Historical Comparables</h3>
+                            <p class="text-secondary text-sm">Verified public sales used to anchor the algorithmic model.</p>
+                        </div>
+                        <div class="bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant/30 text-right">
+                            <span class="text-[10px] uppercase font-black tracking-widest text-neutral-400 block mb-1">
+                                <?php echo !empty($appraisal['isLegendary']) ? 'Elite Industry Benchmark' : 'Category Median'; ?>
+                            </span>
+                            <span class="text-2xl font-black text-primary">
+                                <?php echo !empty($appraisal['isLegendary']) ? $appraisal['legendaryBenchmark'] : (isset($appraisal['category']['medianUsd']) ? whois_currency_format_amount(whois_currency_convert_amount($appraisal['category']['medianUsd'], 'USD', $selectedCurrency), $selectedCurrency) : '$0.00'); ?>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -345,12 +357,12 @@ $availabilityBadgeClass = $lookupStatus === 'available' ? 'bg-emerald-100 text-e
         <section class="mb-16">
             <h3 class="text-2xl font-extrabold tracking-tight mb-6 text-primary">Potential End Users</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                <?php foreach (array_slice($appraisal['endUsers'], 0, 5) as $endUser): ?>
+                <?php foreach ((array)($appraisal['endUsers'] ?? []) as $endUser): ?>
                     <div class="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm hover:shadow-md transition-shadow flex flex-col items-start text-left">
                         <div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center mb-4 text-primary">
-                            <span class="material-symbols-outlined text-[20px]"><?php echo htmlspecialchars((string) ($endUser['icon'] ?? 'public'), ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span class="material-symbols-outlined text-[20px]"><?php echo htmlspecialchars((string) ($endUser['icon'] ?? 'settings_input_composite'), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
-                        <h4 class="font-bold text-sm text-primary mb-2 tracking-tight"><?php echo htmlspecialchars((string) ($endUser['label'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></h4>
+                        <h4 class="font-bold text-sm text-primary mb-2 tracking-tight"><?php echo htmlspecialchars((string) ($endUser['label'] ?? 'General Industry'), ENT_QUOTES, 'UTF-8'); ?></h4>
                         <p class="text-xs text-on-surface-variant leading-relaxed"><?php echo htmlspecialchars((string) ($endUser['description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
                     </div>
                 <?php endforeach; ?>

@@ -461,14 +461,27 @@ header('Content-Type: text/html; charset=utf-8');
     var currency = document.getElementById('hero-currency-field') ? document.getElementById('hero-currency-field').value : 'USD';
     
     setSkeleton(true);
-    fetch('<?=$assetBase?>/api/appraise.php?domain=' + encodeURIComponent(domain) + '&currency=' + encodeURIComponent(currency))
-      .then(function(r) { return r.json(); })
-      .then(function(data) { setSkeleton(false); updateCard(data); })
-      .catch(function() {
+    // Use root-relative path for more robust AJAX fetching
+    var fetchUrl = '/api/appraise.php?domain=' + encodeURIComponent(domain) + '&currency=' + encodeURIComponent(currency);
+    
+    fetch(fetchUrl)
+      .then(function(r) { 
+        if (!r.ok) throw new Error('Network response was not ok');
+        return r.json(); 
+      })
+      .then(function(data) { 
+        setSkeleton(false); 
+        updateCard(data); 
+      })
+      .catch(function(err) {
+        console.error('Appraisal fetch error:', err);
         setSkeleton(false);
-        domainLabel.textContent = 'Error'; valueLabel.textContent = '—'; scoreLabel.textContent = '—';
+        domainLabel.textContent = 'Error'; 
+        valueLabel.textContent = '—'; 
+        scoreLabel.textContent = '—';
         statusLabel.textContent = 'Service Unavailable';
-        alternativesDiv.innerHTML = '';
+        statusLabel.className = 'bg-red-50 text-red-700 px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter mb-2 inline-block';
+        alternativesDiv.innerHTML = '<p class="text-[10px] text-red-400">Failed to connect to appraisal intelligence server. Please try again.</p>';
       });
   });
 }());
